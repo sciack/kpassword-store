@@ -1,0 +1,1 @@
+-- alter table USER rename to PS_USER;

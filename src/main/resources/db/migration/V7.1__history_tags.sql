@@ -1,0 +1,1 @@
+alter table services_hist add tags text;

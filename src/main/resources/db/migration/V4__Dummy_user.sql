@@ -1,0 +1,1 @@
+insert into PS_User(email, password, fullname, role) values ('dummy@example.com', '1755c49211ba09af4b973bfdd0e2ef48c3d3bfb6', 'Dummy', 'NormalUser');
