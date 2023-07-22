@@ -76,6 +76,7 @@ class AuditEventDeque(
     override suspend fun onEvent(event: AuditMessage) {
         withContext(Dispatchers.IO) {
             launch {
+                LOGGER.info {"Storing event ${event}"}
                 repository.track(event.event)
             }
         }
