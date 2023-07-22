@@ -40,6 +40,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.21.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")
+    implementation("com.arkivanov.decompose:decompose:2.0.0")
+
+    runtimeOnly("com.arkivanov.decompose:decompose-jvm:2.0.0")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("reflect"))

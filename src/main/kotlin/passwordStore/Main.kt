@@ -7,10 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.window.singleWindowApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
@@ -24,13 +21,6 @@ import javax.sql.DataSource
 @Composable
 @Preview
 fun App(di: DI) = withDI(di) {
-    val username = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val password = remember {
-        mutableStateOf(TextFieldValue())
-    }
-
     val user = remember {
         mutableStateOf<User?>(null)
     }
@@ -38,26 +28,36 @@ fun App(di: DI) = withDI(di) {
     val services = remember {
         mutableStateOf<List<Service>>(listOf())
     }
+    val servicesRepository by localDI().instance<ServicesRepository>()
+    val coroutineScope by localDI().instance<CoroutineScope>()
+    val screenState = remember { mutableStateOf<Screen>(Screen.Login) }
 
     MaterialTheme {
-        if (user.value == null) {
-            val di = localDI()
-            loginPane(username = username, password = password, loginFunction = { currentUsername, pwd ->
+        when(val state = screenState.value) {
+            is Screen.Login -> loginPane( loginFunction = { currentUsername, pwd ->
                 submit(di, currentUsername, pwd).onSuccess {
                     user.value = it
+                    screenState.value = Screen.List
                 }
             })
-        } else {
-            servicesTable(services.value)
-            val servicesRepository by localDI().instance<ServicesRepository>()
-            val coroutineScope by localDI().instance<CoroutineScope>()
-            coroutineScope.launch(Dispatchers.IO) {
-                val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
-                withContext(Dispatchers.Main) {
-                    services.value = fetchedResult
+            is Screen.List -> {
+                servicesTable(services.value)
+                coroutineScope.launch(Dispatchers.IO) {
+                    val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
+                    withContext(Dispatchers.Main) {
+                        services.value = fetchedResult
+                    }
                 }
             }
-
+            is Screen.Details -> TODO("THis state is not supported $state")
+            is Screen.NewService -> newService(user.value!!) {
+                coroutineScope.launch {
+                    servicesRepository.store(it)
+                    withContext(Dispatchers.Main) {
+                        screenState.value = Screen.List
+                    }
+                }
+            }
         }
     }
 }
