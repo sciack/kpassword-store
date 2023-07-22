@@ -57,6 +57,7 @@ class ServicesRepository(
     private val eventBus: EventBus,
     private val cryptExtension: CryptExtension
 ) {
+
     fun String.decrypt() = cryptExtension.decrypt(this)
 
     fun String.crypt() = cryptExtension.crypt(this)

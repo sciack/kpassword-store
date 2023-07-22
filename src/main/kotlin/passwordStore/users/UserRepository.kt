@@ -41,11 +41,6 @@ class UserRepository(
     //private val servicesRepository: ServicesRepository,
 ) {
 
-    companion object {
-        private val logger = KotlinLogging.logger {}
-    }
-
-
     @Throws(SQLException::class)
     fun insertUser(user: AddUser) {
         ds.saveOrUpdate("""insert into PS_User (userid, email, password, fullname, role) 
@@ -98,7 +93,7 @@ class UserRepository(
                 userid = rs.getString("userid"),
                 token = "",
                 roles = rs.getString("role").asSetOfRoles()
-            ).also { logger.debug("User: $it") }
+            ).also { LOGGER.debug("User: $it") }
         }
     }
 
@@ -153,4 +148,9 @@ class UserRepository(
         }
     }
      */
+
+    companion object {
+        private val LOGGER = KotlinLogging.logger {}
+
+    }
 }

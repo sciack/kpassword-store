@@ -2,10 +2,7 @@ package passwordStore
 
 import mu.KotlinLogging
 import org.junit.jupiter.api.extension.*
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.instance
-import org.kodein.di.singleton
+import org.kodein.di.*
 import passwordStore.sql.Migration
 import passwordStore.sql.testDatasource
 import javax.sql.DataSource
@@ -23,8 +20,8 @@ class DiInjection : ParameterResolver {
     companion object {
         private val LOGGER = KotlinLogging.logger {  }
         private val testDi = DI {
-            extend(di())
-            bind<DataSource>(overrides = true) {
+            import(diCore())
+            bind<DataSource>() {
                 singleton { testDatasource() }
             }
         }.also {

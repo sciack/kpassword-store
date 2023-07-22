@@ -11,7 +11,7 @@ CREATE TABLE PS_User (
 insert into PS_User(email, password, fullname, role) values ('m.sciachero@gmail.com', 'secret', 'Mirko Sciachero', 'NormalUser');
 insert into PS_User(email, password, fullname, role) values ('admin@test.com', 'secret', 'Admin', 'Administrator');
 
-create table services (
+create table SERVICES (
 	service varchar(255) not null,
 	username varchar(255),
 	password varchar(1024),
@@ -39,3 +39,8 @@ where email = 'm.sciachero@gmail.com';
 update PS_User
 set password = 'd733df8298621972ece9d78ecf4de1743c863f96'
 where email = 'admin@test.com';
+
+
+select * from SERVICES;
+
+commit;
