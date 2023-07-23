@@ -1,18 +1,25 @@
 package passwordStore
 
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
+sealed interface Screen {
+    open val name: String
 
-sealed class Screen : Parcelable {
-    @Parcelize
-    object List : Screen()
+    object List : Screen {
+        override val name: String
+            get() = "List"
+    }
 
-    @Parcelize
-    object Login : Screen()
+    object Login : Screen {
+        override val name: String
+            get() = "Login"
+    }
 
-    @Parcelize
-    data class Details(val service: Service) : Screen()
+    data class Details(val service: Service) : Screen {
+        override val name: String
+            get() = "Details"
+    }
 
-    @Parcelize
-    object NewService: Screen()
+    object NewService: Screen {
+        override val name: String
+            get() = "New Service"
+    }
 }

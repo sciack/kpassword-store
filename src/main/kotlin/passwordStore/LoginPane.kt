@@ -30,21 +30,23 @@ fun loginPane(loginFunction: LoginFunction) {
 
     Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text("Username:", Modifier.align(Alignment.CenterVertically))
+            Text("Username:", Modifier.align(Alignment.CenterVertically).focusable(false))
             Spacer(modifier = Modifier.width(10.dp))
             OutlinedTextField(
                 label = { Text("Username") },
                 value = username.value,
+                singleLine = true,
                 onValueChange = { username.value = it },
-                modifier = Modifier.focusable(true)
+                modifier = Modifier.focusable(true),
             )
         }
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text("Password:", Modifier.align(Alignment.CenterVertically))
+            Text("Password:", Modifier.align(Alignment.CenterVertically).focusable(false))
             Spacer(modifier = Modifier.width(10.dp))
             OutlinedTextField(
                 label = { Text("Password") },
                 value = password.value,
+                singleLine = true,
                 onValueChange = { password.value = it },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.focusable(true)
