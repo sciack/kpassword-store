@@ -1,7 +1,6 @@
 package passwordStore
 
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import passwordStore.users.User
@@ -28,12 +26,12 @@ fun servicesTable(services: List<Service>) {
 @Composable
 private fun serviceList(services: List<Service>) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxWidth()
             .padding(10.dp)
     ) {
         val state = rememberLazyListState()
 
-        LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
+        LazyColumn(Modifier.fillMaxWidth().padding(end = 12.dp), state) {
             items(services) { service ->
                 Text(service.service)
                 Spacer(modifier = Modifier.height(5.dp))
@@ -84,62 +82,58 @@ fun newService(user: User, onSubmit: (Service) -> Unit) {
     val note = remember {
         mutableStateOf(TextFieldValue())
     }
+    Row() {
+        Column(modifier = Modifier.width(600.dp)) {
+            OutlinedTextField(
+                label = { Text("Service") },
+                onValueChange = { service.value = it },
+                value = service.value,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                label = { Text("Username") },
+                value = username.value,
+                onValueChange = { username.value = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
 
-    Row {
-        Text("Service:")
-        Spacer(Modifier.width(16.dp))
-        OutlinedTextField(
-            label = { Text("Service") },
-            onValueChange = { service.value = it },
-            value = service.value
-        )
-    }
-    Row {
-        Text("Username:")
-        Spacer(Modifier.width(16.dp))
-        OutlinedTextField(
-            label = { Text("Username") },
-            value = username.value,
-            onValueChange = { username.value = it }
-        )
-    }
-    Row {
-        Text("Password:")
-        Spacer(Modifier.width(16.dp))
-        OutlinedTextField(
-            label = { Text("Password") },
-            value = password.value,
-            onValueChange = { password.value = it }
-        )
-    }
+            OutlinedTextField(
+                label = { Text("Password") },
+                value = password.value,
+                onValueChange = { password.value = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
-    Row {
-        Text("Note:")
-        Spacer(Modifier.width(16.dp))
-        OutlinedTextField(
-            label = { Text("Note") },
-            value = note.value,
-            minLines = 5,
-            maxLines = 10,
-            onValueChange = { note.value = it }
-        )
-    }
-    Row {
-        Button(
-            onClick = {
-                val service = Service(
-                    service = service.value.text,
-                    username = username.value.text,
-                    password = password.value.text,
-                    note = note.value.text,
-                    userid = user.userid
-                )
-                onSubmit(service)
+
+            OutlinedTextField(
+                label = { Text("Note") },
+                value = note.value,
+                minLines = 5,
+                maxLines = 10,
+                onValueChange = { note.value = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = {
+                    val service = Service(
+                        service = service.value.text,
+                        username = username.value.text,
+                        password = password.value.text,
+                        note = note.value.text,
+                        userid = user.userid,
+
+                        )
+                    onSubmit(service)
+                }
+            ) {
+                Text("Submit")
             }
-        ) {
-            Text("Submit")
         }
     }
-
 }

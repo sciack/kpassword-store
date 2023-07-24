@@ -52,40 +52,48 @@ fun App(di: DI) = withDI(di) {
     val servicesRepository by localDI().instance<ServicesRepository>()
     val coroutineScope by localDI().instance<CoroutineScope>()
     MaterialTheme {
-        Column(Modifier.padding(16.dp).then(Modifier.fillMaxSize())) {
-            topBar(navController, navController.currentScreen.value)
-            NavigationHost(navController) {
-                composable(Screen.Login.name) {
-                    loginPane(loginFunction = { currentUsername, pwd ->
-                        submit(di, currentUsername, pwd).onSuccess {
-                            user.value = it
-                            navController.navigate(Screen.List.name)
-                        }
-                    })
+        Scaffold(Modifier.padding(16.dp).then(Modifier.fillMaxSize()),
+            bottomBar = { bottomBar(navController, navController.currentScreen.value) },
+            topBar = {
+                TopAppBar {
+                    Text("Password Store")
                 }
-
-                composable(Screen.List.name) {
-                    servicesTable(services.value)
-                    coroutineScope.launch(Dispatchers.IO) {
-                        val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
-                        withContext(Dispatchers.Main) {
-                            services.value = fetchedResult
-                        }
-                    }
-                }
-
-                composable(Screen.NewService.name) {
-                    newService(user.value!!) {
-                        coroutineScope.launch {
-                            servicesRepository.store(it)
-                            withContext(Dispatchers.Main) {
+            }) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                NavigationHost(navController) {
+                    composable(Screen.Login.name) {
+                        loginPane(loginFunction = { currentUsername, pwd ->
+                            submit(di, currentUsername, pwd).onSuccess {
+                                user.value = it
                                 navController.navigate(Screen.List.name)
+                            }
+                        })
+                    }
+
+                    composable(Screen.List.name) {
+                        servicesTable(services.value)
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
+                            withContext(Dispatchers.Main) {
+                                services.value = fetchedResult
                             }
                         }
                     }
-                }
 
-            }.build()
+                    composable(Screen.NewService.name) {
+                        newService(user.value!!) {
+                            coroutineScope.launch {
+                                servicesRepository.store(it)
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(Screen.List.name)
+                                }
+                            }
+                        }
+                    }
+
+                }.build()
+            }
+
         }
     }
 }
@@ -93,7 +101,7 @@ fun App(di: DI) = withDI(di) {
 typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
 @Composable
-fun topBar(navController: NavController, title: String = "") {
+fun bottomBar(navController: NavController, title: String = "") {
     BottomAppBar(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -126,6 +134,7 @@ fun topBar(navController: NavController, title: String = "") {
 fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
     val userRepository by di.instance<UserRepository>()
     LOGGER.info {
+
         """Username: ${username.text}
         |Password: ${password.text}
     """.trimMargin()
@@ -137,15 +146,19 @@ fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<U
     }
 }
 
+private val LOGGER = KotlinLogging.logger { }
+
 fun main() {
     val di = di()
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
-    singleWindowApplication(title = "Password Store") {
+    singleWindowApplication(
+        title = "Password Store",
+        exitProcessOnExit = true,
+        resizable = true,
+
+    ) {
         LOGGER.info { "Building the app" }
         App(di)
     }
 }
-
-
-private val LOGGER = KotlinLogging.logger { }
