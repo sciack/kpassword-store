@@ -1,24 +1,28 @@
 package passwordStore
 
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -34,9 +38,9 @@ import passwordStore.users.User
 import passwordStore.utils.tagEditor
 
 @Composable
-fun servicesTable( navController: NavController) {
+fun servicesTable() {
     val serviceModel by localDI().instance<Services>()
-
+    val navController by localDI().instance<NavController>()
     val services = remember {
         serviceModel.services
     }
@@ -87,26 +91,59 @@ fun historyTable(historyEvents: List<Event>, navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun renderService(service: Service, clickEvent: () -> Unit) {
+    val clipboardManager = LocalClipboardManager.current
     Column(
         Modifier.border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(3.dp))
             .padding(5.dp).fillMaxWidth()
     ) {
         FlowRow(
-            Modifier.clickable(
-                onClick = clickEvent
-            ).fillMaxWidth()
+            Modifier.fillMaxWidth()
         ) {
-            Text("Service:", fontWeight = FontWeight.Bold)
-            Spacer(Modifier.width(5.dp))
-            Text(service.service)
-            Spacer(Modifier.width(15.dp))
-            Text("Username", fontWeight = FontWeight.Bold)
-            Spacer(Modifier.width(5.dp))
-            Text(service.username)
-            Spacer(Modifier.width(15.dp))
+            ContextMenuDataProvider(
+                items = {
+                    listOf(
+                        ContextMenuItem("Copy username") {
+                            clipboardManager.setText(
+                                AnnotatedString(service.username)
+                            )
+                        },
+                        ContextMenuItem("Copy password") {
+                            clipboardManager.setText(
+                                AnnotatedString(service.password)
+                            )
+                        }
+                    )
+                }
+            ) {
+                SelectionContainer {
+                    Row {
+                        Column {
+                            Row {
+                                Icon(Icons.Default.Edit,
+                                    contentDescription = "Edit",
+                                    modifier = Modifier.onClick {
+                                        clickEvent()
+                                    })
+                            }
+                        }
+                        Column {
+                            Row {
+                                Text("Service:", fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.width(5.dp))
+                                Text(service.service)
+                                Spacer(Modifier.width(15.dp))
+                                Text("Username:", fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.width(5.dp))
+                                Text(service.username)
+                                Spacer(Modifier.width(15.dp))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

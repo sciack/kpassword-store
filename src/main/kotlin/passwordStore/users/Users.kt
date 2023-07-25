@@ -26,10 +26,7 @@ data class User(val id: Int,
                 val fullName: String,
                 val userid: String,
                 val email: String,
-                val token: String,
                 val roles: Set<Roles> = setOf())
 
 
 data class UpdateUser(var fullName: String = "", var email: String = "", var password: String = "", var userid:String = "")
-
-data class Token(var token: String= "")

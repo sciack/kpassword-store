@@ -10,5 +10,4 @@ fun testUser(): User = User(
     fullName = "test user",
     userid = "testUser",
     roles = setOf(Roles.NormalUser),
-    token = "dfafasd"
 )

@@ -42,10 +42,7 @@ import javax.sql.DataSource
 @Preview
 fun App(di: DI) = withDI(di) {
 
-    val navController by rememberNavController(Screen.Login)
-    val currentScreen by remember {
-        navController.currentScreen
-    }
+    val navController by rememberNavController()
 
     val user = remember {
         mutableStateOf<User?>(null)
@@ -85,7 +82,7 @@ fun App(di: DI) = withDI(di) {
 
                     composable(Screen.List) {
                         services.fetchAll(user.value!!)
-                        servicesTable( navController)
+                        servicesTable()
                     }
 
                     composable(Screen.NewService) {

@@ -91,7 +91,6 @@ class UserRepository(
                 fullName = rs.getString("fullname"),
                 email = rs.getString("email"),
                 userid = rs.getString("userid"),
-                token = "",
                 roles = rs.getString("role").asSetOfRoles()
             ).also { LOGGER.debug("User: $it") }
         }

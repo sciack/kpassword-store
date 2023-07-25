@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import org.kodein.di.compose.localDI
+import org.kodein.di.instance
 import passwordStore.Screen
 
 /**
@@ -48,8 +50,9 @@ class NavController(
  */
 @Composable
 fun rememberNavController(
-    startDestination: Screen,
-    backStackScreens: MutableSet<Screen> = mutableSetOf()
-): MutableState<NavController> = rememberSaveable {
-    mutableStateOf(NavController(startDestination, backStackScreens))
+): MutableState<NavController> {
+    val navController by localDI().instance<NavController>()
+    return rememberSaveable {
+        mutableStateOf(navController)
+    }
 }

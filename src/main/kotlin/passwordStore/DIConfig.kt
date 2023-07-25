@@ -9,6 +9,7 @@ import org.kodein.di.instance
 import org.kodein.di.singleton
 import passwordStore.audit.auditModule
 import passwordStore.crypto.prodCryptExtension
+import passwordStore.navigation.navigation
 import passwordStore.sql.prodDatasource
 import passwordStore.users.UserRepository
 import javax.sql.DataSource
@@ -17,6 +18,7 @@ fun diCore(): DI.Module = DI.Module("core") {
     import(prodCryptExtension)
     import(auditModule)
     import(repositories)
+    import(navigation)
     bind { singleton {
         CoroutineScope(SupervisorJob())
     } }
