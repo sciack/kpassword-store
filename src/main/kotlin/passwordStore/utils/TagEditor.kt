@@ -54,18 +54,26 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                 if (it.text.isNotEmpty() &&
                     it.text.last() in arrayOf(',', '.', ';', ' ', '\n')
                 ) {
-                    tags.value += it.text.dropLast(1)
-                    currentTag.value = TextFieldValue()
-                    onValueChange(tags.value)
+                    assignTag(tags, currentTag, it.text.dropLast(1), onValueChange)
                 } else {
                     currentTag.value = it
                 }
             },
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).onFocusChanged { focusState ->
                 if (!focusState.hasFocus && currentTag.value.text.isNotEmpty()) {
-                    tags.value += currentTag.value.text
-                    currentTag.value = TextFieldValue()
+                    assignTag(tags, currentTag, currentTag.value.text, onValueChange)
                 }
             }.testTag("tags"))
     }
+}
+
+private fun assignTag(
+    tags: MutableState<Set<String>>,
+    currentTag: MutableState<TextFieldValue>,
+    tag: String,
+    onValueChange: (Set<String>) -> Unit
+) {
+    tags.value += tag
+    currentTag.value = TextFieldValue()
+    onValueChange(tags.value)
 }

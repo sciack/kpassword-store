@@ -21,6 +21,12 @@ fun diCore(): DI.Module = DI.Module("core") {
         CoroutineScope(SupervisorJob())
     } }
 
+    bind {
+        singleton {
+            Services(instance(), instance())
+        }
+    }
+
 }
 
 fun di() = DI {

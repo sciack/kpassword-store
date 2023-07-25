@@ -34,7 +34,13 @@ import passwordStore.users.User
 import passwordStore.utils.tagEditor
 
 @Composable
-fun servicesTable(services: List<Service>, navController: NavController) {
+fun servicesTable( navController: NavController) {
+    val serviceModel by localDI().instance<Services>()
+
+    val services = remember {
+        serviceModel.services
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth()
             .padding(10.dp)
@@ -42,7 +48,7 @@ fun servicesTable(services: List<Service>, navController: NavController) {
         val state = rememberLazyListState()
 
         LazyColumn(Modifier.fillMaxWidth().padding(end = 12.dp), state) {
-            items(services) { service ->
+            items(services.value) { service ->
                 renderService(service) {
                     navController.navigate(Screen.Details(service))
                 }

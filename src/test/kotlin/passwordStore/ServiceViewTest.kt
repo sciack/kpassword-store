@@ -99,6 +99,39 @@ class ServiceViewTest {
         }
     }
 
+    @Test
+    fun `should be dirty on tag change`() {
+        runBlocking(Dispatchers.Main) {
+            val clock by di.instance<Clock>()
+            var service = Service(
+                service = "my service",
+                username = "a username",
+                password = "a password",
+                tags = listOf(),
+                note = "someNote",
+                userid = user.userid,
+                dirty = false,
+                score = 0.0,
+                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                    .toJavaLocalDateTime()
+            )
+            rule.setContent {
+                withDI(di) {
+                    passwordStore.newService(user, service) {
+                        service = it
+                    }
+                }
+            }
+            rule.awaitIdle()
+            val expectedService = service.copy(tags= listOf("Tag"), dirty = true)
+            rule.onNodeWithTag("tags").performTextReplacement(expectedService.tags[0])
+            rule.onNodeWithTag("submit").performClick()
+            rule.awaitIdle()
+            assertThat(service, equalTo(expectedService))
+        }
+    }
+
+
     @Test()
     fun `should not update update the service name`() {
         runBlocking(Dispatchers.Main) {

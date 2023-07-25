@@ -2,11 +2,11 @@ package passwordStore.utils
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.isEmpty
 import kotlinx.coroutines.Dispatchers
@@ -88,6 +88,30 @@ class TagTests() {
             rule.awaitIdle()
 
             assertThat(collectedTags, isEmpty)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @Test
+    fun `on focus loose should notify the value change`() {
+        runBlocking(Dispatchers.Main) {
+            val collectedTags = mutableListOf<String>()
+            rule.setContent {
+                val tags = remember {
+                    mutableStateOf(setOf("tag"))
+                }
+                tagEditor(tags) {
+                    collectedTags.clear()
+                    collectedTags.addAll(it)
+                }
+            }
+            rule.awaitIdle()
+
+            rule.onNodeWithTag("tags").performTextInput("testLabel")
+            rule.awaitIdle()
+            rule.onNodeWithTag("tags").performKeyInput { this.pressKey(Key.Tab) }
+            rule.onNodeWithText("testLabel").assertExists()
+            assertContains(collectedTags, "testLabel")
         }
     }
 }

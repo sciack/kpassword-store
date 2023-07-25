@@ -17,11 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.singleWindowApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
@@ -50,10 +51,8 @@ fun App(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-    val services = remember {
-        mutableStateOf<List<Service>>(listOf())
-    }
-    val servicesRepository by localDI().instance<ServicesRepository>()
+
+    val services by localDI().instance<Services>()
     val coroutineScope by localDI().instance<CoroutineScope>()
     MaterialTheme {
         Scaffold(Modifier.padding(16.dp).then(Modifier.fillMaxSize()),
@@ -85,19 +84,14 @@ fun App(di: DI) = withDI(di) {
                     }
 
                     composable(Screen.List) {
-                        servicesTable(services.value, navController)
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
-                            withContext(Dispatchers.Main) {
-                                services.value = fetchedResult
-                            }
-                        }
+                        services.fetchAll(user.value!!)
+                        servicesTable( navController)
                     }
 
                     composable(Screen.NewService) {
                         newService(user.value!!) {
                             coroutineScope.launch {
-                                servicesRepository.store(it)
+                                services.store(it)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(Screen.List)
                                 }
@@ -110,7 +104,7 @@ fun App(di: DI) = withDI(di) {
                         newService(user.value!!, detailsScreen.service) { service ->
                             coroutineScope.launch {
                                 if (service.dirty) {
-                                    servicesRepository.update(service, service.userid)
+                                    services.update(service)
 
                                     withContext(Dispatchers.Main) {
                                         navController.navigate(Screen.List)
@@ -121,15 +115,9 @@ fun App(di: DI) = withDI(di) {
                     }
 
                     composable(Screen.History) {
-                        val event = remember {
-                            mutableStateOf<List<Event>>(listOf())
-                        }
-                        historyTable(event.value, navController)
+                        historyTable(services.historyEvents.value, navController)
                         coroutineScope.launch(Dispatchers.IO) {
-                            val fetchedResult = servicesRepository.history("", exactMatch = false, user = user.value!!)
-                            withContext(Dispatchers.Main) {
-                                event.value = fetchedResult
-                            }
+                            services.history("", exactMatch = false, user = user.value!!)
                         }
                     }
 
@@ -192,14 +180,20 @@ private val LOGGER = KotlinLogging.logger { }
 fun main() {
     val di = di()
     val datasource by di.instance<DataSource>()
+    val coroutineScope by di.instance<CoroutineScope>()
     Migration(datasource).migrate()
-    singleWindowApplication(
-        title = "Password Store",
-        exitProcessOnExit = true,
-        resizable = true,
-
+    application {
+        Window(
+            onCloseRequest = {
+                (datasource as HikariDataSource).close()
+                coroutineScope.cancel("Shutdown")
+                exitApplication()
+            },
+            title = "Password Store",
+            state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
-        LOGGER.info { "Building the app" }
-        App(di)
+            LOGGER.info { "Building the app" }
+            App(di)
+        }
     }
 }

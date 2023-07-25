@@ -209,7 +209,8 @@ class ServicesRepository(
     }
 
     @Throws(SQLException::class)
-    suspend fun update(service: Service, userId: String): Service {
+    suspend fun update(service: Service): Service {
+        val userId = service.userid
         val oldService = findByName(service.service, userId)
         val tagsToAdd = service.tags.map(String::titlecase).toMutableSet().apply {
             removeAll(oldService.tags.map(String::titlecase).toSet())
