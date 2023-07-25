@@ -2,6 +2,7 @@ package passwordStore
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.datetime.Clock
 import org.kodein.di.DI
 import org.kodein.di.bind
 import org.kodein.di.instance
@@ -24,6 +25,11 @@ fun diCore(): DI.Module = DI.Module("core") {
 
 fun di() = DI {
     import(diCore())
+    bind<Clock> {
+        singleton {
+            Clock.System
+        }
+    }
     bind<DataSource> {
         singleton {
             prodDatasource()

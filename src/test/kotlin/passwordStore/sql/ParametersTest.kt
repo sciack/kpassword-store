@@ -2,15 +2,15 @@ package passwordStore.sql
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.throws
 import io.mockk.mockk
 import io.mockk.verifyAll
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.lang.IllegalArgumentException
 import java.sql.PreparedStatement
 import java.sql.Types
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,9 +104,9 @@ class ParametersTest {
         val parameters = Parameters.parse("insert into xyz (foo, bar) values :foo, :bar")
         val ps = mockk<PreparedStatement>(relaxed = true)
         val input = mapOf( "bar" to "bars")
-        assertThrows<IllegalArgumentException> {
+        assertThat( {
             parameters.apply(ps, input)
-        }
+        }, throws<IllegalArgumentException>() )
     }
 
 
@@ -115,8 +115,8 @@ class ParametersTest {
         val parameters = Parameters.parse("insert into xyz (foo, bar) values :bar")
         val ps = mockk<PreparedStatement>(relaxed = true)
         val input = mapOf( "bar" to "bars", "foo" to "foos")
-        assertThrows<IllegalArgumentException> {
+        assertThat( {
             parameters.apply(ps, input)
-        }
+        }, throws<IllegalArgumentException>() )
     }
 }

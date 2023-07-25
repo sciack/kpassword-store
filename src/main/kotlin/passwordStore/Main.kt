@@ -1,9 +1,12 @@
 package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -24,6 +27,7 @@ import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
+import passwordStore.audit.Event
 import passwordStore.navigation.NavController
 import passwordStore.navigation.NavigationHost
 import passwordStore.navigation.composable
@@ -37,7 +41,7 @@ import javax.sql.DataSource
 @Preview
 fun App(di: DI) = withDI(di) {
 
-    val navController by rememberNavController(Screen.Login.name)
+    val navController by rememberNavController(Screen.Login)
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -53,25 +57,35 @@ fun App(di: DI) = withDI(di) {
     val coroutineScope by localDI().instance<CoroutineScope>()
     MaterialTheme {
         Scaffold(Modifier.padding(16.dp).then(Modifier.fillMaxSize()),
-            bottomBar = { bottomBar(navController, navController.currentScreen.value) },
+            bottomBar = { bottomBar(navController, navController.currentScreen.value.name) },
             topBar = {
-                TopAppBar {
+                TopAppBar(navigationIcon = {
+                    if (navController.currentScreen.value.allowBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier.clickable(onClick = {
+                                navController.navigateBack()
+                            })
+                        )
+                    }
+                }, title = {
                     Text("Password Store")
-                }
+                })
             }) {
             Column(modifier = Modifier.fillMaxSize()) {
                 NavigationHost(navController) {
-                    composable(Screen.Login.name) {
+                    composable(Screen.Login) {
                         loginPane(loginFunction = { currentUsername, pwd ->
                             submit(di, currentUsername, pwd).onSuccess {
                                 user.value = it
-                                navController.navigate(Screen.List.name)
+                                navController.navigate(Screen.List)
                             }
                         })
                     }
 
-                    composable(Screen.List.name) {
-                        servicesTable(services.value)
+                    composable(Screen.List) {
+                        servicesTable(services.value, navController)
                         coroutineScope.launch(Dispatchers.IO) {
                             val fetchedResult = servicesRepository.search(user.value?.userid.orEmpty())
                             withContext(Dispatchers.Main) {
@@ -80,13 +94,41 @@ fun App(di: DI) = withDI(di) {
                         }
                     }
 
-                    composable(Screen.NewService.name) {
+                    composable(Screen.NewService) {
                         newService(user.value!!) {
                             coroutineScope.launch {
                                 servicesRepository.store(it)
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.List.name)
+                                    navController.navigate(Screen.List)
                                 }
+                            }
+                        }
+                    }
+
+                    composable(Screen.Details::class) {
+                        val detailsScreen = navController.currentScreen.value as Screen.Details
+                        newService(user.value!!, detailsScreen.service) { service ->
+                            coroutineScope.launch {
+                                if (service.dirty) {
+                                    servicesRepository.update(service, service.userid)
+
+                                    withContext(Dispatchers.Main) {
+                                        navController.navigate(Screen.List)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    composable(Screen.History) {
+                        val event = remember {
+                            mutableStateOf<List<Event>>(listOf())
+                        }
+                        historyTable(event.value, navController)
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val fetchedResult = servicesRepository.history("", exactMatch = false, user = user.value!!)
+                            withContext(Dispatchers.Main) {
+                                event.value = fetchedResult
                             }
                         }
                     }
@@ -105,26 +147,25 @@ fun bottomBar(navController: NavController, title: String = "") {
     BottomAppBar(
         modifier = Modifier.fillMaxWidth()
     ) {
-        if (navController.currentScreen.value != Screen.Login.name) {
+        if (navController.currentScreen.value != Screen.Login) {
             BottomNavigation(modifier = Modifier.align(Alignment.Bottom).fillMaxHeight()) {
-                BottomNavigationItem(selected = navController.currentScreen.value == Screen.List.name,
-                    icon = {
-                        Icon(
-                            Icons.Default.Home,
-                            contentDescription = Screen.List.name
-                        )
-                    },
-                    onClick = {
-                        navController.navigate(Screen.List.name)
-                    })
-                BottomNavigationItem(selected = navController.currentScreen.value == Screen.NewService.name,
-                    icon = {
-                        Icon(
-                            Icons.Default.Create,
-                            contentDescription = Screen.NewService.name
-                        )
-                    },
-                    onClick = { navController.navigate(Screen.NewService.name) })
+                BottomNavigationItem(selected = navController.currentScreen.value == Screen.List, icon = {
+                    Icon(
+                        Icons.Default.Home, contentDescription = Screen.List.name
+                    )
+                }, onClick = {
+                    navController.navigate(Screen.List)
+                })
+                BottomNavigationItem(selected = navController.currentScreen.value == Screen.NewService, icon = {
+                    Icon(
+                        Icons.Default.Create, contentDescription = Screen.NewService.name
+                    )
+                }, onClick = { navController.navigate(Screen.NewService) })
+                BottomNavigationItem(selected = navController.currentScreen.value == Screen.History, icon = {
+                    Icon(
+                        Icons.Default.AccountBox, contentDescription = Screen.History.name
+                    )
+                }, onClick = { navController.navigate(Screen.History) })
             }
         }
 
@@ -157,7 +198,7 @@ fun main() {
         exitProcessOnExit = true,
         resizable = true,
 
-    ) {
+        ) {
         LOGGER.info { "Building the app" }
         App(di)
     }

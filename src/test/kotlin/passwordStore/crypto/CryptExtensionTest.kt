@@ -4,14 +4,14 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 internal class CryptExtensionTest {
 
     private lateinit var crypto: CryptExtension
 
-    @BeforeEach
+    @BeforeTest
     fun setup() {
         val secrets = mockk<Secrets>()
         crypto = CryptExtension(secrets)

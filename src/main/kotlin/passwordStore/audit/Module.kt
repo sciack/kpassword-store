@@ -1,9 +1,6 @@
 package passwordStore.audit
 
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.instance
-import org.kodein.di.singleton
+import org.kodein.di.*
 
 
 internal val auditModule = DI.Module("auditModule") {
@@ -18,7 +15,7 @@ internal val auditModule = DI.Module("auditModule") {
         }
     }
     bind<AuditEventDeque>{
-        singleton {
+        eagerSingleton {
             AuditEventDeque(instance(), instance())
         }
     }

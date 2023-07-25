@@ -4,19 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import passwordStore.Screen
 
 /**
  * NavController Class
  */
 class NavController(
-    private val startDestination: String,
-    private var backStackScreens: MutableSet<String> = mutableSetOf()
+    private val startDestination: Screen,
+    private var backStackScreens: MutableSet<Screen> = mutableSetOf()
 ) {
     // Variable to store the state of the current screen
-    var currentScreen: MutableState<String> = mutableStateOf(startDestination)
+    var currentScreen: MutableState<Screen> = mutableStateOf(startDestination)
 
     // Function to handle the navigation between the screen
-    fun navigate(route: String) {
+    fun navigate(route: Screen) {
         if (route != currentScreen.value) {
             if (backStackScreens.contains(currentScreen.value) && currentScreen.value != startDestination) {
                 backStackScreens.remove(currentScreen.value)
@@ -47,8 +48,8 @@ class NavController(
  */
 @Composable
 fun rememberNavController(
-    startDestination: String,
-    backStackScreens: MutableSet<String> = mutableSetOf()
+    startDestination: Screen,
+    backStackScreens: MutableSet<Screen> = mutableSetOf()
 ): MutableState<NavController> = rememberSaveable {
     mutableStateOf(NavController(startDestination, backStackScreens))
 }

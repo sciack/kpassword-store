@@ -22,8 +22,8 @@ package passwordStore.utils
 import com.natpryce.hamkrest.absent
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import com.natpryce.hamkrest.throws
+import kotlin.test.Test
 
 
 /**
@@ -98,7 +98,10 @@ class LevenshteinDistanceTest {
 
     @Test
     fun testConstructorWithNegativeThreshold() {
-        assertThrows<IllegalArgumentException> { LevenshteinDistance(-1) }
+        assertThat(
+            { LevenshteinDistance(-1) },
+            throws<IllegalArgumentException>()
+        )
     }
 
     @Test

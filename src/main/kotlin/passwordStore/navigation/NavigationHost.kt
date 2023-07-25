@@ -1,6 +1,8 @@
 package passwordStore.navigation
 
 import androidx.compose.runtime.Composable
+import passwordStore.Screen
+import kotlin.reflect.KClass
 
 /**
  * NavigationHost class
@@ -31,10 +33,21 @@ class NavigationHost(
  */
 @Composable
 fun NavigationHost.NavigationGraphBuilder.composable(
-    route: String,
+    route: Screen,
     content: @Composable () -> Unit
 ) {
     if (navController.currentScreen.value == route) {
+        content()
+    }
+
+}
+
+@Composable
+fun NavigationHost.NavigationGraphBuilder.composable(
+    route: KClass<out Screen>,
+    content: @Composable () -> Unit
+) {
+    if (navController.currentScreen.value::class == route) {
         content()
     }
 

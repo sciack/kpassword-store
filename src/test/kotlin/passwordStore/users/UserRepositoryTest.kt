@@ -1,17 +1,18 @@
 package passwordStore.users
 
-import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.kodein.di.DI
+import com.natpryce.hamkrest.MatchResult
+import com.natpryce.hamkrest.Matcher
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.throws
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-@ExtendWith(DiInjection::class)
-class UserRepositoryTest(di: DI) {
-
+class UserRepositoryTest() {
+    private val di = DiInjection.testDi
     private val userRepository by di.instance<UserRepository>()
 
     @Test
@@ -24,19 +25,26 @@ class UserRepositoryTest(di: DI) {
 
     @Test
     fun testNoUser() {
-        val exception = assertThrows<IllegalStateException> {
+        assertThat({
             userRepository.login("fake", "wrong")
-        }
-
-        assertEquals("Empty result set", exception.message)
+        }, throws<IllegalStateException>(MatchMessage(equalTo("Empty result set"))))
     }
 
     @Test
     fun testWrongPwd() {
-        val exception = assertThrows<IllegalArgumentException> {
+        assertThat({
             userRepository.login("dummy", "wrong")
-        }
+        }, throws<IllegalArgumentException>(MatchMessage(equalTo("Password for user dummy is wrong"))))
 
-        assertEquals("Password for user dummy is wrong", exception.message)
+    }
+}
+
+class MatchMessage(private val matcher: Matcher<String?>) : Matcher<Throwable> {
+
+    override val description: String
+        get() = "message match ${matcher.description}"
+
+    override fun invoke(actual: Throwable): MatchResult {
+        return matcher(actual.message)
     }
 }

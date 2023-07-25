@@ -36,9 +36,9 @@ import passwordStore.crypto.CryptExtension
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
+import passwordStore.users.User
 import passwordStore.utils.distance
 import passwordStore.utils.titlecase
-import java.security.Principal
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Timestamp
@@ -250,7 +250,7 @@ class ServicesRepository(
     }
 
 
-    suspend fun history(service: String, exactMatch: Boolean, user: Principal): List<Event> {
+    suspend fun history(service: String, exactMatch: Boolean, user: User): List<Event> {
         return if (exactMatch) {
             exactMatchResult(user, service)
         } else {
@@ -258,12 +258,12 @@ class ServicesRepository(
         }
     }
 
-    private fun fuzzyMatchResult(user: Principal, servPattern: String): List<Event> {
+    private fun fuzzyMatchResult(user: User, servPattern: String): List<Event> {
         return datasource.query(
             """ select * from services_hist h
                 where ( exists (select 1 from services s where s.service = h.service and s.userid = :userid)
                   or h.userid = :userid)
-              """, mapOf("userid" to user.name)
+              """, mapOf("userid" to user.userid)
         ) { rs ->
             Event(
                 asService(rs, Mode.SPLIT),
@@ -291,14 +291,14 @@ class ServicesRepository(
         }
     }
 
-    private fun exactMatchResult(user: Principal, servPattern: String): List<Event> {
+    private fun exactMatchResult(user: User, servPattern: String): List<Event> {
         LOGGER.info("Querying exact service $servPattern for $user")
         return datasource.query(
             """ select * from services_hist h
                 where service = :service
                 and h.userid = :userid
                 order by service, operation_date
-              """, mapOf("service" to servPattern, "userid" to user.name)
+              """, mapOf("service" to servPattern, "userid" to user.userid)
         ) { rs ->
             Event(
                 asService(rs, Mode.SPLIT),
