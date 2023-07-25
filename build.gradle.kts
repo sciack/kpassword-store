@@ -38,7 +38,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("org.jasypt:jasypt:1.9.3")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("com.h2database:h2:2.2.220")
+    implementation("com.h2database:h2:2.1.214")
     implementation("org.flywaydb:flyway-core:9.21.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")

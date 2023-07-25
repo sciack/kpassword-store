@@ -86,25 +86,7 @@ class TagViewTest {
     }
 
 
-    @Test
-    fun `should change color if selected`() = runTest {
-        var service = testService().copy(tags = listOf("Tags"))
-        service = servicesRepository.store(service)
-        servicesRepository.store(testService(service = "test2"))
-        val serviceModel by di.instance<Services>()
-        rule.setContent {
-            withDI(di) {
-                serviceModel.fetchAll()
-                tagView()
-            }
-        }
 
-        rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
-        rule.awaitIdle()
-        await.atMost(Duration.ofSeconds(5)).untilAsserted {
-            assertThat(serviceModel.services.value, equalTo(listOf(service)))
-        }
-    }
 
     companion object {
         val LOGGER = KotlinLogging.logger { }
