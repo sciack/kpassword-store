@@ -1,4 +1,4 @@
-package passwordStore.utils
+package passwordStore.tags
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*

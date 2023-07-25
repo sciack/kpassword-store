@@ -11,3 +11,10 @@ fun testUser(): User = User(
     userid = "testUser",
     roles = setOf(Roles.NormalUser),
 )
+
+fun testService(service:String = "test") = Service(
+    service = service,
+    userid = testUser().userid,
+    username = "testUser",
+    password = "testPwd"
+)

@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
@@ -34,8 +33,9 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.audit.Event
 import passwordStore.navigation.NavController
+import passwordStore.tags.tagEditor
+import passwordStore.tags.tagView
 import passwordStore.users.User
-import passwordStore.utils.tagEditor
 
 @Composable
 fun servicesTable() {
@@ -45,26 +45,33 @@ fun servicesTable() {
         serviceModel.services
     }
 
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .padding(10.dp)
-    ) {
-        val state = rememberLazyListState()
-
-        LazyColumn(Modifier.fillMaxWidth().padding(end = 12.dp), state) {
-            items(services.value) { service ->
-                renderService(service) {
-                    navController.navigate(Screen.Details(service))
+    val state = rememberLazyListState()
+    Column(Modifier.fillMaxSize()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            tagView()
+        }
+        Spacer(Modifier.height(15.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                LazyColumn(Modifier.fillMaxWidth().padding(end = 12.dp), state) {
+                    items(services.value) { service ->
+                        renderService(service) {
+                            navController.navigate(Screen.Details(service))
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
                 }
-                Spacer(modifier = Modifier.height(5.dp))
+                VerticalScrollbar(
+                    modifier = Modifier.fillMaxHeight(),
+                    adapter = rememberScrollbarAdapter(
+                        scrollState = state
+                    )
+                )
             }
         }
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            adapter = rememberScrollbarAdapter(
-                scrollState = state
-            )
-        )
     }
 }
 

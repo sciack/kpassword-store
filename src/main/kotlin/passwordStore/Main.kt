@@ -75,13 +75,14 @@ fun App(di: DI) = withDI(di) {
                         loginPane(loginFunction = { currentUsername, pwd ->
                             submit(di, currentUsername, pwd).onSuccess {
                                 user.value = it
+                                services.user = it
                                 navController.navigate(Screen.List)
                             }
                         })
                     }
 
                     composable(Screen.List) {
-                        services.fetchAll(user.value!!)
+                        services.fetchAll()
                         servicesTable()
                     }
 

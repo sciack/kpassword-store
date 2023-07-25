@@ -11,6 +11,7 @@ import passwordStore.audit.auditModule
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.navigation.navigation
 import passwordStore.sql.prodDatasource
+import passwordStore.tags.tagModule
 import passwordStore.users.UserRepository
 import javax.sql.DataSource
 
@@ -19,13 +20,14 @@ fun diCore(): DI.Module = DI.Module("core") {
     import(auditModule)
     import(repositories)
     import(navigation)
+    import(tagModule)
     bind { singleton {
         CoroutineScope(SupervisorJob())
     } }
 
     bind {
         singleton {
-            Services(instance(), instance())
+            Services(instance(), instance(), instance())
         }
     }
 

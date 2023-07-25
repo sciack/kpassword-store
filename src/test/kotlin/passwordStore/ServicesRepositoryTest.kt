@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isEmpty
 import com.natpryce.hamkrest.throws
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.kodein.di.DI
@@ -27,7 +28,7 @@ class ServicesRepositoryTest() {
     @AfterTest
     fun tearDown() {
         runBlocking {
-            servicesRepository.search(user.userid).forEach {
+            servicesRepository.search(user).forEach {
                 logger.info { "Delete service $it" }
                 servicesRepository.delete(it.service, it.userid)
             }
@@ -35,7 +36,7 @@ class ServicesRepositoryTest() {
     }
 
     @Test
-    fun `should store a service`(): Unit = runBlocking {
+    fun `should store a service`(): Unit = runTest {
         val service = Service(
             service = "Test service",
             username = "My username",
@@ -52,7 +53,7 @@ class ServicesRepositoryTest() {
     }
 
     @Test
-    fun `when a service is duplicated should throw an exception`(): Unit = runBlocking {
+    fun `when a service is duplicated should throw an exception`(): Unit = runTest {
         val service = Service(
             service = "Test service",
             username = "My username",
@@ -75,7 +76,7 @@ class ServicesRepositoryTest() {
     }
 
     @Test
-    fun `should trace an event on store`(): Unit = runBlocking {
+    fun `should trace an event on store`(): Unit = runTest {
         val service = Service(
             service = "Test service",
             username = "My username",
@@ -98,4 +99,22 @@ class ServicesRepositoryTest() {
 
     }
 
+    @Test
+    fun `should be able to search for a tag`(): Unit = runTest {
+        val service = Service(
+            service = "Test service",
+            username = "My username",
+            password = "a password",
+            note = "Some very long notes",
+            dirty = true,
+            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            userid = user.userid,
+            tags = listOf("tag"),
+            score = 1.0
+        )
+        val storedService = servicesRepository.store(service)
+        val result = servicesRepository.search(user, "", "Tag")
+        assertThat(result, isEmpty.not())
+        assertThat(result[0].service, equalTo("Test service") )
+    }
 }

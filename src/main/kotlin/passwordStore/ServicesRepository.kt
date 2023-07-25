@@ -87,7 +87,7 @@ class ServicesRepository(
         ) { it.getString(1) }
 
 
-    suspend fun search(user: String, pattern: String = "", tag: String = ""): List<Service> {
+    suspend fun search(user: User, pattern: String = "", tag: String = ""): List<Service> {
         fun score(s: Service): Double =
             if (pattern.isBlank()) {
                 1.0
@@ -103,20 +103,20 @@ class ServicesRepository(
             datasource.query(
                 """ select * from services
             where userid = :user
-            """, mapOf("user" to user)
+            """, mapOf("user" to user.userid)
             ) { rs -> asService(rs, Mode.FETCH) }
         } else {
-            LOGGER.debug("Query for a tag")
+            LOGGER.debug("""Query for a tag "$tag" """)
             datasource.query(
                 """ select s.* from services s, service_tags st, tags t
             where userid = :user
                 and s.id = st.id_service
                 and st.id_tag = t.id
                 and t.tag = :tag
-            """, mapOf("user" to user, "tag" to tag)
+            """, mapOf("user" to user.userid, "tag" to tag)
             ) { rs -> asService(rs, Mode.FETCH) }
         }
-
+        LOGGER.debug { "Result is $result" }
         return result
             .map { s ->
                 val rate = score(s)
@@ -309,21 +309,7 @@ class ServicesRepository(
         }
     }
 
-    @Throws(SQLException::class)
-    suspend fun tags(userId: String): TagElement {
-        return datasource.query(
-            """select tag, 
-            (   
-                select count(1) from service_tags st, services s 
-                where t.id = st.id_tag
-                  and st.id_service = s.id
-                  and s.userid = :userid
-            ) 
-            from tags t""".trimIndent(), mapOf("userid" to userId)
-        ) {
-            it.getString(1) to it.getInt(2)
-        }.toMap()
-    }
+
 
     companion object {
         enum class Mode { FETCH, SPLIT }
@@ -349,4 +335,3 @@ data class Service(
 }
 
 
-typealias TagElement = Map<String, Int>
