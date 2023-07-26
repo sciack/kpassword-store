@@ -44,3 +44,4 @@ bin/
 ### Test databases ###
 data
 /data/
+/.env

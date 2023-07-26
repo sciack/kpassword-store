@@ -16,7 +16,7 @@ import passwordStore.users.UserRepository
 import javax.sql.DataSource
 
 fun diCore(): DI.Module = DI.Module("core") {
-    import(prodCryptExtension)
+
     import(auditModule)
     import(repositories)
     import(navigation)
@@ -33,19 +33,7 @@ fun diCore(): DI.Module = DI.Module("core") {
 
 }
 
-fun di() = DI {
-    import(diCore())
-    bind<Clock> {
-        singleton {
-            Clock.System
-        }
-    }
-    bind<DataSource> {
-        singleton {
-            prodDatasource()
-        }
-    }
-}
+
 val repositories = DI.Module("repositories") {
     bind<UserRepository> {
         singleton {
@@ -55,6 +43,21 @@ val repositories = DI.Module("repositories") {
     bind<ServicesRepository> {
         singleton {
             ServicesRepository(instance(), instance(), instance())
+        }
+    }
+}
+
+fun di() = DI {
+    import(diCore())
+    import(prodCryptExtension)
+    bind<Clock> {
+        singleton {
+            Clock.System
+        }
+    }
+    bind<DataSource> {
+        singleton {
+            prodDatasource()
         }
     }
 }

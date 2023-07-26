@@ -18,6 +18,10 @@ class Migration(private val dataSource: DataSource) {
             flyway.clean()
         }
         //flyway.baseline()
-        flyway.migrate()
+        runCatching {
+            flyway.migrate()
+        }.recover {
+            flyway.repair()
+        }
     }
 }

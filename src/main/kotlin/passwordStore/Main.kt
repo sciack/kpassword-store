@@ -29,6 +29,7 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.audit.Event
+import passwordStore.config.SetupEnv
 import passwordStore.navigation.NavController
 import passwordStore.navigation.NavigationHost
 import passwordStore.navigation.composable
@@ -176,6 +177,7 @@ fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<U
 private val LOGGER = KotlinLogging.logger { }
 
 fun main() {
+    SetupEnv.configure(".env")
     val di = di()
     val datasource by di.instance<DataSource>()
     val coroutineScope by di.instance<CoroutineScope>()

@@ -6,6 +6,8 @@ import org.kodein.di.DI
 import org.kodein.di.bind
 import org.kodein.di.instance
 import org.kodein.di.singleton
+import passwordStore.crypto.devCryptExtension
+import passwordStore.crypto.prodCryptExtension
 import passwordStore.sql.Migration
 import passwordStore.sql.testDatasource
 import java.time.Duration
@@ -16,6 +18,7 @@ import javax.sql.DataSource
 object DiInjection {
     private val LOGGER = KotlinLogging.logger { }
     val testDi = DI {
+        import(devCryptExtension)
         import(diCore())
         bind<Clock> {
             singleton {

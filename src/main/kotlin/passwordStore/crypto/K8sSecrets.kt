@@ -7,14 +7,17 @@ interface Secrets {
     fun passphrase(): ByteArray
 }
 
-private class EnvSecrets() : Secrets {
+private class PropsSecret : Secrets {
+    private val passfrase by lazy {
+        System.getProperty("secret")
+    }
+
     override fun passphrase(): ByteArray {
-        val passfrase = System.getenv("passphrase")
         return Base64.decodeBase64(passfrase)
     }
 }
 
-private class DevSecrets() : Secrets {
+private class DevSecrets : Secrets {
 
     override fun passphrase(): ByteArray {
         return "DEFAULT PASSPHRASE".toByteArray()
@@ -23,10 +26,9 @@ private class DevSecrets() : Secrets {
 
 class SecretsFactory(private val runtime: String = "") {
 
-
     fun secrets(): Secrets {
         return when (runtime.lowercase()) {
-            "docker" -> EnvSecrets()
+            "prod" -> PropsSecret()
             else -> DevSecrets()
         }
     }

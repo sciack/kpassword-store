@@ -50,6 +50,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
+    testImplementation("junit:junit:4.13.2")
 
 }
 
