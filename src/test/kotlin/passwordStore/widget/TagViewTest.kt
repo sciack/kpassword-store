@@ -1,8 +1,5 @@
-package passwordStore.tags
+package passwordStore.widget
 
-import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -11,12 +8,14 @@ import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import mu.KotlinLogging
+import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.*
+import passwordStore.tags.TagRepository
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -73,19 +72,19 @@ class TagViewTest {
         val serviceModel by di.instance<Services>()
         rule.setContent {
             withDI(di) {
-                serviceModel.fetchAll()
                 tagView()
+                serviceModel.fetchAll()
             }
         }
-
-        rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
+        rule.awaitIdle()
+        await.atMost(Duration.ofSeconds(1)).untilAsserted {
+            rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
+        }
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(5)).untilAsserted {
             assertThat(serviceModel.services.value, equalTo(listOf(service)))
         }
     }
-
-
 
 
     companion object {

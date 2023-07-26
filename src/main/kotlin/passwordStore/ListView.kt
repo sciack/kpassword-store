@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
@@ -24,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -34,8 +32,9 @@ import org.kodein.di.instance
 import passwordStore.audit.Event
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
-import passwordStore.tags.tagView
+import passwordStore.widget.tagView
 import passwordStore.users.User
+import passwordStore.widget.Table
 
 @Composable
 fun servicesTable() {
@@ -52,26 +51,34 @@ fun servicesTable() {
         }
         Spacer(Modifier.height(15.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                LazyColumn(Modifier.fillMaxWidth().padding(end = 12.dp), state) {
-                    items(services.value) { service ->
-                        renderService(service) {
-                            navController.navigate(Screen.Details(service))
-                        }
-                        Spacer(modifier = Modifier.height(5.dp))
-                    }
+            Table(
+                modifier = Modifier.fillMaxSize(),
+                rowModifier = Modifier.fillMaxWidth(),
+                columnCount = 4,
+                rowCount = services.value.size,
+                headers = listOf("Service", "Username", "Password", "Note"),
+                cellContent = {columnIndex, rowIndex ->
+                    val service = services.value[rowIndex]
+                    displayService(service, columnIndex)
                 }
-                VerticalScrollbar(
-                    modifier = Modifier.fillMaxHeight(),
-                    adapter = rememberScrollbarAdapter(
-                        scrollState = state
-                    )
-                )
-            }
+            )
         }
+    }
+}
+
+@Composable
+fun displayService(service: Service, columnIndex: Int) {
+    when(columnIndex) {
+        0 -> Text(service.service)
+        1 -> Text(service.username)
+        2 -> Text(service.password)
+        3 -> Text(
+            text = service.note,
+            softWrap = true,
+            overflow = TextOverflow.Ellipsis,
+            minLines = 1,
+            maxLines = 5
+        )
     }
 }
 
