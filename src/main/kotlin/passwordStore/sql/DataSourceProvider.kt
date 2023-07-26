@@ -6,6 +6,10 @@ import javax.sql.DataSource
 
 fun prodDatasource(): DataSource {
     val hikariConfig = HikariConfig("/config.properties")
+    val jdbcUrl = System.getProperty("jdbc.url")
+    if (jdbcUrl != null) {
+        hikariConfig.jdbcUrl = jdbcUrl
+    }
     return HikariDataSource(hikariConfig)
 }
 

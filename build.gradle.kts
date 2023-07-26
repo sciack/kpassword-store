@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.8.20"
     id("org.jetbrains.compose") version "1.4.1"
     id("com.adarshr.test-logger") version "3.2.0"
+    id("org.jetbrains.kotlinx.kover") version "0.7.2"
 }
 
 group = "com.github.sciack"
@@ -60,10 +61,10 @@ tasks.test {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "passwordStore.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats( TargetFormat.Rpm)
             packageName = "kpassword-store"
             packageVersion = "1.0.0"
         }

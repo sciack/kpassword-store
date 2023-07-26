@@ -33,12 +33,14 @@ import passwordStore.audit.AuditMessage
 import passwordStore.audit.Event
 import passwordStore.audit.EventBus
 import passwordStore.crypto.CryptExtension
+import passwordStore.sql.performTransaction
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
 import passwordStore.users.User
 import passwordStore.utils.distance
 import passwordStore.utils.titlecase
+import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Timestamp
@@ -144,34 +146,36 @@ class ServicesRepository(
     @Throws(SQLException::class)
     suspend fun store(service: Service): Service {
         LOGGER.debug("Storing service {}", service)
-        val insertedRows = datasource.saveOrUpdate(
-            """ insert into services (service, username, password, note, lastUpdate, userid)
+        datasource.performTransaction {
+            val insertedRows = this.saveOrUpdate(
+                """ insert into services (service, username, password, note, lastUpdate, userid)
               values (?, ?, ?, ?, ?, ?)
             """,
-            service.service,
-            service.username,
-            service.password.crypt(),
-            service.note.crypt(),
-            service.updateTime.toTimestamp(timezone),
-            service.userid
-        )
-        assert(insertedRows > 0)
-        val id = findServiceId(service.service, service.userid)
-        service.tags.forEach {
-            val tag = it.replaceFirstChar { c -> c.uppercase() }
-            addServiceToTag(service = id, tag = tag)
+                service.service,
+                service.username,
+                service.password.crypt(),
+                service.note.crypt(),
+                service.updateTime.toTimestamp(timezone),
+                service.userid
+            )
+            assert(insertedRows > 0)
+            val id = findServiceId(service.service, service.userid)
+            service.tags.forEach {
+                val tag = it.replaceFirstChar { c -> c.uppercase() }
+                addServiceToTag(this, service = id, tag = tag)
+            }
         }
         send(Event(service, Action.insert))
         return findByName(service.service, service.userid)
     }
 
-    private fun addServiceToTag(tag: String, service: Long) {
-        datasource.saveOrUpdate(
+    private fun addServiceToTag(c: Connection, tag: String, service: Long) {
+        c.saveOrUpdate(
             """insert into TAGS(tag) select * from (select cast(? as VARCHAR(50)) new_tag) t where not exists (select 1 from tags ts where ts.tag = ?)  """,
             tag,
             tag
         )
-        datasource.saveOrUpdate(
+        c.saveOrUpdate(
             """insert into SERVICE_TAGS(id_service, id_tag) select ?, id from tags t where t.tag = ?  """,
             service,
             tag
@@ -185,8 +189,8 @@ class ServicesRepository(
           """, mapOf("serviceName" to serviceName, "userId" to userId)
     ) { rs -> asService(rs, Mode.FETCH) }
 
-    private fun findServiceId(serviceName: String, userId: String): Long =
-        datasource.singleRow(
+    private fun Connection.findServiceId( serviceName: String, userId: String): Long =
+        this.singleRow(
             """
                 select id from services 
                 where service = :serviceName 
@@ -200,7 +204,7 @@ class ServicesRepository(
     @Throws(SQLException::class)
     suspend fun delete(serviceName: String, userId: String) {
         val service = findByName(serviceName, userId)
-        datasource.apply {
+        datasource.performTransaction {
             val id = findServiceId(serviceName, userId)
             saveOrUpdate("""delete from service_tags where id_service = ?""", id)
             saveOrUpdate("""delete from services where service = ? and userid = ?""", serviceName, userId)
@@ -219,33 +223,36 @@ class ServicesRepository(
         val tagsToDelete = oldService.tags.map(String::titlecase).toMutableSet().apply {
             removeAll(service.tags.map(String::titlecase).toSet())
         }
-        datasource.saveOrUpdate(
-            """update services
+        datasource.performTransaction {
+            this.saveOrUpdate(
+                """update services
               set username = ?,
               password = ?,
               note = ?,
               lastUpdate = ?,
               userid = ?
               where service = ?""", service.username, service.password.crypt(),
-            service.note.crypt(), service.updateTime.toTimestamp(timezone), userId, service.service
-        ).also { rows ->
-            check(rows > 0) {
-                "No rows updated"
-            }
-            val id = findServiceId(service.service, service.userid)
-            tagsToDelete.forEach {
-                datasource.saveOrUpdate(
-                    """delete from SERVICE_TAGS st 
+                service.note.crypt(), service.updateTime.toTimestamp(timezone), userId, service.service
+            ).also { rows ->
+                check(rows > 0) {
+                    "No rows updated"
+                }
+                val id = findServiceId(service.service, service.userid)
+                tagsToDelete.forEach {
+                    this.saveOrUpdate(
+                        """delete from SERVICE_TAGS st 
                                     where st.id_service = ? 
                                     and st.id_tag = (
                                     select id from tags where tag = ?
                                     )""".trimIndent(), id, it
-                )
-            }
-            tagsToAdd.forEach {
-                addServiceToTag(service = id, tag = it)
+                    )
+                }
+                tagsToAdd.forEach {
+                    addServiceToTag(this, service = id, tag = it)
+                }
             }
         }
+
         send(Event(oldService, Action.update))
         return findByName(service.service, service.userid)
     }
@@ -308,7 +315,6 @@ class ServicesRepository(
             )
         }
     }
-
 
 
     companion object {

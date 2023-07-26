@@ -27,6 +27,7 @@
 package passwordStore.sql
 
 import passwordStore.sql.Parameters.Companion.parse
+import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
@@ -58,12 +59,18 @@ fun <T> DataSource.query(sql: String, vararg params: Any, mapper: Mapper<T>): Li
 
 fun <T> DataSource.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T =
     this.connection.use { c ->
+        c.singleRow(sql, params, mapper)
+    }
+
+
+fun <T> Connection.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T {
+
         val parameters = parse(sql)
-        c.prepareStatement(parameters.sql).use { ps ->
-            parameters.apply(ps,params)
+        return this.prepareStatement(parameters.sql).use { ps ->
+            parameters.apply(ps, params)
             ps.singleRowExecution(mapper)
         }
-    }
+}
 
 
 fun <T> DataSource.singleRow(sql: String, vararg params: Any, mapper: Mapper<T>): T =
@@ -96,19 +103,33 @@ fun DataSource.saveOrUpdate(sql: String, vararg params: Any?): Int {
 
 }
 
-fun DataSource.saveOrUpdate(sql: String, params: Map<String, Any?>): Int =
-    connection.use { c ->
-        val parameters = parse(sql)
-        c.prepareStatement(parameters.sql).use { ps ->
-            parameters.apply(ps, params)
-            ps.executeUpdate()
+fun Connection.saveOrUpdate(sql: String, vararg params: Any?): Int {
+    return this.prepareStatement(sql).use { ps ->
+        params.withIndex().forEach { (index, param) ->
+            if (param == null) {
+                ps.setNull(index + 1, Types.NULL)
+            } else {
+                ps.setObject(index + 1, param)
+            }
         }
+        ps.executeUpdate()
+
     }
+
+}
+
+fun Connection.saveOrUpdate(sql: String, params: Map<String, Any?>): Int {
+    val parameters = parse(sql)
+    return prepareStatement(parameters.sql).use { ps ->
+        parameters.apply(ps, params)
+        ps.executeUpdate()
+    }
+}
 
 
 fun <T> PreparedStatement.singleRowExecution(
     mapper: Mapper<T>
-):T {
+): T {
     executeQuery().use { rs ->
         check(rs.next()) {
             "Empty result set"
@@ -127,4 +148,26 @@ private fun <T> PreparedStatement.query(mapper: Mapper<T>): List<T> = executeQue
         result.add(mapper(rs))
     }
     result
+}
+
+
+fun DataSource.performTransaction(tx: Connection.() -> Unit) {
+    this.connection.use { c ->
+        val isAutocommit = c.autoCommit
+        runCatching {
+            c.autoCommit = false
+            c.tx()
+        }.onSuccess {
+            run {
+                c.commit()
+            }
+            c.autoCommit = isAutocommit
+        }.onFailure {
+            runCatching {
+                c.rollback()
+            }
+            c.autoCommit = isAutocommit
+        }.getOrThrow()
+    }
+
 }

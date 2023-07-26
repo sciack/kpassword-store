@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import mu.KotlinLogging
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.Services
@@ -28,7 +27,7 @@ fun tagView() {
         serviceModel.tags
     }
     val selected = remember {
-        mutableStateOf<String>("")
+        mutableStateOf("")
     }
 
     FlowRow(
@@ -36,11 +35,10 @@ fun tagView() {
         modifier = Modifier.fillMaxWidth().focusable(false),
 
         ) {
-        tags.value.forEach { (tag, frequency) ->
+        tags.value.forEach { (tag, _) ->
 
             Chip(
                 onClick = {
-                    LOGGER.warn { "Click called for tag $tag" }
                     if (selected.value != tag) {
                         serviceModel.searchWithTags(tag)
                         selected.value = tag
@@ -49,7 +47,7 @@ fun tagView() {
                         selected.value = ""
                     }
                 },
-                colors = if(selected.value != tag) {
+                colors = if (selected.value != tag) {
                     ChipDefaults.outlinedChipColors()
                 } else {
                     ChipDefaults.chipColors()
@@ -61,5 +59,3 @@ fun tagView() {
         }
     }
 }
-
-private val LOGGER = KotlinLogging.logger { }

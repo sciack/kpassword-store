@@ -12,6 +12,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +32,6 @@ import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.navigation.NavController
-import passwordStore.navigation.navigation
 import passwordStore.tags.tagEditor
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder
@@ -114,8 +114,6 @@ fun displayService(service: Service, columnIndex: Int) {
         }
     }
 }
-
-
 
 
 @Composable
@@ -256,12 +254,18 @@ fun searchField() {
     val services by localDI().instance<Services>()
 
     OutlinedTextField(
-        label = {Text("Search")},
+        label = { Text("Search") },
         value = search.value,
+        leadingIcon = {
+            Icon(
+                Icons.Default.Search,
+                "Search"
+            )
+        },
         onValueChange = {
             search.value = it
             services.searchPattern(it.text)
         },
 
-    )
+        )
 }
