@@ -11,8 +11,14 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun Table(
@@ -20,62 +26,72 @@ fun Table(
     rowModifier: Modifier = Modifier,
     verticalLazyListState: LazyListState = rememberLazyListState(),
     horizontalScrollState: ScrollState = rememberScrollState(),
-    columnCount: Int,
+    headers: List<String>,
+    cellContent: @Composable (col: Int, row: Int) -> Unit,
+    beforeRow: @Composable (row: Int) -> Unit = {},
     rowCount: Int,
-    cellContent: @Composable (columnIndex: Int, rowIndex: Int) -> Unit,
-    headers: List<String>
+    columnCount: Int = headers.size
 ) {
     val columnWidths = remember { mutableStateMapOf<Int, Int>() }
 
     Box(modifier = modifier.then(Modifier.horizontalScroll(horizontalScrollState))) {
-        Column {
-            Column {
-                Row {
-                    (0 until columnCount).forEach { columnIndex ->
-                        Box(modifier = Modifier.layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
+        Column(modifier = modifier.fillMaxWidth()) {
 
-                            val existingWidth = columnWidths[columnIndex] ?: 0
-                            val maxWidth = maxOf(existingWidth, placeable.width)
+            Row(modifier = rowModifier) {
+                (0..columnCount).forEach { columnIndex ->
+                    Box(modifier = Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
 
-                            if (maxWidth > existingWidth) {
-                                columnWidths[columnIndex] = maxWidth
-                            }
+                        val existingWidth = columnWidths[columnIndex] ?: 0
+                        val maxWidth = maxOf(existingWidth, placeable.width)
 
-                            layout(width = maxWidth, height = placeable.height) {
-                                placeable.placeRelative(0, 0)
-                            }
-                        }) {
+                        if (maxWidth > existingWidth) {
+                            columnWidths[columnIndex] = maxWidth
+                        }
+
+                        layout(width = maxWidth, height = placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }) {
+                        if (columnIndex == 0) {
+                            Text("")
+                        } else {
                             Text(
                                 fontWeight = FontWeight.Bold,
-                                text = headers[columnIndex]
+                                text = headers[columnIndex - 1]
                             )
                         }
                     }
                 }
             }
-            Box(modifier= modifier) {
-                LazyColumn(state = verticalLazyListState) {
-                    items(rowCount) { rowIndex ->
-                        Column {
 
+            Box(modifier = modifier) {
+                LazyColumn(state = verticalLazyListState) {
+                    items(rowCount) { row ->
+
+                        Column {
                             Row(modifier = rowModifier) {
-                                (0 until columnCount).forEach { columnIndex ->
+
+                                (0..columnCount).forEach { col ->
                                     Box(modifier = Modifier.layout { measurable, constraints ->
                                         val placeable = measurable.measure(constraints)
 
-                                        val existingWidth = columnWidths[columnIndex] ?: 0
+                                        val existingWidth = columnWidths[col] ?: 0
                                         val maxWidth = maxOf(existingWidth, placeable.width)
 
                                         if (maxWidth > existingWidth) {
-                                            columnWidths[columnIndex] = maxWidth
+                                            columnWidths[col] = maxWidth
                                         }
 
                                         layout(width = maxWidth, height = placeable.height) {
                                             placeable.placeRelative(0, 0)
                                         }
                                     }) {
-                                        cellContent(columnIndex, rowIndex)
+                                        if (col == 0) {
+                                            beforeRow.invoke(row)
+                                        } else {
+                                            cellContent(col - 1, row)
+                                        }
                                     }
                                 }
                             }
@@ -93,3 +109,23 @@ fun Table(
         }
     }
 }
+
+@Composable
+fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
+    factory = {
+        val density = LocalDensity.current
+        val strokeWidthPx = density.run { strokeWidth.toPx() }
+
+        Modifier.drawBehind {
+            val width = size.width
+            val height = size.height - strokeWidthPx / 2
+
+            drawLine(
+                color = color,
+                start = Offset(x = 0f, y = height),
+                end = Offset(x = width, y = height),
+                strokeWidth = strokeWidthPx
+            )
+        }
+    }
+)

@@ -48,8 +48,8 @@ fun App(di: DI) = withDI(di) {
     val services by localDI().instance<Services>()
     val coroutineScope by localDI().instance<CoroutineScope>()
     MaterialTheme {
-        Scaffold(Modifier.padding(16.dp).then(Modifier.fillMaxSize()),
-            bottomBar = { bottomBar(navController, navController.currentScreen.value.name) },
+        Scaffold(Modifier.then(Modifier.fillMaxSize()),
+            bottomBar = { bottomBar(navController) },
             topBar = {
                 TopAppBar(navigationIcon = {
                     if (navController.currentScreen.value.allowBack) {
@@ -125,7 +125,7 @@ fun App(di: DI) = withDI(di) {
 typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
 @Composable
-fun bottomBar(navController: NavController, title: String = "") {
+fun bottomBar(navController: NavController) {
     BottomAppBar(
         modifier = Modifier.fillMaxWidth()
     ) {

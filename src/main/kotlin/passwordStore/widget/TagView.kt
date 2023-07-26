@@ -1,5 +1,6 @@
 package passwordStore.widget
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -12,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import mu.KotlinLogging
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
@@ -50,7 +53,8 @@ fun tagView() {
                     ChipDefaults.outlinedChipColors()
                 } else {
                     ChipDefaults.chipColors()
-                }
+                },
+                border = BorderStroke(1.dp, Color.Blue)
             ) {
                 Text(tag)
             }
