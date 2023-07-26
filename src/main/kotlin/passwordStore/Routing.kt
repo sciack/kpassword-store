@@ -23,13 +23,17 @@ sealed interface Screen {
             get() = true
     }
 
-    object NewService: Screen {
+    object NewService : Screen {
+        override val allowBack: Boolean
+            get() = true
         override val name: String
             get() = "New Service"
     }
 
-    object History: Screen {
+    object History : Screen {
         override val name: String
             get() = "History"
+        override val allowBack: Boolean
+            get() = true
     }
 }

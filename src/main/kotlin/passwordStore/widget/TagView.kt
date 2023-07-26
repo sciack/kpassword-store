@@ -42,7 +42,7 @@ fun tagView() {
                 onClick = {
                     LOGGER.warn { "Click called for tag $tag" }
                     if (selected.value != tag) {
-                        serviceModel.search(tag)
+                        serviceModel.searchWithTags(tag)
                         selected.value = tag
                     } else {
                         serviceModel.fetchAll()

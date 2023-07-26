@@ -66,10 +66,11 @@ fun Table(
             }
 
             Box(modifier = modifier) {
-                LazyColumn(state = verticalLazyListState) {
+                LazyColumn(state = verticalLazyListState,
+                    modifier = Modifier.fillMaxWidth()) {
                     items(rowCount) { row ->
 
-                        Column {
+                        Column(modifier=Modifier.fillMaxWidth()) {
                             Row(modifier = rowModifier) {
 
                                 (0..columnCount).forEach { col ->

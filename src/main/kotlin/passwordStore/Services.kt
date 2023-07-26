@@ -47,7 +47,7 @@ class Services(
         }
     }
 
-    fun search(tag: String) {
+    fun searchWithTags(tag: String) {
         scope.launch(Dispatchers.IO) {
             val result = servicesRepository.search(user, tag= tag)
             withContext(Dispatchers.Main) {
@@ -55,5 +55,15 @@ class Services(
             }
         }
     }
+
+    fun searchPattern(pattern: String) {
+        scope.launch(Dispatchers.IO) {
+            val result = servicesRepository.search(user, pattern= pattern)
+            withContext(Dispatchers.Main) {
+                services.value = result
+            }
+        }
+    }
+
 
 }
