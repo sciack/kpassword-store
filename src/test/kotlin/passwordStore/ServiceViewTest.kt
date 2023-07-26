@@ -16,6 +16,7 @@ import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import java.lang.IllegalStateException
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
@@ -26,6 +27,12 @@ class ServiceViewTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @BeforeTest
+    fun setUp() = runBlocking {
+        val serviceModel by di.instance<Services>()
+        serviceModel.user = user
+    }
+
     @Test
     fun newService() {
         runBlocking(Dispatchers.Main) {
@@ -33,7 +40,7 @@ class ServiceViewTest {
             val clock by di.instance<Clock>()
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService(user) {
+                    passwordStore.newService() {
                         service = it
                     }
                 }
@@ -81,7 +88,7 @@ class ServiceViewTest {
             )
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService(user, service) {
+                    passwordStore.newService( service) {
                         service = it
                     }
                 }
@@ -117,7 +124,7 @@ class ServiceViewTest {
             )
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService(user, service) {
+                    passwordStore.newService( service) {
                         service = it
                     }
                 }
@@ -151,7 +158,7 @@ class ServiceViewTest {
             val expectedService = service.copy()
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService(user, service) {
+                    passwordStore.newService( service) {
                         service = it
                     }
                 }

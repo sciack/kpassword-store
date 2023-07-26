@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import androidx.compose.ui.window.singleWindowApplication
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
 import mu.KotlinLogging
@@ -28,12 +27,8 @@ import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.audit.Event
 import passwordStore.config.SetupEnv
-import passwordStore.navigation.NavController
-import passwordStore.navigation.NavigationHost
-import passwordStore.navigation.composable
-import passwordStore.navigation.rememberNavController
+import passwordStore.navigation.*
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
@@ -87,8 +82,8 @@ fun App(di: DI) = withDI(di) {
                         servicesTable()
                     }
 
-                    composable(Screen.NewService) {
-                        newService(user.value!!) {
+                    authenticatedComposable(Screen.NewService) {
+                        newService {
                             coroutineScope.launch {
                                 services.store(it)
                                 withContext(Dispatchers.Main) {
@@ -98,9 +93,9 @@ fun App(di: DI) = withDI(di) {
                         }
                     }
 
-                    composable(Screen.Details::class) {
+                    authenticatedComposable(Screen.Details::class) {
                         val detailsScreen = navController.currentScreen.value as Screen.Details
-                        newService(user.value!!, detailsScreen.service) { service ->
+                        newService(detailsScreen.service) { service ->
                             coroutineScope.launch {
                                 if (service.dirty) {
                                     services.update(service)
@@ -113,8 +108,8 @@ fun App(di: DI) = withDI(di) {
                         }
                     }
 
-                    composable(Screen.History) {
-                        historyTable(services.historyEvents.value, navController)
+                    authenticatedComposable(Screen.History) {
+                        historyTable(services.historyEvents.value)
                         coroutineScope.launch(Dispatchers.IO) {
                             services.history("", exactMatch = false, user = user.value!!)
                         }

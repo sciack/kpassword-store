@@ -1,10 +1,7 @@
 package passwordStore
 
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
@@ -27,7 +24,8 @@ class Services(
         scope.launch(Dispatchers.IO) {
             val result = servicesRepository.search(user)
             val currentTags = tagRepository.tags(user)
-            withContext(Dispatchers.Main) {
+
+            launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED ) {
                 services.value = result
                 tags.value = currentTags
             }

@@ -34,6 +34,11 @@ class TagViewTest {
     fun setup() {
         val serviceModel by di.instance<Services>()
         serviceModel.user = user
+        runBlocking {
+            servicesRepository.search(user).forEach {
+                servicesRepository.delete(it.service, it.userid)
+            }
+        }
     }
 
     @AfterTest
@@ -70,16 +75,16 @@ class TagViewTest {
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
         val serviceModel by di.instance<Services>()
+        serviceModel.fetchAll()
         rule.setContent {
             withDI(di) {
                 tagView()
-                serviceModel.fetchAll()
             }
         }
         rule.awaitIdle()
-        await.atMost(Duration.ofSeconds(1)).untilAsserted {
-            rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
-        }
+        LOGGER.warn { "Waiting for tag to show" }
+        rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
+
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(5)).untilAsserted {
             assertThat(serviceModel.services.value, equalTo(listOf(service)))

@@ -75,7 +75,7 @@ fun displayService(service: Service, columnIndex: Int) {
         3 -> Text(
             text = service.note,
             softWrap = true,
-            overflow = TextOverflow.Ellipsis,
+            overflow = TextOverflow.Clip,
             minLines = 1,
             maxLines = 5
         )
@@ -83,7 +83,7 @@ fun displayService(service: Service, columnIndex: Int) {
 }
 
 @Composable
-fun historyTable(historyEvents: List<Event>, navController: NavController) {
+fun historyTable(historyEvents: List<Event>) {
     Box(
         modifier = Modifier.fillMaxWidth()
             .padding(10.dp)
@@ -164,7 +164,8 @@ fun renderService(service: Service, clickEvent: () -> Unit) {
 
 
 @Composable
-fun newService(user: User, originalService: Service = Service(), onSubmit: (Service) -> Unit) {
+fun newService( originalService: Service = Service(), onSubmit: (Service) -> Unit) {
+    val serviceModel by localDI().instance<Services>()
     val service = remember {
         mutableStateOf(TextFieldValue(originalService.service))
     }
@@ -249,6 +250,7 @@ fun newService(user: User, originalService: Service = Service(), onSubmit: (Serv
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("submit"),
                 onClick = {
+                    val user = serviceModel.user
                     val service = if (originalService.service.isEmpty()) {
                         Service(
                             service = service.value.text,

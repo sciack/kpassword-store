@@ -1,7 +1,10 @@
 package passwordStore.navigation
 
 import androidx.compose.runtime.Composable
+import org.kodein.di.compose.localDI
+import org.kodein.di.instance
 import passwordStore.Screen
+import passwordStore.Services
 import kotlin.reflect.KClass
 
 /**
@@ -48,6 +51,36 @@ fun NavigationHost.NavigationGraphBuilder.composable(
     content: @Composable () -> Unit
 ) {
     if (navController.currentScreen.value::class == route) {
+        content()
+    }
+
+}
+
+@Composable
+fun NavigationHost.NavigationGraphBuilder.authenticatedComposable(
+    route: KClass<out Screen>,
+    content: @Composable () -> Unit
+) {
+    if (navController.currentScreen.value::class == route) {
+        val serviceModel by localDI().instance<Services>()
+        check(serviceModel.user.id > 0 ) {
+            "Access denied"
+        }
+        content()
+    }
+}
+
+
+@Composable
+fun NavigationHost.NavigationGraphBuilder.authenticatedComposable(
+    route: Screen,
+    content: @Composable () -> Unit
+) {
+    if (navController.currentScreen.value == route) {
+        val serviceModel by localDI().instance<Services>()
+        check(serviceModel.user.id > 0 ) {
+            "Access denied"
+        }
         content()
     }
 
