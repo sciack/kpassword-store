@@ -24,7 +24,7 @@
  *
  */
 
-package passwordStore
+package passwordStore.services
 
 import kotlinx.coroutines.*
 import mu.KotlinLogging

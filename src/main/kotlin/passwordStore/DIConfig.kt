@@ -10,6 +10,8 @@ import org.kodein.di.singleton
 import passwordStore.audit.auditModule
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.navigation.navigation
+import passwordStore.services.Services
+import passwordStore.services.ServicesRepository
 import passwordStore.sql.prodDatasource
 import passwordStore.tags.tagModule
 import passwordStore.users.UserRepository

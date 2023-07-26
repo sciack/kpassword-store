@@ -1,5 +1,7 @@
 package passwordStore
 
+import passwordStore.services.Service
+
 sealed interface Screen {
     val name: String
     val allowBack: Boolean

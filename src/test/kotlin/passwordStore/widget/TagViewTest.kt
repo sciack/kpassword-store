@@ -8,17 +8,19 @@ import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import mu.KotlinLogging
-import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.*
+import passwordStore.services.Services
+import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 class TagViewTest {
@@ -64,8 +66,6 @@ class TagViewTest {
         rule.awaitIdle()
         val services = servicesRepository.search(user)
         val tags = tagRepository.tags(user)
-        LOGGER.warn { "${services}" }
-        LOGGER.warn { "${tags}" }
         rule.onNodeWithText("Tags").assertExists()
     }
 

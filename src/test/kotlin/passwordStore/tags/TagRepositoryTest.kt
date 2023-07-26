@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.kodein.di.instance
 import passwordStore.*
+import passwordStore.services.ServicesRepository
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains

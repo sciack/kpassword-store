@@ -1,5 +1,6 @@
 package passwordStore
 
+import passwordStore.services.Service
 import passwordStore.users.Roles
 import passwordStore.users.User
 

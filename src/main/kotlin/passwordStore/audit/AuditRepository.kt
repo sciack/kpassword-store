@@ -33,8 +33,8 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension
 import passwordStore.sql.saveOrUpdate
-import passwordStore.timezone
-import passwordStore.toTimestamp
+import passwordStore.services.timezone
+import passwordStore.services.toTimestamp
 import passwordStore.utils.titlecase
 import javax.sql.DataSource
 

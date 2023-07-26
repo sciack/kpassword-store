@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
-import passwordStore.Services
+import passwordStore.services.Services
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable

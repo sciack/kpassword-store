@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.Screen
-import passwordStore.Services
+import passwordStore.services.Services
 import kotlin.reflect.KClass
 
 /**

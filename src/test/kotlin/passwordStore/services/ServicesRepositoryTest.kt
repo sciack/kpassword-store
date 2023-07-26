@@ -1,4 +1,4 @@
-package passwordStore
+package passwordStore.services
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -8,10 +8,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import mu.KotlinLogging
 import org.awaitility.kotlin.await
-import org.kodein.di.DI
 import org.kodein.di.instance
-import passwordStore.users.Roles
-import passwordStore.users.User
+import passwordStore.DiInjection
+import passwordStore.testUser
 import java.sql.SQLException
 import java.time.Duration
 import java.time.LocalDateTime

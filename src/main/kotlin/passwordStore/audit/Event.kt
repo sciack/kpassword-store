@@ -26,7 +26,7 @@
 
 package passwordStore.audit
 
-import passwordStore.Service
+import passwordStore.services.Service
 import java.time.LocalDateTime
 
 data class Event(val service: Service, val action: Action, val actionDate: LocalDateTime = LocalDateTime.now())

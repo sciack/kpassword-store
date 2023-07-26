@@ -1,4 +1,4 @@
-package passwordStore
+package passwordStore.services
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text

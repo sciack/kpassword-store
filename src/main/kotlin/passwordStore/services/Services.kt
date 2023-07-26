@@ -1,4 +1,4 @@
-package passwordStore
+package passwordStore.services
 
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.*
@@ -18,7 +18,7 @@ class Services(
 
     val tags = mutableStateOf(mapOf<String, Int>())
 
-    var user = User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
+    var user = NONE
 
     fun fetchAll() {
         scope.launch(Dispatchers.IO) {
@@ -65,5 +65,7 @@ class Services(
         }
     }
 
-
+    companion object {
+        val NONE = User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
+    }
 }

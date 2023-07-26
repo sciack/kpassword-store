@@ -29,6 +29,10 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.*
+import passwordStore.services.Services
+import passwordStore.services.historyTable
+import passwordStore.services.newService
+import passwordStore.services.servicesTable
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository

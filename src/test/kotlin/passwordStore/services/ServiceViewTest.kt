@@ -1,11 +1,9 @@
-package passwordStore
+package passwordStore.services
 
-import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.throws
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -15,7 +13,8 @@ import kotlinx.datetime.toLocalDateTime
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import java.lang.IllegalStateException
+import passwordStore.DiInjection
+import passwordStore.testUser
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -40,7 +39,7 @@ class ServiceViewTest {
             val clock by di.instance<Clock>()
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService() {
+                    newService() {
                         service = it
                     }
                 }
@@ -88,7 +87,7 @@ class ServiceViewTest {
             )
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService( service) {
+                    newService(service) {
                         service = it
                     }
                 }
@@ -124,7 +123,7 @@ class ServiceViewTest {
             )
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService( service) {
+                    newService(service) {
                         service = it
                     }
                 }
@@ -158,7 +157,7 @@ class ServiceViewTest {
             val expectedService = service.copy()
             rule.setContent {
                 withDI(di) {
-                    passwordStore.newService( service) {
+                    newService(service) {
                         service = it
                     }
                 }

@@ -1,4 +1,4 @@
-package passwordStore
+package passwordStore.services
 
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
@@ -31,6 +31,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
+import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
 import passwordStore.widget.Table
@@ -141,7 +142,7 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
     }
 
     val clock: Clock by localDI().instance()
-    Row {
+    Row(Modifier.padding(16.dp)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
                 label = { Text("Service") },
@@ -266,6 +267,6 @@ fun searchField() {
             search.value = it
             services.searchPattern(it.text)
         },
-
-        )
+        modifier = Modifier.testTag("Search field")
+    )
 }
