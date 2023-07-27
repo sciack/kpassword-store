@@ -7,9 +7,8 @@ import javax.sql.DataSource
 
 class TagRepository(private val dataSource: DataSource) {
 
-
     @Throws(SQLException::class)
-    suspend fun tags(user: User): TagElement {
+    fun tags(user: User): TagElement {
         return dataSource.query(
             """select tag, 
             (   
@@ -21,6 +20,8 @@ class TagRepository(private val dataSource: DataSource) {
             from tags t""".trimIndent(), mapOf("userid" to user.userid)
         ) {
             it.getString(1) to it.getInt(2)
+        }.filter { (key, _ )->
+            key.isNotEmpty()
         }.toMap()
     }
 }

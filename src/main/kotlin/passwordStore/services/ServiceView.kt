@@ -8,9 +8,7 @@ import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +30,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
+import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
 import passwordStore.utils.currentTime
@@ -86,6 +85,17 @@ fun servicesTable() {
                         val showDeleteAlert = remember {
                             mutableStateOf(false)
                         }
+                        Icon(Icons.Default.List,
+                            "History",
+                            modifier = Modifier.onClick {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    serviceModel.history(service.service, true)
+                                    withContext(Dispatchers.Main) {
+                                        navController.navigate(Screen.History)
+                                    }
+                                }
+
+                            })
                         Icon(Icons.Default.Edit,
                             "Edit",
                             modifier = Modifier.onClick {

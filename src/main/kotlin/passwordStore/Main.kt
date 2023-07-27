@@ -102,8 +102,10 @@ fun App(di: DI) = withDI(di) {
 
                 authenticatedComposable(Screen.History) {
                     historyTable(serviceModel.historyEvents.value)
-                    coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.history("", exactMatch = false, user = user.value!!)
+                    if (serviceModel.shouldLoadHistory()) {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            serviceModel.history("", exactMatch = false)
+                        }
                     }
                 }
 
@@ -118,6 +120,7 @@ typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
 @Composable
 fun bottomBar(navController: NavController) {
+    val serviceViewModel by localDI().instance<ServiceViewModel>()
     BottomAppBar(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -144,7 +147,10 @@ fun bottomBar(navController: NavController) {
                         Icons.Default.AccountBox, contentDescription = Screen.History.name,
                         modifier = Modifier.testTag("History")
                     )
-                }, onClick = { navController.navigate(Screen.History) })
+                }, onClick = {
+                    serviceViewModel.resetHistory()
+                    navController.navigate(Screen.History)
+                })
             }
         }
 

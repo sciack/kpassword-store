@@ -47,7 +47,7 @@ class ServiceViewModel(
         fetchAll()
     }
 
-    suspend fun history(pattern: String, exactMatch: Boolean, user: User) {
+    suspend fun history(pattern: String, exactMatch: Boolean) {
         val result = servicesRepository.history(pattern, exactMatch, user)
         withContext(Dispatchers.Main) {
             historyEvents.value = result
@@ -88,6 +88,12 @@ class ServiceViewModel(
             fetchAll()
         }
     }
+
+    fun resetHistory() {
+        historyEvents.value = listOf()
+    }
+
+    fun shouldLoadHistory() = historyEvents.value.isEmpty()
 
     companion object {
         val NONE =
