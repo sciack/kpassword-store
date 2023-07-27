@@ -55,7 +55,7 @@ fun servicesTable() {
     }
 
 
-    Column(modifier = Modifier.fillMaxWidth(0.9f)) {
+    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(end= 16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField()
             Spacer(Modifier.width(20.dp))

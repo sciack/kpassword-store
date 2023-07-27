@@ -92,6 +92,7 @@ class AppTest {
         )
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
+
         insertService(service)
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
@@ -100,10 +101,10 @@ class AppTest {
     }
 
     private suspend fun insertService(service: Service) {
-        await.atMost(Duration.ofSeconds(1)).untilAsserted {
-            rule.onNodeWithTag("New Service").assertExists().performClick()
-        }
-        rule.awaitIdle()
+        rule.onNodeWithTag("Drawer").performClick()
+        rule.waitUntilExactlyOneExists(hasTestTag("New Service"))
+        rule.onNodeWithTag("New Service").performClick()
+        rule.waitUntilExactlyOneExists(hasTestTag("service"))
 
         rule.onNodeWithTag("service").performTextInput(service.service)
         rule.onNodeWithTag("username").performTextInput(service.username)

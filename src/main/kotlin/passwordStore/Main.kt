@@ -2,23 +2,24 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -52,13 +53,25 @@ fun App(di: DI) = withDI(di) {
     }
 
     val serviceModel by localDI().instance<ServiceViewModel>()
-    val coroutineScope by localDI().instance<CoroutineScope>()
+    val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     MaterialTheme {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
-            bottomBar = { bottomBar(navController) },
             topBar = {
                 TopAppBar(navigationIcon = {
+                    if (serviceModel.user.id > 0) {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                }
+                            },
+                            modifier = Modifier.testTag("Drawer")
+                        ) {
+                            Icon(Icons.Default.Menu, contentDescription = "")
+                        }
+                    }
                     if (navController.currentScreen.value.allowBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -72,90 +85,141 @@ fun App(di: DI) = withDI(di) {
                     Text("Password Store")
                 })
             }) {
-            NavigationHost(navController) {
-                composable(Screen.Login) {
-                    loginPane(loginFunction = { currentUsername, pwd ->
-                        submit(di, currentUsername, pwd).onSuccess {
-                            user.value = it
-                            serviceModel.user = it
-                            navController.navigate(Screen.List)
+            ModalDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    drawer(navController)
+                },
+                drawerShape = customShape(),
+            ) {
+                NavigationHost(navController) {
+                    composable(Screen.Login) {
+                        coroutineScope.launch {
+                            drawerState.close()
                         }
-                    })
-                }
-
-                composable(Screen.List) {
-                    serviceModel.fetchAll()
-                    servicesTable()
-                }
-
-                authenticatedComposable(Screen.NewService) {
-                    newService {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceModel.store(it)
-                            serviceModel.resetService()
-                            withContext(Dispatchers.Main) {
+                        loginPane(loginFunction = { currentUsername, pwd ->
+                            submit(di, currentUsername, pwd).onSuccess {
+                                user.value = it
+                                serviceModel.user = it
                                 navController.navigate(Screen.List)
+                            }
+                        })
+                    }
+
+                    composable(Screen.List) {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        serviceModel.fetchAll()
+                        servicesTable()
+                    }
+
+                    authenticatedComposable(Screen.NewService) {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        newService {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                serviceModel.store(it)
+                                serviceModel.resetService()
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(Screen.List)
+                                }
                             }
                         }
                     }
-                }
 
-                authenticatedComposable(Screen.History) {
-                    historyTable(serviceModel.historyEvents.value)
-                    if (serviceModel.shouldLoadHistory()) {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceModel.history("", exactMatch = false)
+                    authenticatedComposable(Screen.History) {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        historyTable(serviceModel.historyEvents.value)
+                        if (serviceModel.shouldLoadHistory()) {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                serviceModel.history("", exactMatch = false)
+                            }
                         }
                     }
-                }
 
-            }.build()
-
-
+                }.build()
+            }
         }
     }
 }
 
 typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
-@Composable
-fun bottomBar(navController: NavController) {
-    val serviceViewModel by localDI().instance<ServiceViewModel>()
-    BottomAppBar(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        if (navController.currentScreen.value != Screen.Login) {
-            BottomNavigation(modifier = Modifier.align(Alignment.Bottom).fillMaxHeight()) {
-                BottomNavigationItem(selected = navController.currentScreen.value == Screen.List, icon = {
-                    Icon(
-                        Icons.Default.Home, contentDescription = Screen.List.name,
-                        modifier = Modifier.testTag("Home")
-                    )
-                }, onClick = {
-                    navController.navigate(Screen.List)
-                })
-                BottomNavigationItem(selected = navController.currentScreen.value == Screen.NewService, icon = {
-                    Icon(
-                        Icons.Default.Create, contentDescription = Screen.NewService.name,
-
-                        )
-                }, onClick = {
-                    navController.navigate(Screen.NewService)
-                }, modifier = Modifier.testTag("New Service"))
-                BottomNavigationItem(selected = navController.currentScreen.value == Screen.History, icon = {
-                    Icon(
-                        Icons.Default.AccountBox, contentDescription = Screen.History.name,
-                        modifier = Modifier.testTag("History")
-                    )
-                }, onClick = {
-                    serviceViewModel.resetHistory()
-                    navController.navigate(Screen.History)
-                })
-            }
-        }
-
+fun customShape() = object : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        return Outline.Rectangle(Rect(0f, 0f, 400f, size.height))
     }
 }
+
+@Composable
+fun ColumnScope.drawer(navController: NavController) {
+    val serviceViewModel by localDI().instance<ServiceViewModel>()
+    Row {
+        IconButton(
+            onClick = { navController.navigate(Screen.List) },
+            modifier = Modifier.testTag("Home").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.Home, contentDescription = Screen.List.name,
+            )
+        }
+        Text(
+            text = Screen.List.name,
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.clickable {
+                navController.navigate(Screen.List)
+            }.align(Alignment.CenterVertically)
+        )
+    }
+    Spacer(Modifier.height(12.dp))
+    Row() {
+        IconButton(
+            onClick = {
+                navController.navigate(Screen.NewService)
+            },
+            modifier = Modifier.testTag("New Service").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.Create, contentDescription = Screen.NewService.name,
+
+                )
+        }
+        Text(
+            text = Screen.NewService.name,
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.clickable {
+                navController.navigate(Screen.NewService)
+            }.align(Alignment.CenterVertically)
+        )
+    }
+    Spacer(Modifier.height(12.dp))
+    Row {
+        IconButton(onClick = { navController.navigate(Screen.History) },
+            modifier = Modifier.align(Alignment.CenterVertically)) {
+            Icon(
+                Icons.Default.Create,
+                contentDescription = Screen.History.name
+            )
+        }
+        Text(
+            text = Screen.History.name,
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.clickable {
+                navController.navigate(Screen.History)
+            }.align(Alignment.CenterVertically)
+        )
+    }
+
+}
+
 
 fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
     val userRepository by di.instance<UserRepository>()
