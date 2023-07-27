@@ -10,7 +10,7 @@ import org.kodein.di.singleton
 import passwordStore.audit.auditModule
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.navigation.navigation
-import passwordStore.services.Services
+import passwordStore.services.ServiceViewModel
 import passwordStore.services.ServicesRepository
 import passwordStore.sql.prodDatasource
 import passwordStore.tags.tagModule
@@ -31,7 +31,7 @@ fun diCore(): DI.Module = DI.Module("core") {
 
     bind {
         singleton {
-            Services(instance(), instance(), instance())
+            ServiceViewModel(instance(), instance(), instance())
         }
     }
 

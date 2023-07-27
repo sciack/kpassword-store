@@ -6,7 +6,7 @@ import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
 
-class Services(
+class ServiceViewModel(
     private val servicesRepository: ServicesRepository,
     private val tagRepository: TagRepository,
     private val scope: CoroutineScope

@@ -166,6 +166,7 @@ class ServicesRepository(
             }
         }
         send(Event(service, Action.insert))
+        LOGGER.debug("Stored service {}", service)
         return findByName(service.service, service.userid)
     }
 

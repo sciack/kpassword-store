@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version "1.8.20"
     id("org.jetbrains.compose") version "1.4.1"
     id("com.adarshr.test-logger") version "3.2.0"
-    id("org.jetbrains.kotlinx.kover") version "0.7.2"
+    //id("org.jetbrains.kotlinx.kover") version "0.7.2"
 }
 
 group = "com.github.sciack"
@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.4.0")
 
 }
 

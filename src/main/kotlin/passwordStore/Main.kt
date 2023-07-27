@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -31,7 +32,7 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.*
-import passwordStore.services.Services
+import passwordStore.services.ServiceViewModel
 import passwordStore.services.historyTable
 import passwordStore.services.newService
 import passwordStore.services.servicesTable
@@ -50,7 +51,7 @@ fun App(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-    val serviceModel by localDI().instance<Services>()
+    val serviceModel by localDI().instance<ServiceViewModel>()
     val coroutineScope by localDI().instance<CoroutineScope>()
 
     MaterialTheme {
@@ -89,8 +90,9 @@ fun App(di: DI) = withDI(di) {
 
                 authenticatedComposable(Screen.NewService) {
                     newService {
-                        coroutineScope.launch {
+                        coroutineScope.launch(Dispatchers.IO) {
                             serviceModel.store(it)
+                            serviceModel.resetService()
                             withContext(Dispatchers.Main) {
                                 navController.navigate(Screen.List)
                             }
@@ -123,19 +125,24 @@ fun bottomBar(navController: NavController) {
             BottomNavigation(modifier = Modifier.align(Alignment.Bottom).fillMaxHeight()) {
                 BottomNavigationItem(selected = navController.currentScreen.value == Screen.List, icon = {
                     Icon(
-                        Icons.Default.Home, contentDescription = Screen.List.name
+                        Icons.Default.Home, contentDescription = Screen.List.name,
+                        modifier = Modifier.testTag("Home")
                     )
                 }, onClick = {
                     navController.navigate(Screen.List)
                 })
                 BottomNavigationItem(selected = navController.currentScreen.value == Screen.NewService, icon = {
                     Icon(
-                        Icons.Default.Create, contentDescription = Screen.NewService.name
-                    )
-                }, onClick = { navController.navigate(Screen.NewService) })
+                        Icons.Default.Create, contentDescription = Screen.NewService.name,
+
+                        )
+                }, onClick = {
+                    navController.navigate(Screen.NewService)
+                }, modifier = Modifier.testTag("New Service"))
                 BottomNavigationItem(selected = navController.currentScreen.value == Screen.History, icon = {
                     Icon(
-                        Icons.Default.AccountBox, contentDescription = Screen.History.name
+                        Icons.Default.AccountBox, contentDescription = Screen.History.name,
+                        modifier = Modifier.testTag("History")
                     )
                 }, onClick = { navController.navigate(Screen.History) })
             }

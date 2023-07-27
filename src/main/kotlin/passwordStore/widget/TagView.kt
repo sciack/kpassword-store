@@ -17,12 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
-import passwordStore.services.Services
+import passwordStore.services.ServiceViewModel
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun tagView() {
-    val serviceModel by localDI().instance<Services>()
+    val serviceModel by localDI().instance<ServiceViewModel>()
     val tags = remember {
         serviceModel.tags
     }

@@ -1,8 +1,7 @@
 package passwordStore.widget
 
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
@@ -14,7 +13,7 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
-import passwordStore.services.Services
+import passwordStore.services.ServiceViewModel
 import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import passwordStore.testService
@@ -24,6 +23,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@OptIn(ExperimentalTestApi::class)
 class TagViewTest {
     private val di = DiInjection.testDi
     private val user = testUser()
@@ -35,7 +35,7 @@ class TagViewTest {
 
     @BeforeTest
     fun setup() {
-        val serviceModel by di.instance<Services>()
+        val serviceModel by di.instance<ServiceViewModel>()
         serviceModel.user = user
         runBlocking {
             servicesRepository.search(user).forEach {
@@ -59,7 +59,7 @@ class TagViewTest {
         servicesRepository.store(service)
         rule.setContent {
             withDI(di) {
-                val serviceModel by localDI().instance<Services>()
+                val serviceModel by localDI().instance<ServiceViewModel>()
                 serviceModel.fetchAll()
                 tagView()
             }
@@ -75,7 +75,7 @@ class TagViewTest {
         var service = testService().copy(tags = listOf("Tags"))
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
-        val serviceModel by di.instance<Services>()
+        val serviceModel by di.instance<ServiceViewModel>()
         serviceModel.fetchAll()
         rule.setContent {
             withDI(di) {
@@ -84,7 +84,10 @@ class TagViewTest {
         }
         rule.awaitIdle()
         LOGGER.warn { "Waiting for tag to show" }
+        rule.waitUntilAtLeastOneExists(hasText("Tags"), 3000)
+
         rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
+
 
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(5)).untilAsserted {
