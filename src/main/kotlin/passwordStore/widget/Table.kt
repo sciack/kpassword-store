@@ -52,7 +52,7 @@ fun Table(
 
                         layout(width = maxWidth, height = placeable.height) {
                             val x = (maxWidth - placeable.width) / 2
-                            placeable.placeRelative(x=x, y=0)
+                            placeable.placeRelative(x = x, y = 0)
                         }
                     }) {
                         if (columnIndex == 0) {
@@ -68,11 +68,13 @@ fun Table(
             }
 
             Box(modifier = modifier) {
-                LazyColumn(state = verticalLazyListState,
-                    modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(
+                    state = verticalLazyListState,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     items(rowCount) { row ->
 
-                        Column(modifier=Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
                             Row(modifier = rowModifier) {
 
                                 (0..columnCount).forEach { col ->

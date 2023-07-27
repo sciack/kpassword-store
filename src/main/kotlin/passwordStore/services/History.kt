@@ -49,7 +49,7 @@ fun displayHistService(event: Event, columnIndex: Int) {
             overflow = TextOverflow.Clip,
             minLines = 1,
             maxLines = 5,
-            modifier = Modifier.widthIn(max=350.dp)
+            modifier = Modifier.widthIn(max = 350.dp)
         )
 
 

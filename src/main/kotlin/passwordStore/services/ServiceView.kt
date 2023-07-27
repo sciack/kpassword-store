@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,9 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.navigation.NavController
@@ -42,7 +40,7 @@ import passwordStore.widget.bottomBorder
 import passwordStore.widget.tagView
 import kotlin.random.Random
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun servicesTable() {
     val serviceModel by localDI().instance<Services>()
@@ -78,6 +76,10 @@ fun servicesTable() {
                 beforeRow = { row ->
                     val service = services.value[row]
                     Row {
+
+                        val showDeleteAlert = remember {
+                            mutableStateOf(false)
+                        }
                         Icon(Icons.Default.Edit,
                             "Edit",
                             modifier = Modifier.onClick {
@@ -87,13 +89,46 @@ fun servicesTable() {
                         Icon(Icons.Default.Delete,
                             "Delete",
                             modifier = Modifier.onClick {
-                                serviceModel.delete(service)
-                            })
+                                showDeleteAlert.value = true
+                            }
+                        )
+                        if (showDeleteAlert.value) {
+                            AlertDialog(
+                                text = {
+                                    Text("Do you want to delete service ${service.service}?")
+                                },
+                                onDismissRequest = {},
+                                title = {
+                                    Text(
+                                        "Delete confirmation", fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                dismissButton = {
+                                    Button(onClick = {
+                                        showDeleteAlert.value = false
+                                    }) {
+                                        Text("Cancel")
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(onClick = {
+                                        serviceModel.delete(service)
+                                        showDeleteAlert.value = false
+                                    }) {
+                                        Text("OK")
+                                    }
+                                }
+                            )
+
+
+                        }
                     }
                 }
             )
         }
     }
+
+
     if (selectedService.value.service.isNotEmpty()) {
         Card(modifier = Modifier.layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
@@ -252,8 +287,10 @@ fun newService(onSubmit: (Service) -> Unit) {
                     modifier = Modifier.testTag("submit"),
                     onClick = {
                         val user = serviceModel.user
-                        val newService = service.value.copy(userid = user.userid, dirty = dirty.value,
-                            updateTime = clock.currentTime())
+                        val newService = service.value.copy(
+                            userid = user.userid, dirty = dirty.value,
+                            updateTime = clock.currentTime()
+                        )
                         onSubmit(newService)
                     }
                 ) {

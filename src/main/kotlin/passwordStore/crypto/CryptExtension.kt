@@ -78,7 +78,7 @@ class CryptExtension(private var secrets: Secrets) {
 }
 
 
-val prodCryptExtension = DI.Module ("prodCryptoExtension"){
+val prodCryptExtension = DI.Module("prodCryptoExtension") {
     bind<CryptExtension> {
         singleton {
             CryptExtension(SecretsFactory("prod").secrets())

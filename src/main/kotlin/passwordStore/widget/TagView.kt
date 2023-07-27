@@ -31,7 +31,7 @@ fun tagView() {
     }
 
     FlowRow(
-        maxItemsInEachRow = 10,
+        maxItemsInEachRow = 15,
         modifier = Modifier.fillMaxWidth().focusable(false),
 
         ) {

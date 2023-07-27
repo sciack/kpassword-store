@@ -31,7 +31,7 @@ class Services(
             val result = servicesRepository.search(user, pattern, tag)
             val currentTags = tagRepository.tags(user)
 
-            launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED ) {
+            launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
                 services.value = result
                 tags.value = currentTags
             }
@@ -57,7 +57,7 @@ class Services(
     fun searchWithTags(tag: String) {
         this.tag = tag
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern=pattern, tag= tag)
+            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
             }
@@ -67,7 +67,7 @@ class Services(
     fun searchPattern(pattern: String) {
         this.pattern = pattern
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern= pattern, tag = tag)
+            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
             }
@@ -90,6 +90,7 @@ class Services(
     }
 
     companion object {
-        val NONE = User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
+        val NONE =
+            User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
     }
 }

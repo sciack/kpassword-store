@@ -23,9 +23,11 @@ fun diCore(): DI.Module = DI.Module("core") {
     import(repositories)
     import(navigation)
     import(tagModule)
-    bind { singleton {
-        CoroutineScope(SupervisorJob())
-    } }
+    bind {
+        singleton {
+            CoroutineScope(SupervisorJob())
+        }
+    }
 
     bind {
         singleton {

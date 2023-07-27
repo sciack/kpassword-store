@@ -70,7 +70,7 @@ class ServicesRepositoryTest() {
         val result = runCatching {
             servicesRepository.store(service)
         }
-        assertThat (
+        assertThat(
             { result.getOrThrow() }, throws<SQLException>()
         )
     }
@@ -115,7 +115,7 @@ class ServicesRepositoryTest() {
         val storedService = servicesRepository.store(service)
         val result = servicesRepository.search(user, "", "Tag")
         assertThat(result, isEmpty.not())
-        assertThat(result[0].service, equalTo("Test service") )
+        assertThat(result[0].service, equalTo("Test service"))
     }
 
     @Test

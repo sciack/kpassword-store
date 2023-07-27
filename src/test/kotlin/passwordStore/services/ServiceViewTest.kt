@@ -4,13 +4,9 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -29,6 +25,7 @@ class ServiceViewTest {
     @get:Rule
     val rule = createComposeRule()
     val serviceModel by di.instance<Services>()
+
     @BeforeTest
     fun setUp() = runBlocking {
 
@@ -37,7 +34,7 @@ class ServiceViewTest {
     }
 
     @AfterTest
-    fun tearDown()  {
+    fun tearDown() {
         serviceModel.resetService()
     }
 
@@ -138,7 +135,7 @@ class ServiceViewTest {
                 }
             }
             rule.awaitIdle()
-            val expectedService = service.copy(tags= listOf("Tag"), dirty = true)
+            val expectedService = service.copy(tags = listOf("Tag"), dirty = true)
             rule.onNodeWithTag("tags").performTextReplacement(expectedService.tags[0])
             rule.onNodeWithTag("submit").performClick()
             rule.awaitIdle()

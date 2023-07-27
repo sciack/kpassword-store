@@ -33,8 +33,8 @@ class TableKtTest {
         headers.forEach {
             rule.onNodeWithText(it).assertExists()
         }
-        (0 until 2).forEach {row ->
-            (0 until 2 ).forEach{col ->
+        (0 until 2).forEach { row ->
+            (0 until 2).forEach { col ->
                 rule.onNodeWithText("Row: $row, Column: $col").assertExists()
             }
         }

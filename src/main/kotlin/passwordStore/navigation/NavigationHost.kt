@@ -63,7 +63,7 @@ fun NavigationHost.NavigationGraphBuilder.authenticatedComposable(
 ) {
     if (navController.currentScreen.value::class == route) {
         val serviceModel by localDI().instance<Services>()
-        check(serviceModel.user.id > 0 ) {
+        check(serviceModel.user.id > 0) {
             "Access denied"
         }
         content()
@@ -78,7 +78,7 @@ fun NavigationHost.NavigationGraphBuilder.authenticatedComposable(
 ) {
     if (navController.currentScreen.value == route) {
         val serviceModel by localDI().instance<Services>()
-        check(serviceModel.user.id > 0 ) {
+        check(serviceModel.user.id > 0) {
             "Access denied"
         }
         content()

@@ -32,9 +32,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension
-import passwordStore.sql.saveOrUpdate
 import passwordStore.services.timezone
 import passwordStore.services.toTimestamp
+import passwordStore.sql.saveOrUpdate
 import passwordStore.utils.titlecase
 import javax.sql.DataSource
 
@@ -76,7 +76,7 @@ class AuditEventDeque(
     override suspend fun onEvent(event: AuditMessage) {
         withContext(Dispatchers.IO) {
             launch {
-                LOGGER.info {"Storing event ${event}"}
+                LOGGER.info { "Storing event ${event}" }
                 repository.track(event.event)
             }
         }

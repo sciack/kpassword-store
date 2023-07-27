@@ -2,7 +2,9 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -69,41 +71,41 @@ fun App(di: DI) = withDI(di) {
                     Text("Password Store")
                 })
             }) {
-                NavigationHost(navController) {
-                    composable(Screen.Login) {
-                        loginPane(loginFunction = { currentUsername, pwd ->
-                            submit(di, currentUsername, pwd).onSuccess {
-                                user.value = it
-                                serviceModel.user = it
+            NavigationHost(navController) {
+                composable(Screen.Login) {
+                    loginPane(loginFunction = { currentUsername, pwd ->
+                        submit(di, currentUsername, pwd).onSuccess {
+                            user.value = it
+                            serviceModel.user = it
+                            navController.navigate(Screen.List)
+                        }
+                    })
+                }
+
+                composable(Screen.List) {
+                    serviceModel.fetchAll()
+                    servicesTable()
+                }
+
+                authenticatedComposable(Screen.NewService) {
+                    newService {
+                        coroutineScope.launch {
+                            serviceModel.store(it)
+                            withContext(Dispatchers.Main) {
                                 navController.navigate(Screen.List)
                             }
-                        })
-                    }
-
-                    composable(Screen.List) {
-                        serviceModel.fetchAll()
-                        servicesTable()
-                    }
-
-                    authenticatedComposable(Screen.NewService) {
-                        newService {
-                            coroutineScope.launch {
-                                serviceModel.store(it)
-                                withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.List)
-                                }
-                            }
                         }
                     }
+                }
 
-                    authenticatedComposable(Screen.History) {
-                        historyTable(serviceModel.historyEvents.value)
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceModel.history("", exactMatch = false, user = user.value!!)
-                        }
+                authenticatedComposable(Screen.History) {
+                    historyTable(serviceModel.historyEvents.value)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        serviceModel.history("", exactMatch = false, user = user.value!!)
                     }
+                }
 
-                }.build()
+            }.build()
 
 
         }

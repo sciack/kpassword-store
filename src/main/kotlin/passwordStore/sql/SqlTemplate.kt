@@ -66,11 +66,11 @@ fun <T> DataSource.singleRow(sql: String, params: Map<String, Any?>, mapper: Map
 
 fun <T> Connection.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T {
 
-        val parameters = parse(sql)
-        return this.prepareStatement(parameters.sql).use { ps ->
-            parameters.apply(ps, params)
-            ps.singleRowExecution(mapper)
-        }
+    val parameters = parse(sql)
+    return this.prepareStatement(parameters.sql).use { ps ->
+        parameters.apply(ps, params)
+        ps.singleRowExecution(mapper)
+    }
 }
 
 
@@ -180,4 +180,4 @@ fun DataSource.performTransaction(tx: Connection.() -> Unit) {
 
 }
 
-private val LOGGER = KotlinLogging.logger {  }
+private val LOGGER = KotlinLogging.logger { }
