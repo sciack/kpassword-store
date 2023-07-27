@@ -82,6 +82,13 @@ class Services(
         selectedService.value = Service()
     }
 
+    fun delete(service: Service) {
+        scope.launch(Dispatchers.IO) {
+            servicesRepository.delete(serviceName = service.service, userId = user.userid)
+            fetchAll()
+        }
+    }
+
     companion object {
         val NONE = User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -28,10 +29,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
+import passwordStore.utils.currentTime
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder
 import passwordStore.widget.tagView
@@ -78,6 +83,12 @@ fun servicesTable() {
                             modifier = Modifier.onClick {
                                 serviceModel.selectService(service)
                             })
+
+                        Icon(Icons.Default.Delete,
+                            "Delete",
+                            modifier = Modifier.onClick {
+                                serviceModel.delete(service)
+                            })
                     }
                 }
             )
@@ -92,7 +103,7 @@ fun servicesTable() {
                 placeable.place(x, 10)
             }
         }) {
-            newService() { service ->
+            newService { service ->
                 coroutineScope.launch {
                     if (service.dirty) {
                         serviceModel.update(service)
@@ -241,7 +252,8 @@ fun newService(onSubmit: (Service) -> Unit) {
                     modifier = Modifier.testTag("submit"),
                     onClick = {
                         val user = serviceModel.user
-                        val newService = service.value.copy(userid = user.userid, dirty = dirty.value)
+                        val newService = service.value.copy(userid = user.userid, dirty = dirty.value,
+                            updateTime = clock.currentTime())
                         onSubmit(newService)
                     }
                 ) {

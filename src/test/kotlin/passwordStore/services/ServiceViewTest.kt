@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -15,6 +16,8 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.testUser
+import passwordStore.utils.currentTime
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -25,21 +28,28 @@ class ServiceViewTest {
 
     @get:Rule
     val rule = createComposeRule()
-
+    val serviceModel by di.instance<Services>()
     @BeforeTest
     fun setUp() = runBlocking {
-        val serviceModel by di.instance<Services>()
+
         serviceModel.user = user
+        serviceModel.resetService()
+    }
+
+    @AfterTest
+    fun tearDown()  {
+        serviceModel.resetService()
     }
 
     @Test
     fun newService() {
-        runBlocking(Dispatchers.Main) {
+        runTest {
             var service = Service()
             val clock by di.instance<Clock>()
+            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService() {
+                    newService {
                         service = it
                     }
                 }
@@ -52,10 +62,9 @@ class ServiceViewTest {
                 tags = listOf("tag"),
                 note = "someNote",
                 userid = user.userid,
-                dirty = false,
+                dirty = true,
                 score = 0.0,
-                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    .toJavaLocalDateTime()
+                updateTime = clock.currentTime()
             )
             rule.onNodeWithTag("service").performTextInput(expectedService.service)
             rule.onNodeWithTag("username").performTextInput(expectedService.username)
@@ -71,7 +80,7 @@ class ServiceViewTest {
 
     @Test
     fun `should update the result`() {
-        runBlocking(Dispatchers.Main) {
+        runTest {
             val clock by di.instance<Clock>()
             var service = Service(
                 service = "my service",
@@ -82,12 +91,12 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    .toJavaLocalDateTime()
+                updateTime = clock.currentTime()
             )
+            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService(service) {
+                    newService() {
                         service = it
                     }
                 }
@@ -107,7 +116,7 @@ class ServiceViewTest {
 
     @Test
     fun `should be dirty on tag change`() {
-        runBlocking(Dispatchers.Main) {
+        runTest {
             val clock by di.instance<Clock>()
             var service = Service(
                 service = "my service",
@@ -118,12 +127,12 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    .toJavaLocalDateTime()
+                updateTime = clock.currentTime()
             )
+            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService(service) {
+                    newService() {
                         service = it
                     }
                 }
@@ -138,9 +147,9 @@ class ServiceViewTest {
     }
 
 
-    @Test()
+    @Test
     fun `should not update update the service name`() {
-        runBlocking(Dispatchers.Main) {
+        runTest {
             val clock by di.instance<Clock>()
             var service = Service(
                 service = "my service",
@@ -151,13 +160,12 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    .toJavaLocalDateTime()
+                updateTime = clock.currentTime()
             )
             val expectedService = service.copy()
             rule.setContent {
                 withDI(di) {
-                    newService(service) {
+                    newService() {
                         service = it
                     }
                 }
