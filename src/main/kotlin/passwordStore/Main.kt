@@ -16,7 +16,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.loadXmlImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -64,7 +67,11 @@ fun App(di: DI) = withDI(di) {
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
-                                    drawerState.open()
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
                                 }
                             },
                             modifier = Modifier.testTag("Drawer")
@@ -160,7 +167,7 @@ fun customShape() = object : Shape {
 }
 
 @Composable
-fun ColumnScope.drawer(navController: NavController) {
+fun drawer(navController: NavController) {
     val serviceViewModel by localDI().instance<ServiceViewModel>()
     Row {
         IconButton(
@@ -204,8 +211,9 @@ fun ColumnScope.drawer(navController: NavController) {
     Row {
         IconButton(onClick = { navController.navigate(Screen.History) },
             modifier = Modifier.align(Alignment.CenterVertically)) {
+
             Icon(
-                Icons.Default.Create,
+                painterResource("/icons/history.svg"),
                 contentDescription = Screen.History.name
             )
         }

@@ -34,6 +34,7 @@ class ServiceViewModel(
             launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
                 services.value = result
                 tags.value = currentTags
+                resetHistory()
             }
         }
     }

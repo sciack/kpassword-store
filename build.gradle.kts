@@ -65,7 +65,7 @@ compose.desktop {
         mainClass = "passwordStore.MainKt"
 
         nativeDistributions {
-            targetFormats( TargetFormat.Rpm)
+            targetFormats( TargetFormat.Rpm, TargetFormat.Msi)
             packageName = "kpassword-store"
             packageVersion = "1.0.0"
         }
