@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Table(
@@ -50,7 +51,8 @@ fun Table(
                         }
 
                         layout(width = maxWidth, height = placeable.height) {
-                            placeable.placeRelative(0, 0)
+                            val x = (maxWidth - placeable.width) / 2
+                            placeable.placeRelative(x = x, y = 0)
                         }
                     }) {
                         if (columnIndex == 0) {
@@ -66,11 +68,13 @@ fun Table(
             }
 
             Box(modifier = modifier) {
-                LazyColumn(state = verticalLazyListState,
-                    modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(
+                    state = verticalLazyListState,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     items(rowCount) { row ->
 
-                        Column(modifier=Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
                             Row(modifier = rowModifier) {
 
                                 (0..columnCount).forEach { col ->
@@ -87,7 +91,7 @@ fun Table(
                                         layout(width = maxWidth, height = placeable.height) {
                                             placeable.placeRelative(0, 0)
                                         }
-                                    }) {
+                                    }.padding(8.dp)) {
                                         if (col == 0) {
                                             beforeRow.invoke(row)
                                         } else {

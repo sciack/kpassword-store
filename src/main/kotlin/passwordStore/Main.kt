@@ -2,7 +2,9 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -48,9 +50,9 @@ fun App(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-
-    val services by localDI().instance<Services>()
+    val serviceModel by localDI().instance<Services>()
     val coroutineScope by localDI().instance<CoroutineScope>()
+
     MaterialTheme {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             bottomBar = { bottomBar(navController) },
@@ -69,58 +71,42 @@ fun App(di: DI) = withDI(di) {
                     Text("Password Store")
                 })
             }) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                NavigationHost(navController) {
-                    composable(Screen.Login) {
-                        loginPane(loginFunction = { currentUsername, pwd ->
-                            submit(di, currentUsername, pwd).onSuccess {
-                                user.value = it
-                                services.user = it
+            NavigationHost(navController) {
+                composable(Screen.Login) {
+                    loginPane(loginFunction = { currentUsername, pwd ->
+                        submit(di, currentUsername, pwd).onSuccess {
+                            user.value = it
+                            serviceModel.user = it
+                            navController.navigate(Screen.List)
+                        }
+                    })
+                }
+
+                composable(Screen.List) {
+                    serviceModel.fetchAll()
+                    servicesTable()
+                }
+
+                authenticatedComposable(Screen.NewService) {
+                    newService {
+                        coroutineScope.launch {
+                            serviceModel.store(it)
+                            withContext(Dispatchers.Main) {
                                 navController.navigate(Screen.List)
                             }
-                        })
-                    }
-
-                    composable(Screen.List) {
-                        services.fetchAll()
-                        servicesTable()
-                    }
-
-                    authenticatedComposable(Screen.NewService) {
-                        newService {
-                            coroutineScope.launch {
-                                services.store(it)
-                                withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.List)
-                                }
-                            }
                         }
                     }
+                }
 
-                    authenticatedComposable(Screen.Details::class) {
-                        val detailsScreen = navController.currentScreen.value as Screen.Details
-                        newService(detailsScreen.service) { service ->
-                            coroutineScope.launch {
-                                if (service.dirty) {
-                                    services.update(service)
-
-                                    withContext(Dispatchers.Main) {
-                                        navController.navigate(Screen.List)
-                                    }
-                                }
-                            }
-                        }
+                authenticatedComposable(Screen.History) {
+                    historyTable(serviceModel.historyEvents.value)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        serviceModel.history("", exactMatch = false, user = user.value!!)
                     }
+                }
 
-                    authenticatedComposable(Screen.History) {
-                        historyTable(services.historyEvents.value)
-                        coroutineScope.launch(Dispatchers.IO) {
-                            services.history("", exactMatch = false, user = user.value!!)
-                        }
-                    }
+            }.build()
 
-                }.build()
-            }
 
         }
     }

@@ -5,8 +5,6 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.throws
 import io.mockk.mockk
 import io.mockk.verifyAll
-
-import java.lang.IllegalArgumentException
 import java.sql.PreparedStatement
 import java.sql.Types
 import kotlin.test.Test
@@ -103,10 +101,10 @@ class ParametersTest {
     fun `should throw an error if not enough parameter are passed`() {
         val parameters = Parameters.parse("insert into xyz (foo, bar) values :foo, :bar")
         val ps = mockk<PreparedStatement>(relaxed = true)
-        val input = mapOf( "bar" to "bars")
-        assertThat( {
+        val input = mapOf("bar" to "bars")
+        assertThat({
             parameters.apply(ps, input)
-        }, throws<IllegalArgumentException>() )
+        }, throws<IllegalArgumentException>())
     }
 
 
@@ -114,9 +112,9 @@ class ParametersTest {
     fun `should throw an error when too many parameter are passed`() {
         val parameters = Parameters.parse("insert into xyz (foo, bar) values :bar")
         val ps = mockk<PreparedStatement>(relaxed = true)
-        val input = mapOf( "bar" to "bars", "foo" to "foos")
-        assertThat( {
+        val input = mapOf("bar" to "bars", "foo" to "foos")
+        assertThat({
             parameters.apply(ps, input)
-        }, throws<IllegalArgumentException>() )
+        }, throws<IllegalArgumentException>())
     }
 }

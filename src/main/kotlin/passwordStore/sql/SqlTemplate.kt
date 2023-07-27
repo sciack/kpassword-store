@@ -26,6 +26,7 @@
 
 package passwordStore.sql
 
+import mu.KotlinLogging
 import passwordStore.sql.Parameters.Companion.parse
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -65,11 +66,11 @@ fun <T> DataSource.singleRow(sql: String, params: Map<String, Any?>, mapper: Map
 
 fun <T> Connection.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T {
 
-        val parameters = parse(sql)
-        return this.prepareStatement(parameters.sql).use { ps ->
-            parameters.apply(ps, params)
-            ps.singleRowExecution(mapper)
-        }
+    val parameters = parse(sql)
+    return this.prepareStatement(parameters.sql).use { ps ->
+        parameters.apply(ps, params)
+        ps.singleRowExecution(mapper)
+    }
 }
 
 
@@ -158,16 +159,25 @@ fun DataSource.performTransaction(tx: Connection.() -> Unit) {
             c.autoCommit = false
             c.tx()
         }.onSuccess {
-            run {
+            LOGGER.debug { "Transaction successful, start commit" }
+            runCatching {
                 c.commit()
+            }.onFailure {
+                LOGGER.warn { "Fail to commit" }
             }
+            LOGGER.debug { "Transaction successful, commit done" }
             c.autoCommit = isAutocommit
         }.onFailure {
+            LOGGER.warn(it) { "Error in transaction" }
             runCatching {
                 c.rollback()
+            }.onFailure {
+                LOGGER.warn { "Fail to rollback" }
             }
             c.autoCommit = isAutocommit
         }.getOrThrow()
     }
 
 }
+
+private val LOGGER = KotlinLogging.logger { }

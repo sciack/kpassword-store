@@ -35,7 +35,7 @@ import java.util.*
  *
  * @since 1.0
  */
-class LevenshteinDistance @JvmOverloads constructor(threshold: Int? = null)  {
+class LevenshteinDistance @JvmOverloads constructor(threshold: Int? = null) {
     /**
      * Gets the distance threshold.
      *
@@ -221,7 +221,8 @@ class LevenshteinDistance @JvmOverloads constructor(threshold: Int? = null)  {
                 // compute stripe indices, constrain to array size
                 val min = Math.max(1, j - threshold)
                 val max = if (j > Int.MAX_VALUE - threshold) n else Math.min(
-                        n, j + threshold)
+                    n, j + threshold
+                )
                 // ignore entry left of leftmost
                 if (min > 1) {
                     d[min - 1] = Int.MAX_VALUE

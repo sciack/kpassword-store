@@ -13,14 +13,15 @@ import org.junit.Rule
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.*
+import passwordStore.DiInjection
 import passwordStore.services.Services
 import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
+import passwordStore.testService
+import passwordStore.testUser
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class TagViewTest {

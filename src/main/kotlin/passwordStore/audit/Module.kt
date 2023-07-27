@@ -14,7 +14,7 @@ internal val auditModule = DI.Module("auditModule") {
             EventBus(instance())
         }
     }
-    bind<AuditEventDeque>{
+    bind<AuditEventDeque> {
         eagerSingleton {
             AuditEventDeque(instance(), instance())
         }

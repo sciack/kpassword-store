@@ -20,5 +20,6 @@ fun String.distance(to: String): Double {
     }.average()
 }
 
-fun String.titlecase() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun String.titlecase() =
+    this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 

@@ -2,15 +2,15 @@ package passwordStore.config
 
 import mu.KotlinLogging
 import java.nio.file.Path
-import java.util.Properties
+import java.util.*
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.reader
 
 object SetupEnv {
-    private val LOGGER = KotlinLogging.logger {  }
+    private val LOGGER = KotlinLogging.logger { }
     fun configure(envFile: String) {
         val path = Path.of(envFile)
-        LOGGER.info {"Read configuration from ${path.absolutePathString()}"}
+        LOGGER.info { "Read configuration from ${path.absolutePathString()}" }
         val properties = Properties()
         path.reader().use {
             properties.load(it)

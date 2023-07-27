@@ -13,7 +13,7 @@ fun testUser(): User = User(
     roles = setOf(Roles.NormalUser),
 )
 
-fun testService(service:String = "test") = Service(
+fun testService(service: String = "test") = Service(
     service = service,
     userid = testUser().userid,
     username = "testUser",

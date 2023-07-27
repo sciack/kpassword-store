@@ -31,6 +31,6 @@ import java.time.LocalDateTime
 
 data class Event(val service: Service, val action: Action, val actionDate: LocalDateTime = LocalDateTime.now())
 
-data class AuditMessage( val event: Event)
+data class AuditMessage(val event: Event)
 
 enum class Action { delete, insert, update }

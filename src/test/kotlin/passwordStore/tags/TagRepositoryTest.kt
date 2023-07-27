@@ -5,8 +5,10 @@ import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.kodein.di.instance
-import passwordStore.*
+import passwordStore.DiInjection
 import passwordStore.services.ServicesRepository
+import passwordStore.testService
+import passwordStore.testUser
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -29,7 +31,7 @@ class TagRepositoryTest {
     @Test
     fun `should retrieve tags`() {
         runTest {
-            val service = testService().copy(tags= listOf("Tags"))
+            val service = testService().copy(tags = listOf("Tags"))
             servicesRepository.store(service)
             val tags = tagRepository.tags(testUser)
             assertContains(tags, "Tags")

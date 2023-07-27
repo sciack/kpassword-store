@@ -52,7 +52,7 @@ class AppTest {
         rule.onNodeWithTag("Login error msg").assertExists().assertTextContains("Invalid credentials")
     }
 
-    private suspend fun performLogin(username:String = "m.sciachero") {
+    private suspend fun performLogin(username: String = "m.sciachero") {
         rule.awaitIdle()
         rule.onNodeWithTag("username").assertExists().performTextInput(username)
         rule.awaitIdle()

@@ -56,13 +56,15 @@ class Parameters private constructor(
             "Missing value for params: ${keys.subtract(arguments.keys).joinToString(",") { it }}"
         }
         require(keys.containsAll(arguments.keys)) {
-            "Provided arguments are more than expected parameters: ${arguments.keys.subtract(keys).joinToString(",") { it }}"
+            "Provided arguments are more than expected parameters: ${
+                arguments.keys.subtract(keys).joinToString(",") { it }
+            }"
         }
         var i = 1
         for (key in keys) {
             arguments[key]?.let {
                 statement.setObject(i++, it)
-            }?:statement.setNull(i++, Types.NULL)
+            } ?: statement.setNull(i++, Types.NULL)
         }
     }
 

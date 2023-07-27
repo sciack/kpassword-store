@@ -189,7 +189,7 @@ class ServicesRepository(
           """, mapOf("serviceName" to serviceName, "userId" to userId)
     ) { rs -> asService(rs, Mode.FETCH) }
 
-    private fun Connection.findServiceId( serviceName: String, userId: String): Long =
+    private fun Connection.findServiceId(serviceName: String, userId: String): Long =
         this.singleRow(
             """
                 select id from services 

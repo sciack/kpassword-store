@@ -6,11 +6,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -19,35 +17,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
-import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
+import passwordStore.utils.currentTime
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder
 import passwordStore.widget.tagView
+import kotlin.random.Random
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun servicesTable() {
     val serviceModel by localDI().instance<Services>()
     val navController by localDI().instance<NavController>()
+    val coroutineScope by localDI().instance<CoroutineScope>()
+
     val services = remember {
         serviceModel.services
     }
 
-    Column(Modifier.fillMaxSize(.9f)) {
+    val selectedService = remember {
+        serviceModel.selectedService
+    }
+
+
+    Column(modifier = Modifier.fillMaxWidth(0.9f)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField()
             Spacer(Modifier.width(20.dp))
@@ -62,25 +71,90 @@ fun servicesTable() {
                 headers = listOf("Service", "Username", "Password", "Note"),
                 cellContent = { columnIndex, rowIndex ->
                     val service = services.value[rowIndex]
-                    displayService(service, columnIndex)
+                    cell(service, columnIndex)
                 },
                 beforeRow = { row ->
                     val service = services.value[row]
                     Row {
+
+                        val showDeleteAlert = remember {
+                            mutableStateOf(false)
+                        }
                         Icon(Icons.Default.Edit,
                             "Edit",
                             modifier = Modifier.onClick {
-                                navController.navigate(Screen.Details(service))
+                                serviceModel.selectService(service)
                             })
+
+                        Icon(Icons.Default.Delete,
+                            "Delete",
+                            modifier = Modifier.onClick {
+                                showDeleteAlert.value = true
+                            }
+                        )
+                        if (showDeleteAlert.value) {
+                            AlertDialog(
+                                text = {
+                                    Text("Do you want to delete service ${service.service}?")
+                                },
+                                onDismissRequest = {},
+                                title = {
+                                    Text(
+                                        "Delete confirmation", fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                dismissButton = {
+                                    Button(onClick = {
+                                        showDeleteAlert.value = false
+                                    }) {
+                                        Text("Cancel")
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(onClick = {
+                                        serviceModel.delete(service)
+                                        showDeleteAlert.value = false
+                                    }) {
+                                        Text("OK")
+                                    }
+                                }
+                            )
+
+
+                        }
                     }
                 }
             )
         }
     }
+
+
+    if (selectedService.value.service.isNotEmpty()) {
+        Card(modifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val maxWidth = constraints.maxWidth
+            val x = (maxWidth - placeable.width).coerceAtLeast(0)
+            layout(width = placeable.width, height = placeable.height) {
+                placeable.place(x, 10)
+            }
+        }) {
+            newService { service ->
+                coroutineScope.launch {
+                    if (service.dirty) {
+                        serviceModel.update(service)
+                        withContext(Dispatchers.Main) {
+                            selectedService.value = Service()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 @Composable
-fun displayService(service: Service, columnIndex: Int) {
+fun cell(service: Service, columnIndex: Int) {
     val clipboardManager = LocalClipboardManager.current
     ContextMenuDataProvider(
         items = {
@@ -102,7 +176,7 @@ fun displayService(service: Service, columnIndex: Int) {
             when (columnIndex) {
                 0 -> Text(service.service)
                 1 -> Text(service.username)
-                2 -> Text(text = "****")
+                2 -> Text(text = service.password.obfuscate())
                 3 -> Text(
                     text = service.note,
                     softWrap = true,
@@ -116,42 +190,46 @@ fun displayService(service: Service, columnIndex: Int) {
     }
 }
 
+private fun String.obfuscate(): String {
+    val numStar = Random.nextInt(this.length / 2, this.length * 2)
+    return "*".repeat(numStar)
+}
+
 
 @Composable
-fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit) {
+fun newService(onSubmit: (Service) -> Unit) {
     val serviceModel by localDI().instance<Services>()
     val navController by localDI().instance<NavController>()
 
     val service = remember {
-        mutableStateOf(TextFieldValue(originalService.service))
+        serviceModel.selectedService
     }
-    val username = remember {
-        mutableStateOf(TextFieldValue(originalService.username))
+
+    val tags = remember {
+        mutableStateOf(serviceModel.selectedService.value.tags.toSet())
     }
-    val password = remember {
-        mutableStateOf(TextFieldValue(originalService.password))
-    }
-    val note = remember {
-        mutableStateOf(TextFieldValue(originalService.note))
-    }
+
     val dirty = remember {
         mutableStateOf(false)
     }
-    val tags = remember {
-        mutableStateOf(originalService.tags.toSet())
-    }
 
+    val readonly = remember {
+        mutableStateOf(serviceModel.selectedService.value.service.isNotEmpty())
+    }
     val clock: Clock by localDI().instance()
+
+    tags.value = serviceModel.selectedService.value.tags.toSet()
+
     Row(Modifier.padding(16.dp)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
                 label = { Text("Service") },
-                onValueChange = {
-                    dirty.value = dirty.value || service.value != it
-                    service.value = it
+                onValueChange = { value ->
+                    dirty.value = dirty.value || service.value.service != value
+                    service.value = service.value.copy(service = value)
                 },
-                readOnly = originalService.service.isNotEmpty(),
-                value = service.value,
+                readOnly = readonly.value,
+                value = service.value.service,
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("service"),
@@ -159,15 +237,17 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
             )
 
             tagEditor(tags, onValueChange = { values ->
-                dirty.value = dirty.value || values != originalService.tags
+                val modelTags = serviceModel.selectedService.value.tags
+                dirty.value = dirty.value || values != modelTags
+                service.value = service.value.copy(tags = values.toList())
             })
 
             OutlinedTextField(
                 label = { Text("Username") },
-                value = username.value,
+                value = service.value.username,
                 onValueChange = {
-                    dirty.value = dirty.value || username.value != it
-                    username.value = it
+                    dirty.value = dirty.value || service.value.username != it
+                    service.value = service.value.copy(username = it)
                 },
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
@@ -178,10 +258,10 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
 
             OutlinedTextField(
                 label = { Text("Password") },
-                value = password.value,
+                value = service.value.password,
                 onValueChange = {
-                    dirty.value = dirty.value || password.value != it
-                    password.value = it
+                    dirty.value = dirty.value || service.value.password != it
+                    service.value = service.value.copy(password = it)
                 },
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
@@ -192,12 +272,12 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
 
             OutlinedTextField(
                 label = { Text("Note") },
-                value = note.value,
+                value = service.value.note,
                 minLines = 5,
                 maxLines = 10,
                 onValueChange = {
-                    dirty.value = dirty.value || note.value != it
-                    note.value = it
+                    dirty.value = dirty.value || service.value.note != it
+                    service.value = service.value.copy(note = it)
                 },
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                     .testTag("note")
@@ -207,29 +287,10 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
                     modifier = Modifier.testTag("submit"),
                     onClick = {
                         val user = serviceModel.user
-                        val newService = if (originalService.service.isEmpty()) {
-                            Service(
-                                service = service.value.text,
-                                username = username.value.text,
-                                password = password.value.text,
-                                note = note.value.text,
-                                userid = user.userid,
-                                tags = tags.value.toList(),
-                                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                                    .toJavaLocalDateTime()
-                            )
-                        } else {
-                            originalService.copy(
-                                username = username.value.text,
-                                password = password.value.text,
-                                note = note.value.text,
-                                userid = user.userid,
-                                tags = tags.value.toList(),
-                                dirty = dirty.value,
-                                updateTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                                    .toJavaLocalDateTime()
-                            )
-                        }
+                        val newService = service.value.copy(
+                            userid = user.userid, dirty = dirty.value,
+                            updateTime = clock.currentTime()
+                        )
                         onSubmit(newService)
                     }
                 ) {
@@ -237,7 +298,11 @@ fun newService(originalService: Service = Service(), onSubmit: (Service) -> Unit
                 }
                 Spacer(Modifier.width(16.dp))
                 Button(onClick = {
-                    navController.navigateBack()
+                    if (readonly.value) {
+                        serviceModel.resetService()
+                    } else {
+                        navController.navigateBack()
+                    }
                 }) {
                     Text("Cancel")
                 }

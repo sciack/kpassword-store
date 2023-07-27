@@ -2,6 +2,7 @@ package passwordStore.services
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
 import com.natpryce.hamkrest.throws
 import kotlinx.coroutines.runBlocking
@@ -69,7 +70,7 @@ class ServicesRepositoryTest() {
         val result = runCatching {
             servicesRepository.store(service)
         }
-        assertThat (
+        assertThat(
             { result.getOrThrow() }, throws<SQLException>()
         )
     }
@@ -114,6 +115,27 @@ class ServicesRepositoryTest() {
         val storedService = servicesRepository.store(service)
         val result = servicesRepository.search(user, "", "Tag")
         assertThat(result, isEmpty.not())
-        assertThat(result[0].service, equalTo("Test service") )
+        assertThat(result[0].service, equalTo("Test service"))
+    }
+
+    @Test
+    fun `should be able to delete a service`(): Unit = runTest {
+        val service = Service(
+            service = "Test service",
+            username = "My username",
+            password = "a password",
+            note = "Some very long notes",
+            dirty = true,
+            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            userid = user.userid,
+            tags = listOf("tag"),
+            score = 1.0
+        )
+        val storedService = servicesRepository.store(service)
+        val services = servicesRepository.search(user)
+        assertThat(services, hasElement(storedService))
+        servicesRepository.delete(serviceName = service.service, userId = user.userid)
+        val newServices = servicesRepository.search(user)
+        assertThat(newServices, !hasElement(storedService))
     }
 }

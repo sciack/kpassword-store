@@ -31,7 +31,7 @@ fun tagView() {
     }
 
     FlowRow(
-        maxItemsInEachRow = 10,
+        maxItemsInEachRow = 15,
         modifier = Modifier.fillMaxWidth().focusable(false),
 
         ) {
@@ -40,12 +40,11 @@ fun tagView() {
             Chip(
                 onClick = {
                     if (selected.value != tag) {
-                        serviceModel.searchWithTags(tag)
                         selected.value = tag
                     } else {
-                        serviceModel.fetchAll()
                         selected.value = ""
                     }
+                    serviceModel.searchWithTags(selected.value)
                 },
                 colors = if (selected.value != tag) {
                     ChipDefaults.outlinedChipColors()

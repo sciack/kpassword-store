@@ -39,7 +39,8 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                         "Delete",
                     )
                 },
-                    colors = ChipDefaults.outlinedChipColors() ) {
+                    colors = ChipDefaults.outlinedChipColors()
+                ) {
                     Text(value)
                 }
             }
@@ -63,7 +64,8 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                 if (!focusState.hasFocus && currentTag.value.text.isNotEmpty()) {
                     assignTag(tags, currentTag, currentTag.value.text, onValueChange)
                 }
-            }.testTag("tags"))
+            }.testTag("tags")
+        )
     }
 }
 
