@@ -48,9 +48,9 @@ fun App(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-
-    val services by localDI().instance<Services>()
+    val serviceModel by localDI().instance<Services>()
     val coroutineScope by localDI().instance<CoroutineScope>()
+
     MaterialTheme {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             bottomBar = { bottomBar(navController) },
@@ -69,27 +69,26 @@ fun App(di: DI) = withDI(di) {
                     Text("Password Store")
                 })
             }) {
-            Column(modifier = Modifier.fillMaxSize()) {
                 NavigationHost(navController) {
                     composable(Screen.Login) {
                         loginPane(loginFunction = { currentUsername, pwd ->
                             submit(di, currentUsername, pwd).onSuccess {
                                 user.value = it
-                                services.user = it
+                                serviceModel.user = it
                                 navController.navigate(Screen.List)
                             }
                         })
                     }
 
                     composable(Screen.List) {
-                        services.fetchAll()
+                        serviceModel.fetchAll()
                         servicesTable()
                     }
 
                     authenticatedComposable(Screen.NewService) {
                         newService {
                             coroutineScope.launch {
-                                services.store(it)
+                                serviceModel.store(it)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(Screen.List)
                                 }
@@ -97,30 +96,15 @@ fun App(di: DI) = withDI(di) {
                         }
                     }
 
-                    authenticatedComposable(Screen.Details::class) {
-                        val detailsScreen = navController.currentScreen.value as Screen.Details
-                        newService(detailsScreen.service) { service ->
-                            coroutineScope.launch {
-                                if (service.dirty) {
-                                    services.update(service)
-
-                                    withContext(Dispatchers.Main) {
-                                        navController.navigate(Screen.List)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     authenticatedComposable(Screen.History) {
-                        historyTable(services.historyEvents.value)
+                        historyTable(serviceModel.historyEvents.value)
                         coroutineScope.launch(Dispatchers.IO) {
-                            services.history("", exactMatch = false, user = user.value!!)
+                            serviceModel.history("", exactMatch = false, user = user.value!!)
                         }
                     }
 
                 }.build()
-            }
+
 
         }
     }

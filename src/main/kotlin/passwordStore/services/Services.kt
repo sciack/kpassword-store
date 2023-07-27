@@ -18,11 +18,17 @@ class Services(
 
     val tags = mutableStateOf(mapOf<String, Int>())
 
+    val selectedService = mutableStateOf(Service())
+
     var user = NONE
+
+    private var pattern: String = ""
+
+    private var tag: String = ""
 
     fun fetchAll() {
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user)
+            val result = servicesRepository.search(user, pattern, tag)
             val currentTags = tagRepository.tags(user)
 
             launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED ) {
@@ -38,6 +44,7 @@ class Services(
 
     suspend fun update(service: Service) {
         servicesRepository.update(service)
+        fetchAll()
     }
 
     suspend fun history(pattern: String, exactMatch: Boolean, user: User) {
@@ -48,8 +55,9 @@ class Services(
     }
 
     fun searchWithTags(tag: String) {
+        this.tag = tag
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, tag= tag)
+            val result = servicesRepository.search(user, pattern=pattern, tag= tag)
             withContext(Dispatchers.Main) {
                 services.value = result
             }
@@ -57,12 +65,21 @@ class Services(
     }
 
     fun searchPattern(pattern: String) {
+        this.pattern = pattern
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern= pattern)
+            val result = servicesRepository.search(user, pattern= pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
             }
         }
+    }
+
+    fun selectService(service: Service) {
+        selectedService.value = service
+    }
+
+    fun resetService() {
+        selectedService.value = Service()
     }
 
     companion object {
