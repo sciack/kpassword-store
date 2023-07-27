@@ -27,6 +27,7 @@ class AppTest {
     private val clock: Clock by di.instance()
     private val servicesRepository by di.instance<ServicesRepository>()
     private val serviceModel by di.instance<ServiceViewModel>()
+    private val navController by di.instance<NavController>()
 
     @get:Rule
     val rule = createComposeRule()
@@ -36,6 +37,7 @@ class AppTest {
         serviceModel.user = NONE
         val navController by di.instance<NavController>()
         navController.currentScreen.value = Screen.Login
+        rule.mainClock.autoAdvance = true
     }
 
     @AfterTest
@@ -95,16 +97,19 @@ class AppTest {
 
         insertService(service)
         rule.awaitIdle()
+        await.atMost(Duration.ofSeconds(1)).until {
+            //waiting that the system is able to read the new data, if not the visualization is flaky
+            serviceModel.services.value.size == 1
+        }
         rule.onNodeWithTag("Search field").assertExists()
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
-
     }
 
     private suspend fun insertService(service: Service) {
-        rule.onNodeWithTag("Drawer").performClick()
-        rule.waitUntilExactlyOneExists(hasTestTag("New Service"))
-        rule.onNodeWithTag("New Service").performClick()
-        rule.waitUntilExactlyOneExists(hasTestTag("service"))
+        //this is an ugly workaround, but navigate in the menu is a nightmare
+        navController.navigate(Screen.NewService)
+
+        rule.waitUntilExactlyOneExists(hasTestTag("service"), 3000)
 
         rule.onNodeWithTag("service").performTextInput(service.service)
         rule.onNodeWithTag("username").performTextInput(service.username)

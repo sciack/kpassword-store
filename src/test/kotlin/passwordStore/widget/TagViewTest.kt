@@ -77,13 +77,16 @@ class TagViewTest {
         servicesRepository.store(testService(service = "test2"))
         val serviceModel by di.instance<ServiceViewModel>()
         serviceModel.fetchAll()
+        await.atMost(Duration.ofSeconds(1)).until {
+            serviceModel.services.value.size == 2
+        }
         rule.setContent {
             withDI(di) {
                 tagView()
             }
         }
         rule.awaitIdle()
-        LOGGER.warn { "Waiting for tag to show" }
+
         rule.waitUntilAtLeastOneExists(hasText("Tags"), 3000)
 
         rule.onNodeWithText("Tags", ignoreCase = true).assertExists().performClick()
