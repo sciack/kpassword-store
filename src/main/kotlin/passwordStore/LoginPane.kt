@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -58,7 +59,7 @@ fun loginPane(loginFunction: LoginFunction) {
             Text(
                 "Invalid credentials",
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("Login error msg"),
-                color = Color.Red,
+                color = MaterialTheme.colors.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )

@@ -77,22 +77,22 @@ class ServiceViewModel(
 
     fun searchWithTags(tag: String) {
         this.tag = tag
+        search()
+    }
+
+    private fun search() {
         scope.launch(Dispatchers.IO) {
             val result = servicesRepository.search(user, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
+                saveError.value = ""
             }
         }
     }
 
     fun searchPattern(pattern: String) {
         this.pattern = pattern
-        scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
-            withContext(Dispatchers.Main) {
-                services.value = result
-            }
-        }
+        search()
     }
 
     fun selectService(service: Service) {
@@ -101,6 +101,7 @@ class ServiceViewModel(
 
     fun resetService() {
         selectedService.value = Service()
+        saveError.value = ""
     }
 
     fun delete(service: Service) {
