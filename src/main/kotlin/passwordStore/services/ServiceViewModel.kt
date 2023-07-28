@@ -2,9 +2,11 @@ package passwordStore.services
 
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.*
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
+import java.sql.SQLException
 
 class ServiceViewModel(
     private val servicesRepository: ServicesRepository,
@@ -46,16 +48,24 @@ class ServiceViewModel(
     }.onSuccess {
         saveError.value = ""
     }.onFailure {
-        saveError.value = "Error saving the service"
+        saveError.value = processError(it, service)
     }
 
-    suspend fun update(service: Service) = runCatching{
+    private fun processError(exception: Throwable, service: Service): String {
+        return when (exception) {
+            is JdbcSQLIntegrityConstraintViolationException -> "Duplicate service: ${service.service}"
+            is SQLException -> "Error storing the service ${service.service}: ${exception.localizedMessage}"
+            else -> "Generic error storing ${service.service}"
+        }
+    }
+
+    suspend fun update(service: Service) = runCatching {
         servicesRepository.update(service)
         fetchAll()
     }.onSuccess {
         saveError.value = ""
     }.onFailure {
-        saveError.value = "Error saving the service"
+        saveError.value = processError(it, service)
     }
 
     suspend fun history(pattern: String, exactMatch: Boolean) {
