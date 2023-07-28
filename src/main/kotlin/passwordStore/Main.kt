@@ -2,10 +2,7 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,12 +24,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.kodein.di.DI
-import org.kodein.di.bindProvider
 import org.kodein.di.compose.localDI
-import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
@@ -84,17 +82,22 @@ fun App(di: DI) = withDI(di) {
                         }
                     }
                     if (navController.currentScreen.value.allowBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            modifier = Modifier.clickable(onClick = {
-                                navController.navigateBack()
-                            })
-                        )
+                        IconButton(
+                            onClick = { navController.navigateBack() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
                     }
                 }, title = {
+                    Spacer(modifier = Modifier.width(24.dp))
                     Text("Password Store")
-                })
+                },
+
+                )
+
             }) {
             ModalDrawer(
                 drawerState = drawerState,
@@ -121,6 +124,7 @@ fun App(di: DI) = withDI(di) {
                         coroutineScope.launch {
                             drawerState.close()
                         }
+                        serviceModel.resetService()
                         serviceModel.fetchAll()
                         servicesTable()
                     }

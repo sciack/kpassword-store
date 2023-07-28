@@ -2,6 +2,7 @@ package passwordStore
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.github.javafaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -19,6 +20,7 @@ import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTestApi::class)
 class AppTest {
@@ -28,6 +30,7 @@ class AppTest {
     private val servicesRepository by di.instance<ServicesRepository>()
     private val serviceModel by di.instance<ServiceViewModel>()
     private val navController by di.instance<NavController>()
+    private val faker = Faker()
 
     @get:Rule
     val rule = createComposeRule()
@@ -135,6 +138,54 @@ class AppTest {
         rule.onNodeWithTag("Search field").assertExists()
         fillService(service)
         rule.waitUntilAtLeastOneExists(hasTestTag("ErrorMsg"))
+    }
+
+    @Test
+    fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
+        rule.setContent {
+            App(di)
+        }
+        rule.awaitIdle()
+        performLogin()
+        rule.awaitIdle()
+        val services = mutableListOf<Service>()
+        (1..5).forEach {
+
+            val service = Service(
+                service = faker.app().name() + it,
+                username = faker.dragonBall().character(),
+                password = faker.dune().planet(),
+                tags = listOf(faker.book().genre()),
+                note = faker.dune().quote(),
+                userid = user.userid,
+                dirty = true,
+                score = 0.0,
+                updateTime = clock.currentTime()
+            )
+            rule.onNodeWithTag("Search field").assertExists()
+
+            insertService(service)
+            rule.awaitIdle()
+
+            await.atMost(Duration.ofSeconds(1)).until {
+                //waiting that the system is able to read the new data, if not the visualization is flaky
+                serviceModel.services.value.size == it
+            }
+            services.add(service)
+        }
+        rule.onNodeWithTag("Search field").assertExists()
+
+        services.forEach { service ->
+            //rule.onNodeWithTag("TableBody").performScrollToNode(hasText(service.service)).assertExists()
+            rule.onNodeWithText(service.service).assertExists()
+        }
+        val service = services[2]
+        System.err.println("Click to edit a service")
+        rule.onNodeWithTag("Edit ${service.service}").assertExists().performClick()
+        rule.awaitIdle()
+        System.err.println("Waiting for the service")
+        rule.waitUntilAtLeastOneExists(hasTestTag("service"))
+        rule.onNodeWithTag("service").assertTextContains(service.service)
     }
 
     private suspend fun insertService(service: Service) {

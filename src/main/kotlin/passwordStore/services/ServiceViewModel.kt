@@ -44,7 +44,7 @@ class ServiceViewModel(
     }
 
     suspend fun store(service: Service) = runCatching {
-        servicesRepository.store(service)
+        servicesRepository.store(service.trim())
     }.onSuccess {
         saveError.value = ""
     }.onFailure {
@@ -60,7 +60,7 @@ class ServiceViewModel(
     }
 
     suspend fun update(service: Service) = runCatching {
-        servicesRepository.update(service)
+        servicesRepository.update(service.trim())
         fetchAll()
     }.onSuccess {
         saveError.value = ""

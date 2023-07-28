@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -69,7 +70,7 @@ fun historyTable(historyEvents: List<Event>) {
                                         .onFailure { showAlert.value = true }
                                 }
                             }) {
-                                Icon(Icons.Default.KeyboardArrowLeft, "Restore")
+                                Icon( painterResource("/icons/undo.svg"), "Restore")
                             }
                             showOk(
                                 "Error on restore",
