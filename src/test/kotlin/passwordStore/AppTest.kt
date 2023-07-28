@@ -105,8 +105,53 @@ class AppTest {
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
     }
 
+    @Test
+    fun `should throw an error if service is add two times`() = runTest {
+        rule.setContent {
+            App(di)
+        }
+        rule.awaitIdle()
+        performLogin()
+        val service = Service(
+            service = "myService",
+            username = "a username",
+            password = "a password",
+            tags = listOf("tag"),
+            note = "someNote",
+            userid = user.userid,
+            dirty = true,
+            score = 0.0,
+            updateTime = clock.currentTime()
+        )
+        rule.awaitIdle()
+        rule.onNodeWithTag("Search field").assertExists()
+
+        insertService(service)
+        rule.awaitIdle()
+        await.atMost(Duration.ofSeconds(1)).until {
+            //waiting that the system is able to read the new data, if not the visualization is flaky
+            serviceModel.services.value.size == 1
+        }
+        rule.onNodeWithTag("Search field").assertExists()
+        fillService(service)
+        rule.waitUntilAtLeastOneExists(hasTestTag("ErrorMsg"))
+    }
+
     private suspend fun insertService(service: Service) {
         //this is an ugly workaround, but navigate in the menu is a nightmare
+        fillService(service)
+        rule.waitUntil(timeoutMillis = 1000) {
+            runBlocking {
+                servicesRepository.search(serviceModel.user, "", "").any {
+                    it.service == service.service
+                }
+            }
+        }
+
+        rule.waitUntilAtLeastOneExists(hasTestTag("Search field"))
+    }
+
+    private suspend fun fillService(service: Service) {
         navController.navigate(Screen.NewService)
 
         rule.waitUntilExactlyOneExists(hasTestTag("service"), 3000)
@@ -119,15 +164,6 @@ class AppTest {
         rule.awaitIdle()
 
         rule.onNodeWithTag("submit").performClick()
-        rule.waitUntil(timeoutMillis = 1000) {
-            runBlocking {
-                servicesRepository.search(serviceModel.user, "", "").any {
-                    it.service == service.service
-                }
-            }
-        }
-
-        rule.waitUntilAtLeastOneExists(hasTestTag("Search field"))
     }
 
     private suspend fun performLogin(username: String = "m.sciachero") {

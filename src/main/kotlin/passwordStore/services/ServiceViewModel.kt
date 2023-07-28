@@ -26,6 +26,8 @@ class ServiceViewModel(
 
     private var tag: String = ""
 
+    val saveError = mutableStateOf("")
+
     fun fetchAll() {
         scope.launch(Dispatchers.IO) {
             val result = servicesRepository.search(user, pattern, tag)
@@ -39,13 +41,21 @@ class ServiceViewModel(
         }
     }
 
-    suspend fun store(service: Service) {
+    suspend fun store(service: Service) = runCatching {
         servicesRepository.store(service)
+    }.onSuccess {
+        saveError.value = ""
+    }.onFailure {
+        saveError.value = "Error saving the service"
     }
 
-    suspend fun update(service: Service) {
+    suspend fun update(service: Service) = runCatching{
         servicesRepository.update(service)
         fetchAll()
+    }.onSuccess {
+        saveError.value = ""
+    }.onFailure {
+        saveError.value = "Error saving the service"
     }
 
     suspend fun history(pattern: String, exactMatch: Boolean) {

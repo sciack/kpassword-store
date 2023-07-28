@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +23,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +47,7 @@ import kotlin.random.Random
 fun servicesTable() {
     val serviceModel by localDI().instance<ServiceViewModel>()
     val navController by localDI().instance<NavController>()
-    val coroutineScope by localDI().instance<CoroutineScope>()
+    val coroutineScope = rememberCoroutineScope()
 
     val services = remember {
         serviceModel.services
@@ -94,19 +97,18 @@ fun servicesTable() {
                                         navController.navigate(Screen.History)
                                     }
                                 }
-
-                            })
+                            }.testTag("History ${service.service}"))
                         Icon(Icons.Default.Edit,
                             "Edit",
                             modifier = Modifier.onClick {
                                 serviceModel.selectService(service)
-                            })
+                            }.testTag("Edit ${service.service}"))
 
                         Icon(Icons.Default.Delete,
                             "Delete",
                             modifier = Modifier.onClick {
                                 showDeleteAlert.value = true
-                            }
+                            }.testTag("Delete ${service.service}")
                         )
                         if (showDeleteAlert.value) {
                             AlertDialog(
@@ -157,9 +159,10 @@ fun servicesTable() {
             newService { service ->
                 coroutineScope.launch {
                     if (service.dirty) {
-                        serviceModel.update(service)
-                        withContext(Dispatchers.Main) {
-                            selectedService.value = Service()
+                        serviceModel.update(service).onSuccess {
+                            withContext(Dispatchers.Main) {
+                                selectedService.value = Service()
+                            }
                         }
                     }
                 }
@@ -232,6 +235,9 @@ fun newService(onSubmit: (Service) -> Unit) {
     val readonly = remember {
         mutableStateOf(serviceModel.selectedService.value.service.isNotEmpty())
     }
+    val errorMsg = remember {
+        serviceModel.saveError
+    }
     val clock: Clock by localDI().instance()
 
     tags.value = serviceModel.selectedService.value.tags.toSet()
@@ -298,6 +304,16 @@ fun newService(onSubmit: (Service) -> Unit) {
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                     .testTag("note")
             )
+            if(errorMsg.value.isNotEmpty()) {
+                Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(errorMsg.value,
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = TextUnit(0.8f, TextUnitType.Em ),
+                        modifier = Modifier.testTag("ErrorMsg")
+                        )
+                }
+            }
             Row(Modifier.align(Alignment.CenterHorizontally)) {
                 Button(
                     modifier = Modifier.testTag("submit"),

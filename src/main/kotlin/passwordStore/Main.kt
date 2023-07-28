@@ -2,7 +2,10 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,9 +19,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.loadXmlImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
@@ -113,7 +114,7 @@ fun App(di: DI) = withDI(di) {
                         })
                     }
 
-                    composable(Screen.List) {
+                    authenticatedComposable(Screen.List) {
                         coroutineScope.launch {
                             drawerState.close()
                         }
@@ -127,11 +128,13 @@ fun App(di: DI) = withDI(di) {
                         }
                         newService {
                             coroutineScope.launch(Dispatchers.IO) {
-                                serviceModel.store(it)
-                                serviceModel.resetService()
-                                withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.List)
+                                serviceModel.store(it).onSuccess {
+                                    serviceModel.resetService()
+                                    withContext(Dispatchers.Main) {
+                                        navController.navigate(Screen.List)
+                                    }
                                 }
+
                             }
                         }
                     }
@@ -187,7 +190,7 @@ fun drawer(navController: NavController) {
         )
     }
     Spacer(Modifier.height(12.dp))
-    Row() {
+    Row {
         IconButton(
             onClick = {
                 navController.navigate(Screen.NewService)
@@ -209,8 +212,10 @@ fun drawer(navController: NavController) {
     }
     Spacer(Modifier.height(12.dp))
     Row {
-        IconButton(onClick = { navController.navigate(Screen.History) },
-            modifier = Modifier.align(Alignment.CenterVertically)) {
+        IconButton(
+            onClick = { navController.navigate(Screen.History) },
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
 
             Icon(
                 painterResource("/icons/history.svg"),
@@ -250,9 +255,10 @@ fun main() {
     SetupEnv.configure(".env")
     val di = di()
     val datasource by di.instance<DataSource>()
-    val coroutineScope by di.instance<CoroutineScope>()
+
     Migration(datasource).migrate()
     application {
+        val coroutineScope = rememberCoroutineScope()
         Window(
             onCloseRequest = {
                 (datasource as HikariDataSource).close()
