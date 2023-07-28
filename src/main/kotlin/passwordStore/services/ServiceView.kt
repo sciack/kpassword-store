@@ -15,10 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -39,6 +41,7 @@ import passwordStore.tags.tagEditor
 import passwordStore.utils.currentTime
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder
+import passwordStore.widget.showOkCancel
 import passwordStore.widget.tagView
 import kotlin.random.Random
 
@@ -71,24 +74,14 @@ fun servicesTable() {
                 rowModifier = Modifier.fillMaxWidth().bottomBorder(1.dp, color = Color.LightGray),
                 rowCount = services.value.size,
                 headers = listOf("Service", "Username", "Password", "Note"),
-                cellContent = { columnIndex, rowIndex ->
-                    if (rowIndex >= services.value.size) {
-                        return@Table
-                    }
-                    val service = services.value[rowIndex]
+                values = services.value,
+                cellContent = { columnIndex, service ->
                     cell(service, columnIndex)
                 },
-                beforeRow = { row ->
-                    if (row >= services.value.size) {
-                        return@Table
-                    }
-                    val service = services.value[row]
-                    Row {
-
-                        val showDeleteAlert = remember {
-                            mutableStateOf(false)
-                        }
-                        Icon(Icons.Default.List,
+                beforeRow = { service ->
+                    Row(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        Icon(
+                            painterResource("/icons/history.svg"),
                             "History",
                             modifier = Modifier.onClick {
                                 coroutineScope.launch(Dispatchers.IO) {
@@ -97,49 +90,37 @@ fun servicesTable() {
                                         navController.navigate(Screen.History)
                                     }
                                 }
-                            }.testTag("History ${service.service}"))
-                        Icon(Icons.Default.Edit,
+                            }.testTag("History ${service.service}")
+                        )
+                        Icon(
+                            Icons.Default.Edit,
                             "Edit",
                             modifier = Modifier.onClick {
                                 serviceModel.selectService(service)
-                            }.testTag("Edit ${service.service}"))
-
-                        Icon(Icons.Default.Delete,
+                            }.testTag("Edit ${service.service}")
+                        )
+                        val showAlert = remember {
+                            mutableStateOf(false)
+                        }
+                        Icon(
+                            Icons.Default.Delete,
                             "Delete",
                             modifier = Modifier.onClick {
-                                showDeleteAlert.value = true
+                                showAlert.value = true
+
                             }.testTag("Delete ${service.service}")
                         )
-                        if (showDeleteAlert.value) {
-                            AlertDialog(
-                                text = {
-                                    Text("Do you want to delete service ${service.service}?")
-                                },
-                                onDismissRequest = {},
-                                title = {
-                                    Text(
-                                        "Delete confirmation", fontWeight = FontWeight.Bold
-                                    )
-                                },
-                                dismissButton = {
-                                    Button(onClick = {
-                                        showDeleteAlert.value = false
-                                    }) {
-                                        Text("Cancel")
-                                    }
-                                },
-                                confirmButton = {
-                                    Button(onClick = {
-                                        serviceModel.delete(service)
-                                        showDeleteAlert.value = false
-                                    }) {
-                                        Text("OK")
-                                    }
-                                }
-                            )
+
+                        showOkCancel(
+                            title = "Delete confirmation",
+                            message = "Do you want to delete service ${service.service}?",
+                            showAlert,
+                            onConfirm = {
+                                serviceModel.delete(service)
+                            }
+                        )
 
 
-                        }
                     }
                 }
             )
@@ -304,14 +285,15 @@ fun newService(onSubmit: (Service) -> Unit) {
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                     .testTag("note")
             )
-            if(errorMsg.value.isNotEmpty()) {
+            if (errorMsg.value.isNotEmpty()) {
                 Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text(errorMsg.value,
-                        color = Color.Red,
+                    Text(
+                        errorMsg.value,
+                        color = MaterialTheme.colors.error,
                         fontWeight = FontWeight.Bold,
-                        fontSize = TextUnit(0.8f, TextUnitType.Em ),
+                        fontSize = TextUnit(0.8f, TextUnitType.Em),
                         modifier = Modifier.testTag("ErrorMsg")
-                        )
+                    )
                 }
             }
             Row(Modifier.align(Alignment.CenterHorizontally)) {

@@ -25,14 +25,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.kodein.di.DI
+import org.kodein.di.bindProvider
 import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
@@ -59,8 +59,11 @@ fun App(di: DI) = withDI(di) {
     val serviceModel by localDI().instance<ServiceViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val trayState = rememberTrayState()
 
     MaterialTheme {
+
+        trayState.sendNotification(Notification("KPasswordStore", "Open app"))
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             topBar = {
                 TopAppBar(navigationIcon = {
@@ -269,6 +272,7 @@ fun main() {
             state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
             LOGGER.info { "Building the app" }
+
             App(di)
         }
     }

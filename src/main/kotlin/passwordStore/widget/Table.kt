@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,16 +23,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Table(
+fun <T> Table(
     modifier: Modifier = Modifier,
     rowModifier: Modifier = Modifier,
     verticalLazyListState: LazyListState = rememberLazyListState(),
     horizontalScrollState: ScrollState = rememberScrollState(),
     headers: List<String>,
-    cellContent: @Composable (col: Int, row: Int) -> Unit,
-    beforeRow: @Composable (row: Int) -> Unit = {},
+    values: List<T>,
+    cellContent: @Composable (col: Int, row: T) -> Unit,
+    beforeRow: @Composable (row: T) -> Unit = {},
     rowCount: Int,
-    columnCount: Int = headers.size
+    columnCount: Int = headers.size,
+    contentRowModifier: @Composable (T) -> Modifier = { Modifier }
 ) {
     val columnWidths = remember { mutableStateMapOf<Int, Int>() }
 
@@ -73,9 +76,10 @@ fun Table(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(rowCount) { row ->
-
+                        if (row >= values.size) return@items
+                        val currentRow = values[row]
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = rowModifier) {
+                            Row(modifier = rowModifier.then(contentRowModifier(currentRow))) {
 
                                 (0..columnCount).forEach { col ->
                                     Box(modifier = Modifier.layout { measurable, constraints ->
@@ -92,10 +96,12 @@ fun Table(
                                             placeable.placeRelative(0, 0)
                                         }
                                     }.padding(8.dp)) {
+
                                         if (col == 0) {
-                                            beforeRow.invoke(row)
+
+                                            beforeRow.invoke(currentRow)
                                         } else {
-                                            cellContent(col - 1, row)
+                                            cellContent(col - 1, currentRow)
                                         }
                                     }
                                 }
