@@ -52,7 +52,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.4.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
+    testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }
 

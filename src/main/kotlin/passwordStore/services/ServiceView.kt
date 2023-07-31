@@ -4,18 +4,18 @@ import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,36 +79,47 @@ fun servicesTable() {
                 },
                 beforeRow = { service ->
                     Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                        Icon(
-                            painterResource("/icons/history.svg"),
-                            "History",
-                            modifier = Modifier.onClick {
+                        IconButton(
+                            onClick = {
                                 coroutineScope.launch(Dispatchers.IO) {
                                     serviceModel.history(service.service, true)
                                     withContext(Dispatchers.Main) {
                                         navController.navigate(Screen.History)
                                     }
                                 }
-                            }.testTag("History ${service.service}")
-                        )
-                        Icon(
-                            Icons.Default.Edit,
-                            "Edit",
-                            modifier = Modifier.onClick {
+                            },
+                            modifier = Modifier.testTag("History ${service.service}")
+                        ) {
+                            Icon(
+                                painterResource("/icons/history.svg"),
+                                "History",
+                            )
+                        }
+                        IconButton(
+                            onClick = {
                                 serviceModel.selectService(service)
-                            }.testTag("Edit ${service.service}")
-                        )
+                            },
+                            modifier = Modifier.testTag("Edit ${service.service}")
+                        ) {
+                            Icon(
+                                Icons.Default.Edit,
+                                "Edit",
+
+                                )
+                        }
                         val showAlert = remember {
                             mutableStateOf(false)
                         }
-                        Icon(
-                            Icons.Default.Delete,
-                            "Delete",
-                            modifier = Modifier.onClick {
-                                showAlert.value = true
+                        IconButton(
+                            onClick = { showAlert.value = true },
+                            modifier = Modifier.testTag("Delete ${service.service}")
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                "Delete",
 
-                            }.testTag("Delete ${service.service}")
-                        )
+                                )
+                        }
 
                         showOkCancel(
                             title = "Delete confirmation",

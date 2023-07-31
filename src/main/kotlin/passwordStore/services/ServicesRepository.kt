@@ -162,7 +162,7 @@ class ServicesRepository(
             val id = findServiceId(service.service, service.userid)
             service.tags.forEach {
                 val tag = it.replaceFirstChar { c -> c.uppercase() }
-                addServiceToTag(this, service = id, tag = tag)
+                addServiceToTag(service = id, tag = tag)
             }
         }
         send(Event(service, Action.insert))
@@ -170,13 +170,13 @@ class ServicesRepository(
         return findByName(service.service, service.userid)
     }
 
-    private fun addServiceToTag(c: Connection, tag: String, service: Long) {
-        c.saveOrUpdate(
+    private fun Connection.addServiceToTag(tag: String, service: Long) {
+        saveOrUpdate(
             """insert into TAGS(tag) select * from (select cast(? as VARCHAR(50)) new_tag) t where not exists (select 1 from tags ts where ts.tag = ?)  """,
             tag,
             tag
         )
-        c.saveOrUpdate(
+        saveOrUpdate(
             """insert into SERVICE_TAGS(id_service, id_tag) select ?, id from tags t where t.tag = ?  """,
             service,
             tag
@@ -249,7 +249,7 @@ class ServicesRepository(
                     )
                 }
                 tagsToAdd.forEach {
-                    addServiceToTag(this, service = id, tag = it)
+                    addServiceToTag(service = id, tag = it)
                 }
             }
         }
@@ -322,7 +322,6 @@ class ServicesRepository(
         enum class Mode { FETCH, SPLIT }
 
         private val LOGGER = KotlinLogging.logger { }
-        private const val audit = "audit"
     }
 }
 

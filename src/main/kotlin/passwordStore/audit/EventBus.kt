@@ -1,11 +1,8 @@
 package passwordStore.audit
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
 class EventBus(private val coroutineScope: CoroutineScope) {
@@ -23,7 +20,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
     }
 
     init {
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.IO) {
             channel.consumeAsFlow().collect { message ->
                 listeners.map { listener ->
                     async {
