@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
@@ -51,10 +52,15 @@ fun app(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-    val serviceModel by localDI().instance<ServiceViewModel>()
+
+    val serviceModel by rememberInstance<ServiceViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val trayState = rememberTrayState()
+
+    val currentUser = remember {
+        serviceModel.user
+    }
 
     MaterialTheme {
 
@@ -62,7 +68,7 @@ fun app(di: DI) = withDI(di) {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             topBar = {
                 TopAppBar(navigationIcon = {
-                    if (serviceModel.user.id > 0) {
+                    if (serviceModel.user.value.id > 0) {
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
@@ -91,11 +97,15 @@ fun app(di: DI) = withDI(di) {
                 }, title = {
                     Spacer(modifier = Modifier.width(24.dp))
                     Text("Password Store")
+                    Spacer(modifier = Modifier.width(24.dp))
+                    if (currentUser.value.id > 0) {
+                        Text(user.value?.fullName.orEmpty())
+                    }
                 }, actions = {
-                    if ((user.value?.id ?: 0) > 0)
+                    if (currentUser.value.id > 0)
                         IconButton(
                             onClick = {
-                                      navController.navigate(Screen.Settings)
+                                navController.navigate(Screen.Settings)
                             },
                         ) {
                             Icon(Icons.Default.Settings, "Settings")
@@ -117,7 +127,7 @@ fun app(di: DI) = withDI(di) {
                         loginPane(loginFunction = { currentUsername, pwd ->
                             submit(di, currentUsername, pwd).onSuccess {
                                 user.value = it
-                                serviceModel.user = it
+                                serviceModel.user.value = it
                                 navController.navigate(Screen.List)
                             }
                         })
@@ -162,7 +172,7 @@ fun app(di: DI) = withDI(di) {
                     }
 
                     authenticatedComposable(Screen.Settings) {
-                        settings(serviceModel.user)
+                        settings(serviceModel.user.value)
                     }
 
                 }.build()

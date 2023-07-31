@@ -312,7 +312,7 @@ fun newService(onSubmit: (Service) -> Unit) {
                     onClick = {
                         val user = serviceModel.user
                         val newService = service.value.copy(
-                            userid = user.userid, dirty = dirty.value,
+                            userid = user.value.userid, dirty = dirty.value,
                             updateTime = clock.currentTime()
                         )
                         onSubmit(newService)

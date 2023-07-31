@@ -22,7 +22,7 @@ class ServiceViewModel(
 
     val selectedService = mutableStateOf(Service())
 
-    var user = NONE
+    var user = mutableStateOf( NONE)
 
     private var pattern: String = ""
 
@@ -32,8 +32,8 @@ class ServiceViewModel(
 
     fun fetchAll() {
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern, tag)
-            val currentTags = tagRepository.tags(user)
+            val result = servicesRepository.search(user.value, pattern, tag)
+            val currentTags = tagRepository.tags(user.value)
 
             launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
                 services.value = result
@@ -69,7 +69,7 @@ class ServiceViewModel(
     }
 
     suspend fun history(pattern: String, exactMatch: Boolean) {
-        val result = servicesRepository.history(pattern, exactMatch, user)
+        val result = servicesRepository.history(pattern, exactMatch, user.value)
         withContext(Dispatchers.Main) {
             historyEvents.value = result
         }
@@ -82,7 +82,7 @@ class ServiceViewModel(
 
     private fun search() {
         scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
+            val result = servicesRepository.search(user.value, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
                 saveError.value = ""
@@ -106,7 +106,7 @@ class ServiceViewModel(
 
     fun delete(service: Service) {
         scope.launch(Dispatchers.IO) {
-            servicesRepository.delete(serviceName = service.service, userId = user.userid)
+            servicesRepository.delete(serviceName = service.service, userId = user.value.userid)
             fetchAll()
         }
     }

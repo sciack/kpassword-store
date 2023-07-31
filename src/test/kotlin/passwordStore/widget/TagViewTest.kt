@@ -36,7 +36,7 @@ class TagViewTest {
     @BeforeTest
     fun setup() {
         val serviceModel by di.instance<ServiceViewModel>()
-        serviceModel.user = user
+        serviceModel.user.value = user
         runBlocking {
             servicesRepository.search(user).forEach {
                 servicesRepository.delete(it.service, it.userid)

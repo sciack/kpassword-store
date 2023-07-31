@@ -1,5 +1,7 @@
 package passwordStore.users
 
+import java.security.Principal
+
 class Users {
 }
 
@@ -28,7 +30,11 @@ data class User(
     val userid: String,
     val email: String,
     val roles: Set<Roles> = setOf()
-)
+) {
+    fun asPrincipal(): Principal {
+        return Principal { userid }
+    }
+}
 
 
 data class UpdateUser(

@@ -7,34 +7,57 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.instance
+import passwordStore.navigation.NavController
+import passwordStore.navigation.navigation
+import passwordStore.services.ServiceViewModel
 import passwordStore.users.UpdateUser
 import passwordStore.users.User
+import passwordStore.users.UserRepository
 
 @Composable
 fun settings(currentUser: User) {
 
     val user = remember {
-        mutableStateOf(UpdateUser(
-            userid = currentUser.userid,
-            email = currentUser.email,
-            fullName = currentUser.fullName,
-            password = ""
-        ))
+        mutableStateOf(
+            UpdateUser(
+                userid = currentUser.userid,
+                email = currentUser.email,
+                fullName = currentUser.fullName,
+                password = ""
+            )
+        )
     }
 
-    Column {
+    val dirty = remember {
+        mutableStateOf(false)
+    }
+
+    val userRepository by rememberInstance<UserRepository>()
+    val serviceViewModel by rememberInstance<ServiceViewModel>()
+    val navController by rememberInstance<NavController>()
+
+    Column(Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = user.value.fullName,
-            onValueChange = {name ->
+            onValueChange = { name ->
                 user.value = user.value.copy(fullName = name)
+                dirty.value = true
             },
             label = {
                 Text("Fullname")
-            }
-
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally).testTag("fullName")
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
@@ -42,9 +65,12 @@ fun settings(currentUser: User) {
                 Text("email")
             },
             value = user.value.email,
+
             onValueChange = { email ->
                 user.value = user.value.copy(email = email)
-            }
+                dirty.value = true
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally).testTag("email")
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
@@ -55,20 +81,35 @@ fun settings(currentUser: User) {
             visualTransformation = PasswordVisualTransformation(),
             onValueChange = { password ->
                 user.value = user.value.copy(password = password)
-            }
+                dirty.value = true
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password")
         )
         Spacer(Modifier.height(16.dp))
-        Row {
-            currentUser.roles.forEach{
-                Text(it.name)
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            Text("Roles:")
+            currentUser.roles.forEach {
+                Text(
+                    text = it.name,
+                    fontStyle = FontStyle.Italic,
+                )
                 Spacer(Modifier.width(16.dp))
             }
 
         }
         Spacer(Modifier.height(16.dp))
-        Button(onClick = {},
-            ) {
+        Button(
+            onClick = {
+                if (dirty.value) {
+                    val newUser = userRepository.updateUser(user.value, currentUser.asPrincipal())
+                    serviceViewModel.user.value = newUser
+                    navController.navigate(Screen.List)
+                }
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally).testTag("submit")
+        ) {
             Text("Submit")
+
         }
     }
 }
