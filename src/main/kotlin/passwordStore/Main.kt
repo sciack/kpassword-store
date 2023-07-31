@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
@@ -33,14 +34,12 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.*
-import passwordStore.services.ServiceViewModel
-import passwordStore.services.historyTable
-import passwordStore.services.newService
-import passwordStore.services.servicesTable
+import passwordStore.services.*
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
 import javax.sql.DataSource
+import kotlin.io.path.writer
 
 @Composable
 @Preview
@@ -195,7 +194,8 @@ fun customShape() = object : Shape {
 
 @Composable
 fun drawer(navController: NavController) {
-    val serviceViewModel by localDI().instance<ServiceViewModel>()
+    val di: DI = localDI()
+    val serviceViewModel by rememberInstance<ServiceViewModel>()
     Row {
         IconButton(
             onClick = { navController.navigate(Screen.List) },
@@ -254,9 +254,37 @@ fun drawer(navController: NavController) {
             }.align(Alignment.CenterVertically)
         )
     }
+    Divider(color = Color.LightGray, thickness = 1.dp)
+    Row {
+        IconButton(
+            onClick = {
+                download(di)
+            },
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
+
+            Icon(
+                painterResource("/icons/file_csv.svg"),
+                contentDescription = "Export CSV"
+            )
+        }
+        Text(
+            text = "Export CSV",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.clickable {
+                download(di)
+            }.align(Alignment.CenterVertically)
+        )
+    }
 
 }
 
+private fun download(di: DI) {
+    val exportPath = exportPath()
+    exportPath.writer().use {
+        it.performDownload(di)
+    }
+}
 
 fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
     val userRepository by di.instance<UserRepository>()
