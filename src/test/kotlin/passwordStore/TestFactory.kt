@@ -6,12 +6,13 @@ import passwordStore.users.User
 
 
 fun testUser(): User = User(
-    id = 0,
+    id = 9999,
     email = "test@example.com",
     fullName = "test user",
     userid = "testUser",
     roles = setOf(Roles.NormalUser),
 )
+
 
 fun testService(service: String = "test") = Service(
     service = service,
