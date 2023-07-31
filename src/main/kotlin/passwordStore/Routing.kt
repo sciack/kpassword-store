@@ -38,4 +38,12 @@ sealed interface Screen {
         override val allowBack: Boolean
             get() = true
     }
+
+    object Settings: Screen {
+        override val name: String
+            get() = "Settings"
+
+        override val allowBack: Boolean
+            get() = true
+    }
 }

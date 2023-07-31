@@ -37,7 +37,7 @@ class AppTest {
 
     @BeforeTest
     fun setUp() {
-        serviceModel.user = NONE
+        serviceModel.user.value = NONE
         val navController by di.instance<NavController>()
         navController.currentScreen.value = Screen.Login
         rule.mainClock.autoAdvance = true
@@ -46,18 +46,18 @@ class AppTest {
     @AfterTest
     fun tearDown() {
         runBlocking(Dispatchers.IO) {
-            servicesRepository.search(serviceModel.user).forEach {
+            servicesRepository.search(serviceModel.user.value).forEach {
                 servicesRepository.delete(it.service, it.userid)
             }
         }
-        serviceModel.user = NONE
+        serviceModel.user.value = NONE
 
     }
 
     @Test
     fun shouldShowLogin() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
 
         performLogin()
@@ -68,7 +68,7 @@ class AppTest {
     @Test
     fun shouldShowAnErrorIfLoginFail() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
 
         performLogin("wrong user")
@@ -80,7 +80,7 @@ class AppTest {
     @Test
     fun `should be able to add a service`() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
         rule.awaitIdle()
         performLogin()
@@ -111,7 +111,7 @@ class AppTest {
     @Test
     fun `should throw an error if service is add two times`() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
         rule.awaitIdle()
         performLogin()
@@ -143,7 +143,7 @@ class AppTest {
     @Test
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
         rule.setContent {
-            App(di)
+            app(di)
         }
         rule.awaitIdle()
         performLogin()
@@ -193,7 +193,7 @@ class AppTest {
         fillService(service)
         rule.waitUntil(timeoutMillis = 1000) {
             runBlocking {
-                servicesRepository.search(serviceModel.user, "", "").any {
+                servicesRepository.search(serviceModel.user.value, "", "").any {
                     it.service == service.service
                 }
             }

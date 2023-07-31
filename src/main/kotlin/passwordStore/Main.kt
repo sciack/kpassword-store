@@ -5,10 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +28,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
@@ -46,7 +44,7 @@ import javax.sql.DataSource
 
 @Composable
 @Preview
-fun App(di: DI) = withDI(di) {
+fun app(di: DI) = withDI(di) {
 
     val navController by rememberNavController()
 
@@ -54,10 +52,15 @@ fun App(di: DI) = withDI(di) {
         mutableStateOf<User?>(null)
     }
 
-    val serviceModel by localDI().instance<ServiceViewModel>()
+
+    val serviceModel by rememberInstance<ServiceViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val trayState = rememberTrayState()
+
+    val currentUser = remember {
+        serviceModel.user
+    }
 
     MaterialTheme {
 
@@ -65,7 +68,7 @@ fun App(di: DI) = withDI(di) {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             topBar = {
                 TopAppBar(navigationIcon = {
-                    if (serviceModel.user.id > 0) {
+                    if (serviceModel.user.value.id > 0) {
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
@@ -94,10 +97,20 @@ fun App(di: DI) = withDI(di) {
                 }, title = {
                     Spacer(modifier = Modifier.width(24.dp))
                     Text("Password Store")
-                },
-
-                )
-
+                    Spacer(modifier = Modifier.width(24.dp))
+                    if (currentUser.value.id > 0) {
+                        Text(user.value?.fullName.orEmpty())
+                    }
+                }, actions = {
+                    if (currentUser.value.id > 0)
+                        IconButton(
+                            onClick = {
+                                navController.navigate(Screen.Settings)
+                            },
+                        ) {
+                            Icon(Icons.Default.Settings, "Settings")
+                        }
+                })
             }) {
             ModalDrawer(
                 drawerState = drawerState,
@@ -114,7 +127,7 @@ fun App(di: DI) = withDI(di) {
                         loginPane(loginFunction = { currentUsername, pwd ->
                             submit(di, currentUsername, pwd).onSuccess {
                                 user.value = it
-                                serviceModel.user = it
+                                serviceModel.user.value = it
                                 navController.navigate(Screen.List)
                             }
                         })
@@ -156,6 +169,10 @@ fun App(di: DI) = withDI(di) {
                                 serviceModel.history("", exactMatch = false)
                             }
                         }
+                    }
+
+                    authenticatedComposable(Screen.Settings) {
+                        settings(serviceModel.user.value)
                     }
 
                 }.build()
@@ -277,7 +294,7 @@ fun main() {
         ) {
             LOGGER.info { "Building the app" }
 
-            App(di)
+            app(di)
         }
     }
 }

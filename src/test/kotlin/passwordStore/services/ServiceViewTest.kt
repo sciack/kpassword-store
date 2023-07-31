@@ -29,7 +29,7 @@ class ServiceViewTest {
     @BeforeTest
     fun setUp() = runBlocking {
 
-        serviceModel.user = user
+        serviceModel.user.value = user
         serviceModel.resetService()
     }
 
