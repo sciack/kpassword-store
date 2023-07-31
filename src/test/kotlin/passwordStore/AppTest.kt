@@ -57,7 +57,7 @@ class AppTest {
     @Test
     fun shouldShowLogin() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
 
         performLogin()
@@ -68,7 +68,7 @@ class AppTest {
     @Test
     fun shouldShowAnErrorIfLoginFail() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
 
         performLogin("wrong user")
@@ -80,7 +80,7 @@ class AppTest {
     @Test
     fun `should be able to add a service`() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
         rule.awaitIdle()
         performLogin()
@@ -111,7 +111,7 @@ class AppTest {
     @Test
     fun `should throw an error if service is add two times`() = runTest {
         rule.setContent {
-            App(di)
+            app(di)
         }
         rule.awaitIdle()
         performLogin()

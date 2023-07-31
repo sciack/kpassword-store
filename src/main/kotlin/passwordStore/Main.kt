@@ -5,10 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +43,7 @@ import javax.sql.DataSource
 
 @Composable
 @Preview
-fun App(di: DI) = withDI(di) {
+fun app(di: DI) = withDI(di) {
 
     val navController by rememberNavController()
 
@@ -94,10 +91,16 @@ fun App(di: DI) = withDI(di) {
                 }, title = {
                     Spacer(modifier = Modifier.width(24.dp))
                     Text("Password Store")
-                },
-
-                )
-
+                }, actions = {
+                    if ((user.value?.id ?: 0) > 0)
+                        IconButton(
+                            onClick = {
+                                      navController.navigate(Screen.Settings)
+                            },
+                        ) {
+                            Icon(Icons.Default.Settings, "Settings")
+                        }
+                })
             }) {
             ModalDrawer(
                 drawerState = drawerState,
@@ -156,6 +159,10 @@ fun App(di: DI) = withDI(di) {
                                 serviceModel.history("", exactMatch = false)
                             }
                         }
+                    }
+
+                    authenticatedComposable(Screen.Settings) {
+                        settings(serviceModel.user)
                     }
 
                 }.build()
@@ -277,7 +284,7 @@ fun main() {
         ) {
             LOGGER.info { "Building the app" }
 
-            App(di)
+            app(di)
         }
     }
 }
