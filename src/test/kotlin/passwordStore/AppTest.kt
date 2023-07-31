@@ -217,7 +217,7 @@ class AppTest {
         rule.onNodeWithTag("submit").performClick()
     }
 
-    private suspend fun performLogin(username: String = "m.sciachero") {
+    private suspend fun performLogin(username: String = "dummy") {
         rule.awaitIdle()
         rule.onNodeWithTag("username").assertExists().performTextInput(username)
         rule.awaitIdle()

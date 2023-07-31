@@ -12,14 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
-import org.kodein.di.instance
 import passwordStore.navigation.NavController
-import passwordStore.navigation.navigation
 import passwordStore.services.ServiceViewModel
 import passwordStore.users.UpdateUser
 import passwordStore.users.User
@@ -43,6 +39,10 @@ fun settings(currentUser: User) {
         mutableStateOf(false)
     }
 
+    val passwordConfirmation = remember {
+        mutableStateOf(TextFieldValue())
+    }
+
     val userRepository by rememberInstance<UserRepository>()
     val serviceViewModel by rememberInstance<ServiceViewModel>()
     val navController by rememberInstance<NavController>()
@@ -62,7 +62,7 @@ fun settings(currentUser: User) {
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
             label = {
-                Text("email")
+                Text("Email")
             },
             value = user.value.email,
 
@@ -75,7 +75,7 @@ fun settings(currentUser: User) {
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
             label = {
-                Text("password")
+                Text("Password")
             },
             value = user.value.password,
             visualTransformation = PasswordVisualTransformation(),
@@ -83,7 +83,21 @@ fun settings(currentUser: User) {
                 user.value = user.value.copy(password = password)
                 dirty.value = true
             },
+            isError = passwordConfirmation.value.text != user.value.password,
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password")
+        )
+        OutlinedTextField(
+            label = {
+                Text("Password confirmation")
+            },
+            value = passwordConfirmation.value,
+            visualTransformation = PasswordVisualTransformation(),
+            onValueChange = { password ->
+                passwordConfirmation.value = password
+                dirty.value = true
+            },
+            isError = passwordConfirmation.value.text != user.value.password,
+            modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password-confirmation")
         )
         Spacer(Modifier.height(16.dp))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -106,6 +120,7 @@ fun settings(currentUser: User) {
                     navController.navigate(Screen.List)
                 }
             },
+            enabled = passwordConfirmation.value.text == user.value.password,
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("submit")
         ) {
             Text("Submit")

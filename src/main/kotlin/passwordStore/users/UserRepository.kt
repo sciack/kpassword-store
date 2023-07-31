@@ -96,17 +96,47 @@ class UserRepository(
         }
     }
 
+    fun findUser(userid: String): User {
+
+        return ds.singleRow(
+            """ select id, userid, email, userid, password, fullname, role
+          from ps_user
+          where userid = ?
+        """, userid
+        ) { rs ->
+
+            User(
+                id = rs.getInt("id"),
+                fullName = rs.getString("fullname"),
+                email = rs.getString("email"),
+                userid = rs.getString("userid"),
+                roles = rs.getString("role").asSetOfRoles()
+            ).also { LOGGER.debug("User: $it") }
+        }
+    }
+
     fun updateUser(user: UpdateUser, principal: Principal): User {
-        ds.saveOrUpdate(
-            """update ps_user 
+        val params = mutableListOf(user.fullName)
+        val statement = buildString {
+            append("""update ps_user 
             set fullname = ?,
-                password = ?,
+            """)
+            if (user.password.isNotEmpty()) {
+                append(" password = ?,")
+                append("\n")
+                params.add(user.password.hash())
+            }
+            append("""    
                 email = ?
             where userid = ?
-            
-        """.trimIndent(), user.fullName, user.password.hash(), user.email, principal.name
+        """)
+            params.add(user.email)
+            params.add(user.userid)
+        }.trimIndent()
+        ds.saveOrUpdate(
+            statement, *params.toTypedArray()
         )
-        return login(user.userid, user.password)
+        return findUser(user.userid)
     }
 
     fun updateUser(user: AddUser, principal: Principal): User {

@@ -42,4 +42,8 @@ data class UpdateUser(
     var email: String = "",
     var password: String = "",
     var userid: String = ""
-)
+) {
+    fun validate(): Boolean {
+        return fullName.isNotEmpty() && email.isNotEmpty()
+    }
+}
