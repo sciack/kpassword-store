@@ -1,12 +1,20 @@
 package passwordStore.widget
 
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -60,4 +68,170 @@ fun showOk(
         })
     }
 
+}
+
+@Composable
+fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit) {
+    val length = remember {
+        mutableStateOf("8")
+    }
+    val useNumber = remember {
+        mutableStateOf(true)
+    }
+    val useSymbols = remember {
+        mutableStateOf(true)
+    }
+    val useUpperLowerCase = remember {
+        mutableStateOf(true)
+    }
+    val password = remember {
+        mutableStateOf(
+            generatePassword(
+                length.value.toInt(),
+                useUpperLowerCase.value,
+                useNumber.value,
+                useSymbols.value
+            )
+        )
+    }
+    if (showDialog.value) {
+        Column(Modifier.zIndex(99f)) {
+            Row {
+                Text("Password: ")
+                Text(password.value,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = length.value,
+                onValueChange = { value ->
+                    runCatching {
+                        if (value.isNullOrEmpty()) {
+                            null
+                        } else {
+                            value.toInt()
+                        }
+                    }.onSuccess {
+                        if (it in 1..30) {
+                            length.value = value
+                        } else {
+                            length.value = ""
+                        }
+                        password.value =
+                            generatePassword(
+                                length.value.toIntOrNull() ?: 0,
+                                useUpperLowerCase.value,
+                                useNumber.value,
+                                useSymbols.value
+                            )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Row(Modifier.align(Alignment.Start)) {
+                Checkbox(
+                    useNumber.value,
+                    onCheckedChange = {
+                        useNumber.value = it
+                        password.value =
+                            generatePassword(
+                                length.value.toIntOrNull() ?: 0,
+                                useUpperLowerCase.value,
+                                useNumber.value,
+                                useSymbols.value
+                            )
+                    },
+                    modifier = Modifier.testTag("number")
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Use number",
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            Row(Modifier.align(Alignment.Start)) {
+                Checkbox(
+                    useSymbols.value,
+                    onCheckedChange = {
+                        useSymbols.value = it
+                        password.value =
+                            generatePassword(
+                                length.value.toIntOrNull() ?: 0,
+                                useUpperLowerCase.value,
+                                useNumber.value,
+                                useSymbols.value
+                            )
+                    },
+                    modifier = Modifier.testTag("symbols")
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Use symbols",
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            Row(Modifier.align(Alignment.Start)) {
+                Checkbox(
+                    useUpperLowerCase.value,
+                    onCheckedChange = {
+                        useUpperLowerCase.value = it
+                        password.value =
+                            generatePassword(
+                                length.value.toIntOrNull() ?: 0,
+                                useUpperLowerCase.value,
+                                useNumber.value,
+                                useSymbols.value
+                            )
+                    },
+                    modifier = Modifier.testTag("case")
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Use upper/lower case",
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+
+            Row {
+                Button(onClick = {
+                    showDialog.value = false
+                    onSelect(password.value)
+                }) {
+                    Text("Confirm")
+                }
+                Spacer(Modifier.width(16.dp))
+                Button(onClick = {
+                    showDialog.value = false
+                }) {
+                    Text("Cancel")
+                }
+            }
+
+        }
+    }
+
+}
+
+fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: Boolean): String {
+    if (length == 0) {
+        return ""
+    }
+    val charString = buildString {
+        append(('a'..'z').joinToString(separator = ""))
+        if (upperCase) {
+            append(('A'..'Z').joinToString(separator = ""))
+        }
+        if (number) {
+            append(('0'..'9').joinToString(separator = ""))
+        }
+        if (symbols) {
+            append("@#$%&_-+,.:;!")
+        }
+    }
+    return (1..length).map {
+        val pos = Random.nextInt(charString.length)
+        charString[pos]
+    }.joinToString("")
 }

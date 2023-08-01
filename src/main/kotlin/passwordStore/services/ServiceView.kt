@@ -38,10 +38,7 @@ import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
 import passwordStore.utils.currentTime
-import passwordStore.widget.Table
-import passwordStore.widget.bottomBorder
-import passwordStore.widget.showOkCancel
-import passwordStore.widget.tagView
+import passwordStore.widget.*
 import kotlin.random.Random
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -268,6 +265,9 @@ fun newService(onSubmit: (Service) -> Unit) {
                 singleLine = true
             )
 
+            val showPasswordDialog = remember {
+                mutableStateOf(false)
+            }
 
             OutlinedTextField(
                 label = { Text("Password") },
@@ -276,12 +276,20 @@ fun newService(onSubmit: (Service) -> Unit) {
                     dirty.value = dirty.value || service.value.password != it
                     service.value = service.value.copy(password = it)
                 },
+                trailingIcon = {
+                    IconButton(onClick = { showPasswordDialog.value = showPasswordDialog.value.not() }) {
+                        Icon(Icons.Default.Edit, "Generate password")
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("password"),
                 singleLine = true
             )
-
+            passwordDialog(showPasswordDialog) {
+                service.value = service.value.copy(password = it)
+                dirty.value = true
+            }
 
             OutlinedTextField(
                 label = { Text("Note") },

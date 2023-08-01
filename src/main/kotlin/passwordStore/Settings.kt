@@ -1,9 +1,9 @@
 package passwordStore
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +20,7 @@ import passwordStore.services.ServiceViewModel
 import passwordStore.users.UpdateUser
 import passwordStore.users.User
 import passwordStore.users.UserRepository
+import passwordStore.widget.passwordDialog
 
 @Composable
 fun settings(currentUser: User) {
@@ -46,6 +47,9 @@ fun settings(currentUser: User) {
     val userRepository by rememberInstance<UserRepository>()
     val serviceViewModel by rememberInstance<ServiceViewModel>()
     val navController by rememberInstance<NavController>()
+    val showPasswordDialog = remember {
+        mutableStateOf(false)
+    }
 
     Column(Modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -78,6 +82,11 @@ fun settings(currentUser: User) {
                 Text("Password")
             },
             value = user.value.password,
+            trailingIcon = {
+                IconButton(onClick = { showPasswordDialog.value = showPasswordDialog.value.not() }) {
+                    Icon(Icons.Default.Edit, "Generate password")
+                }
+            },
             visualTransformation = PasswordVisualTransformation(),
             onValueChange = { password ->
                 user.value = user.value.copy(password = password)
@@ -86,6 +95,12 @@ fun settings(currentUser: User) {
             isError = passwordConfirmation.value.text != user.value.password,
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password")
         )
+        passwordDialog(showPasswordDialog) {
+            user.value = user.value.copy(password = it)
+            passwordConfirmation.value = TextFieldValue(it)
+            dirty.value = true
+        }
+
         OutlinedTextField(
             label = {
                 Text("Password confirmation")
