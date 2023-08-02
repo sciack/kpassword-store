@@ -64,7 +64,8 @@ tasks.test {
 }
 
 tasks.releaseVersion {
-    setNoCommit(true)
+    setNoCommit(false)
+    setNoTag(false)
 }
 
 compose.desktop {
