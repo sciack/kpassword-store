@@ -7,10 +7,11 @@ plugins {
     id("org.jetbrains.compose") version "1.4.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
+    id("com.github.jmongard.git-semver-plugin") version "0.4.2"
 }
 
 group = "com.github.sciack"
-version = "1.0-SNAPSHOT"
+version = semver.infoVersion
 
 repositories {
     mavenCentral()
@@ -62,14 +63,19 @@ tasks.test {
     //useJUnitPlatform()
 }
 
+tasks.releaseVersion {
+    setNoCommit(true)
+}
+
 compose.desktop {
+
     application {
         mainClass = "passwordStore.MainKt"
 
         nativeDistributions {
             targetFormats( TargetFormat.Rpm, TargetFormat.Msi)
             packageName = "kpassword-store"
-            packageVersion = "1.0.0"
+            packageVersion = semver.version.substringBefore('-')
         }
     }
 }
