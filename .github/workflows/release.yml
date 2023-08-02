@@ -82,7 +82,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2.6.0
       - name: package
-        run: gradlew packageMsi -i
+        run: ./gradlew packageMsi -i
 
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
