@@ -67,7 +67,7 @@ jobs:
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ jobs.release.outputs.upload_url }}
+          upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: build/compose/binaries/main/rpm/kpassword-store-${{ github.ref_name }}-1.x86_64.rpm
           asset_name: kpassword-store-${{ github.ref_name  }}-1.x86_64.rpm
           asset_content_type: application/octet-stream
@@ -101,7 +101,7 @@ jobs:
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ jobs.release.outputs.upload_url }}
+          upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: build/compose/binaries/main/msi/kpassword-store-${{ github.ref_name}}.msi
           asset_name: kpassword-store-${{ github.ref_name }}.msi
           asset_content_type: application/octet-stream
