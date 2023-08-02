@@ -1,5 +1,6 @@
 package passwordStore
 
+import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.github.javafaker.Faker
@@ -207,6 +208,8 @@ class AppTest {
 
         rule.waitUntilExactlyOneExists(hasTestTag("service"), 3000)
 
+        rule.onNodeWithTag("service").performSemanticsAction(RequestFocus)
+        rule.waitUntilAtLeastOneExists(hasTestTag("service") and isFocused())
         rule.onNodeWithTag("service").performTextInput(service.service)
         rule.onNodeWithTag("username").performTextInput(service.username)
         rule.onNodeWithTag("password").performTextInput(service.password)

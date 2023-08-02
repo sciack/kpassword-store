@@ -47,11 +47,6 @@ fun app(di: DI) = withDI(di) {
 
     val navController by rememberNavController()
 
-    val user = remember {
-        mutableStateOf<User?>(null)
-    }
-
-
     val serviceModel by rememberInstance<ServiceViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -59,6 +54,12 @@ fun app(di: DI) = withDI(di) {
 
     val currentUser = remember {
         serviceModel.user
+    }
+
+    navController.onSelection {
+        coroutineScope.launch(Dispatchers.Main) {
+            drawerState.close()
+        }
     }
 
     MaterialTheme {
@@ -98,7 +99,7 @@ fun app(di: DI) = withDI(di) {
                     Text("Password Store")
                     Spacer(modifier = Modifier.width(24.dp))
                     if (currentUser.value.id > 0) {
-                        Text(user.value?.fullName.orEmpty())
+                        Text(currentUser.value.fullName)
                     }
                 }, actions = {
                     if (currentUser.value.id > 0)
@@ -118,63 +119,7 @@ fun app(di: DI) = withDI(di) {
                 },
                 drawerShape = customShape(),
             ) {
-                NavigationHost(navController) {
-                    composable(Screen.Login) {
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                        loginPane(loginFunction = { currentUsername, pwd ->
-                            submit(di, currentUsername, pwd).onSuccess {
-                                user.value = it
-                                serviceModel.user.value = it
-                                navController.navigate(Screen.List)
-                            }
-                        })
-                    }
-
-                    authenticatedComposable(Screen.List) {
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                        serviceModel.resetService()
-                        serviceModel.fetchAll()
-                        servicesTable()
-                    }
-
-                    authenticatedComposable(Screen.NewService) {
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                        newService {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                serviceModel.store(it).onSuccess {
-                                    serviceModel.resetService()
-                                    withContext(Dispatchers.Main) {
-                                        navController.navigate(Screen.List)
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-
-                    authenticatedComposable(Screen.History) {
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                        historyTable(serviceModel.historyEvents.value)
-                        if (serviceModel.shouldLoadHistory()) {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                serviceModel.history("", exactMatch = false)
-                            }
-                        }
-                    }
-
-                    authenticatedComposable(Screen.Settings) {
-                        settings(serviceModel.user.value)
-                    }
-
-                }.build()
+               route(navController)
             }
         }
     }

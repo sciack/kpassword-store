@@ -147,11 +147,7 @@ fun servicesTable() {
             newService { service ->
                 coroutineScope.launch {
                     if (service.dirty) {
-                        serviceModel.update(service).onSuccess {
-                            withContext(Dispatchers.Main) {
-                                selectedService.value = Service()
-                            }
-                        }
+                        serviceModel.update(service)
                     }
                 }
             }
@@ -243,7 +239,8 @@ fun newService(onSubmit: (Service) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("service"),
-                singleLine = true
+                singleLine = true,
+                isError = errorMsg.value.isNotEmpty()
             )
 
             tagEditor(tags, onValueChange = { values ->
@@ -262,7 +259,8 @@ fun newService(onSubmit: (Service) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("username"),
-                singleLine = true
+                singleLine = true,
+                isError = errorMsg.value.isNotEmpty()
             )
 
             val showPasswordDialog = remember {
@@ -284,7 +282,8 @@ fun newService(onSubmit: (Service) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("password"),
-                singleLine = true
+                singleLine = true,
+                isError = errorMsg.value.isNotEmpty()
             )
             passwordDialog(showPasswordDialog) {
                 service.value = service.value.copy(password = it)
@@ -322,8 +321,12 @@ fun newService(onSubmit: (Service) -> Unit) {
                         val newService = service.value.copy(
                             userid = user.value.userid, dirty = dirty.value,
                             updateTime = clock.currentTime()
-                        )
-                        onSubmit(newService)
+                        ).trim()
+                        newService.validate().onSuccess {
+                            onSubmit(newService)
+                        }.onFailure {
+                            errorMsg.value = it.localizedMessage
+                        }
                     }
                 ) {
                     Text("Submit")

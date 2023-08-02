@@ -338,6 +338,20 @@ data class Service(
 ) {
     fun trim(): Service =
         this.copy(service = this.service.trim(), username = this.username.trim(), password = this.password.trim())
+
+    fun validate(): Result<Unit> =
+        runCatching {
+            check(!service.isNullOrEmpty()) {
+                "Service name must be present"
+            }
+            check(!username.isNullOrEmpty()) {
+                "Username must be present"
+            }
+            check(!password.isNullOrEmpty()) {
+                "Password must be present"
+            }
+        }
+
 }
 
 

@@ -63,7 +63,7 @@ class ServiceViewModel(
         servicesRepository.update(service.trim())
         fetchAll()
     }.onSuccess {
-        saveError.value = ""
+        resetService()
     }.onFailure {
         saveError.value = processError(it, service)
     }

@@ -1,6 +1,20 @@
 package passwordStore
 
-import passwordStore.services.Service
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
+import passwordStore.navigation.NavController
+import passwordStore.navigation.NavigationHost
+import passwordStore.navigation.authenticatedComposable
+import passwordStore.navigation.composable
+import passwordStore.services.*
+import passwordStore.users.User
 
 sealed interface Screen {
     val name: String
@@ -46,4 +60,64 @@ sealed interface Screen {
         override val allowBack: Boolean
             get() = true
     }
+}
+
+@Composable
+fun route(navController: NavController) {
+    val coroutineScope = rememberCoroutineScope()
+    val serviceModel by rememberInstance<ServiceViewModel>()
+    val di = localDI()
+    val user = remember {
+        mutableStateOf<User?>(null)
+    }
+
+    NavigationHost(navController) {
+        composable(Screen.Login) {
+
+            loginPane(loginFunction = { currentUsername, pwd ->
+                submit(di, currentUsername, pwd).onSuccess {
+                    user.value = it
+                    serviceModel.user.value = it
+                    navController.navigate(Screen.List)
+                }
+            })
+        }
+
+        authenticatedComposable(Screen.List) {
+
+            serviceModel.resetService()
+            serviceModel.fetchAll()
+            servicesTable()
+        }
+
+        authenticatedComposable(Screen.NewService) {
+
+            newService {
+                coroutineScope.launch(Dispatchers.IO) {
+                    serviceModel.store(it).onSuccess {
+                        serviceModel.resetService()
+                        withContext(Dispatchers.Main) {
+                            navController.navigate(Screen.List)
+                        }
+                    }
+
+                }
+            }
+        }
+
+        authenticatedComposable(Screen.History) {
+
+            historyTable(serviceModel.historyEvents.value)
+            if (serviceModel.shouldLoadHistory()) {
+                coroutineScope.launch(Dispatchers.IO) {
+                    serviceModel.history("", exactMatch = false)
+                }
+            }
+        }
+
+        authenticatedComposable(Screen.Settings) {
+            settings(serviceModel.user.value)
+        }
+
+    }.build()
 }

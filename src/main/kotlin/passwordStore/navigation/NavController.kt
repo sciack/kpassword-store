@@ -15,6 +15,7 @@ class NavController(
     private val startDestination: Screen,
     private var backStackScreens: MutableSet<Screen> = mutableSetOf()
 ) {
+    var onNavigation: () -> Unit = {}
     // Variable to store the state of the current screen
     var currentScreen: MutableState<Screen> = mutableStateOf(startDestination)
 
@@ -31,7 +32,10 @@ class NavController(
                 backStackScreens.add(currentScreen.value)
             }
 
+            onNavigation.invoke()
+
             currentScreen.value = route
+
         }
     }
 
@@ -40,7 +44,12 @@ class NavController(
         if (backStackScreens.isNotEmpty()) {
             currentScreen.value = backStackScreens.last()
             backStackScreens.remove(currentScreen.value)
+            onNavigation.invoke()
         }
+    }
+
+    fun onSelection(fn: () -> Unit) {
+        onNavigation = fn
     }
 }
 
