@@ -9,7 +9,7 @@ name: KPassword Store
 on:
   push:
     tags:
-      - *
+      - '*'
 permissions:
   contents: read
 
