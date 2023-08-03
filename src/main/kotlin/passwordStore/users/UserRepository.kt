@@ -118,18 +118,22 @@ class UserRepository(
     fun updateUser(user: UpdateUser, principal: Principal): User {
         val params = mutableListOf(user.fullName)
         val statement = buildString {
-            append("""update ps_user 
+            append(
+                """update ps_user 
             set fullname = ?,
-            """)
+            """
+            )
             if (user.password.isNotEmpty()) {
                 append(" password = ?,")
                 append("\n")
                 params.add(user.password.hash())
             }
-            append("""    
+            append(
+                """    
                 email = ?
             where userid = ?
-        """)
+        """
+            )
             params.add(user.email)
             params.add(user.userid)
         }.trimIndent()

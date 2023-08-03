@@ -53,7 +53,7 @@ sealed interface Screen {
             get() = true
     }
 
-    object Settings: Screen {
+    object Settings : Screen {
         override val name: String
             get() = "Settings"
 

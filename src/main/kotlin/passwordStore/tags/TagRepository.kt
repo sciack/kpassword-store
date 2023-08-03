@@ -20,7 +20,7 @@ class TagRepository(private val dataSource: DataSource) {
             from tags t""".trimIndent(), mapOf("userid" to user.userid)
         ) {
             it.getString(1) to it.getInt(2)
-        }.filter { (key, _ )->
+        }.filter { (key, _) ->
             key.isNotEmpty()
         }.toMap()
     }

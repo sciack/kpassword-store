@@ -22,7 +22,7 @@ class ServiceViewModel(
 
     val selectedService = mutableStateOf(Service())
 
-    var user = mutableStateOf( NONE)
+    var user = mutableStateOf(NONE)
 
     private var pattern: String = ""
 

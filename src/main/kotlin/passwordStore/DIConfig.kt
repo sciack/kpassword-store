@@ -1,5 +1,6 @@
 package passwordStore
 
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.datetime.Clock
@@ -25,7 +26,7 @@ fun diCore(): DI.Module = DI.Module("core") {
     import(tagModule)
     bind {
         singleton {
-            CoroutineScope(SupervisorJob())
+            CoroutineScope(SupervisorJob() + CoroutineName("KPasswordStore"))
         }
     }
 

@@ -98,7 +98,8 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
         Column(Modifier.zIndex(99f)) {
             Row {
                 Text("Password: ")
-                Text(password.value,
+                Text(
+                    password.value,
                     fontWeight = FontWeight.Bold
                 )
             }

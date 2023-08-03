@@ -76,6 +76,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats( TargetFormat.Rpm, TargetFormat.Msi)
             packageName = "kpassword-store"
+            modules("java.sql", "java.desktop", "java.naming")
             packageVersion = semver.version.substringBefore('-')
         }
     }

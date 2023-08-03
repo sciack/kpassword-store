@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -22,10 +25,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
@@ -33,8 +36,11 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.SetupEnv
-import passwordStore.navigation.*
-import passwordStore.services.*
+import passwordStore.navigation.NavController
+import passwordStore.navigation.rememberNavController
+import passwordStore.services.ServiceViewModel
+import passwordStore.services.exportPath
+import passwordStore.services.performDownload
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
@@ -51,6 +57,7 @@ fun app(di: DI) = withDI(di) {
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val trayState = rememberTrayState()
+    val scaffoldState = rememberScaffoldState()
 
     val currentUser = remember {
         serviceModel.user
@@ -66,6 +73,7 @@ fun app(di: DI) = withDI(di) {
 
         trayState.sendNotification(Notification("KPasswordStore", "Open app"))
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
+            scaffoldState = scaffoldState,
             topBar = {
                 TopAppBar(navigationIcon = {
                     if (serviceModel.user.value.id > 0) {
@@ -112,14 +120,15 @@ fun app(di: DI) = withDI(di) {
                         }
                 })
             }) {
+
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    drawer(navController)
+                    drawer(navController, scaffoldState)
                 },
                 drawerShape = customShape(),
             ) {
-               route(navController)
+                route(navController)
             }
         }
     }
@@ -138,10 +147,12 @@ fun customShape() = object : Shape {
 }
 
 @Composable
-fun drawer(navController: NavController) {
+fun drawer(navController: NavController, scaffoldState: ScaffoldState) {
     val di: DI = localDI()
+    val coroutineScope = rememberCoroutineScope()
     val serviceViewModel by rememberInstance<ServiceViewModel>()
     Row {
+
         IconButton(
             onClick = { navController.navigate(Screen.List) },
             modifier = Modifier.testTag("Home").align(Alignment.CenterVertically)
@@ -203,7 +214,7 @@ fun drawer(navController: NavController) {
     Row {
         IconButton(
             onClick = {
-                download(di)
+                coroutineScope.download(di, scaffoldState)
             },
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
@@ -217,19 +228,25 @@ fun drawer(navController: NavController) {
             text = "Export CSV",
             style = MaterialTheme.typography.h5,
             modifier = Modifier.clickable {
-                download(di)
+                coroutineScope.download(di, scaffoldState)
             }.align(Alignment.CenterVertically)
         )
     }
 
 }
 
-private fun download(di: DI) {
+private fun CoroutineScope.download(di: DI, scaffoldState: ScaffoldState) {
     val exportPath = exportPath()
-    exportPath.writer().use {
-        it.performDownload(di)
+    LOGGER.warn { "Writing in directory: $exportPath" }
+
+    launch(Dispatchers.IO) {
+        exportPath.writer().use {
+            it.performDownload(di)
+        }
+        scaffoldState.snackbarHostState.showSnackbar("Download completed")
     }
 }
+
 
 fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
     val userRepository by di.instance<UserRepository>()
@@ -252,7 +269,6 @@ fun main() {
     SetupEnv.configure(".env")
     val di = di()
     val datasource by di.instance<DataSource>()
-
     Migration(datasource).migrate()
     application {
         val coroutineScope = rememberCoroutineScope()

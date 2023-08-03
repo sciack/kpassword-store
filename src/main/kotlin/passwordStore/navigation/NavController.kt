@@ -16,6 +16,7 @@ class NavController(
     private var backStackScreens: MutableSet<Screen> = mutableSetOf()
 ) {
     var onNavigation: () -> Unit = {}
+
     // Variable to store the state of the current screen
     var currentScreen: MutableState<Screen> = mutableStateOf(startDestination)
 
