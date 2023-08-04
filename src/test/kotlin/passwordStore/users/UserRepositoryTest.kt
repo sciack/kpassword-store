@@ -68,17 +68,16 @@ class UserRepositoryTest() {
     @Test
     fun `should store a new user`() {
         val faker = Faker()
-        val user = userRepository.login("dummy", "secret").let {
-            UpdateUser(fullName = faker.dune().character(),
-                password = faker.internet().password(),
-                email = faker.internet().emailAddress(),
-                userid = it.userid)
-        }
-        userRepository.updateUser(user, Principal { user.userid })
+        val user = UpdateUser(fullName = faker.dune().character(),
+            password = faker.internet().password(),
+            email = faker.internet().emailAddress(),
+            roles = setOf(Roles.NormalUser),
+            userid = userRepository.login("dummy", "secret").userid)
+        userRepository.updateUser(user) { user.userid }
         val userRead = userRepository.login(user.userid, user.password)
         assertThat(userRead.fullName, equalTo(user.fullName))
         assertThat(userRead.email, equalTo(user.email))
-
+        assertThat(userRead.roles, equalTo(setOf( Roles.NormalUser)))
     }
 }
 

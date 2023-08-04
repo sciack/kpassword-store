@@ -54,25 +54,26 @@ class UserRepository(
     }
 
 
-    private fun String.asSetOfRoles(): Set<Roles> = this.split(",").map {
+    private fun String.asSetOfRoles(): Set<Roles> = this.trim().split(",")
+        .filterNot(String::isEmpty).map {
+        LOGGER.warn { "Looking for role: $it" }
         Roles.valueOf(it.trim())
     }.toSet()
 
-    fun get(param: String?) =
-        ds.query(
-            """select userid, email, fullname, role, 
+    fun get(param: String?) = ds.query(
+        """select userid, email, fullname, role, 
                     (select count(*) from services where userid = u.userid) as services 
                     from PS_User u
         """.trimIndent()
-        ) { rs ->
-            ListUser(
-                rs.getString("userid"),
-                rs.getString("email"),
-                rs.getString("fullname"),
-                rs.getString("role").asSetOfRoles(),
-                rs.getInt("services")
-            )
-        }
+    ) { rs ->
+        ListUser(
+            rs.getString("userid"),
+            rs.getString("email"),
+            rs.getString("fullname"),
+            rs.getString("role").asSetOfRoles(),
+            rs.getInt("services")
+        )
+    }
 
 
     fun login(userid: String, password: String): User {
@@ -130,11 +131,14 @@ class UserRepository(
             }
             append(
                 """    
-                email = ?
+                email = ?,
+                role = ?
             where userid = ?
+            
         """
             )
             params.add(user.email)
+            params.add(user.roles.joinToString { it.name })
             params.add(user.userid)
         }.trimIndent()
         ds.saveOrUpdate(

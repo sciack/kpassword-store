@@ -15,6 +15,7 @@ import passwordStore.navigation.authenticatedComposable
 import passwordStore.navigation.composable
 import passwordStore.services.*
 import passwordStore.users.User
+import passwordStore.users.userSettings
 
 sealed interface Screen {
     val name: String
@@ -116,7 +117,7 @@ fun route(navController: NavController) {
         }
 
         authenticatedComposable(Screen.Settings) {
-            settings(serviceModel.user.value)
+            userSettings(serviceModel.user.value)
         }
 
     }.build()

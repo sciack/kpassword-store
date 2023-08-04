@@ -34,6 +34,9 @@ data class User(
     fun asPrincipal(): Principal {
         return Principal { userid }
     }
+
+    fun isAdmin(): Boolean = roles.contains(Roles.Administrator)
+
 }
 
 
@@ -41,9 +44,10 @@ data class UpdateUser(
     var fullName: String = "",
     var email: String = "",
     var password: String = "",
-    var userid: String = ""
+    var userid: String = "",
+    var roles: Set<Roles> = setOf()
 ) {
     fun validate(): Boolean {
-        return fullName.isNotEmpty() && email.isNotEmpty()
+        return fullName.isNotEmpty() && email.isNotEmpty() && roles.isNotEmpty()
     }
 }

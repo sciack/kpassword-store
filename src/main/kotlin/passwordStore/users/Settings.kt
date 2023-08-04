@@ -1,5 +1,7 @@
-package passwordStore
+package passwordStore.users
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -9,21 +11,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import org.kodein.di.compose.rememberInstance
+import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.services.ServiceViewModel
-import passwordStore.users.UpdateUser
-import passwordStore.users.User
-import passwordStore.users.UserRepository
+import passwordStore.widget.bottomBorder
 import passwordStore.widget.passwordDialog
 
 @Composable
-fun settings(currentUser: User) {
+fun userSettings(currentUser: User) {
 
     val user = remember {
         mutableStateOf(
@@ -31,7 +33,8 @@ fun settings(currentUser: User) {
                 userid = currentUser.userid,
                 email = currentUser.email,
                 fullName = currentUser.fullName,
-                password = ""
+                password = "",
+                roles = currentUser.roles
             )
         )
     }
@@ -95,10 +98,13 @@ fun settings(currentUser: User) {
             isError = passwordConfirmation.value.text != user.value.password,
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password")
         )
-        passwordDialog(showPasswordDialog) {
-            user.value = user.value.copy(password = it)
-            passwordConfirmation.value = TextFieldValue(it)
-            dirty.value = true
+        Spacer(Modifier.height(12.dp))
+        Card (Modifier.align(Alignment.CenterHorizontally).padding(4.dp)) {
+            passwordDialog(showPasswordDialog) {
+                user.value = user.value.copy(password = it)
+                passwordConfirmation.value = TextFieldValue(it)
+                dirty.value = true
+            }
         }
 
         OutlinedTextField(
@@ -115,16 +121,47 @@ fun settings(currentUser: User) {
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password-confirmation")
         )
         Spacer(Modifier.height(16.dp))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text("Roles:")
-            currentUser.roles.forEach {
-                Text(
-                    text = it.name,
-                    fontStyle = FontStyle.Italic,
-                )
-                Spacer(Modifier.width(16.dp))
-            }
+        if (currentUser.isAdmin()) {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Column {
+                    Text("Roles:")
 
+                    Roles.values().forEach {role ->
+                        Row {
+                            Checkbox(checked = user.value.roles.contains(role),
+                                onCheckedChange = {value ->
+                                    val roles = user.value.roles.toMutableSet()
+                                    if (value) {
+                                        roles.add(role)
+                                    } else {
+                                        roles.remove(role)
+                                    }
+                                    user.value = user.value.copy(roles = roles)
+                                }
+                                )
+                            Text(
+                                text = role.name,
+                                fontStyle = FontStyle.Italic,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            Spacer(Modifier.width(16.dp))
+                        }
+                    }
+                }
+
+            }
+        } else {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Roles:")
+                currentUser.roles.forEach {
+                    Text(
+                        text = it.name,
+                        fontStyle = FontStyle.Italic,
+                    )
+                    Spacer(Modifier.width(16.dp))
+                }
+
+            }
         }
         Spacer(Modifier.height(16.dp))
         Button(

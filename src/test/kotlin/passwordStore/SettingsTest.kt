@@ -7,18 +7,16 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import org.junit.After
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.crypto.CryptExtension.Companion.hash
-import passwordStore.crypto.CryptExtension.Companion.verify
 import passwordStore.navigation.NavController
 import passwordStore.services.ServiceViewModel
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UpdateUser
 import passwordStore.users.User
 import passwordStore.users.UserRepository
+import passwordStore.users.userSettings
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -58,7 +56,7 @@ class SettingsTest {
     fun `should store the new settings`() = runTest {
         rule.setContent {
             withDI(di) {
-                settings(user)
+                userSettings(user)
             }
         }
 
@@ -82,7 +80,7 @@ class SettingsTest {
     fun `should submitted disable if password is not matching`() = runTest {
         rule.setContent {
             withDI(di) {
-                settings(user)
+                userSettings(user)
             }
         }
 
