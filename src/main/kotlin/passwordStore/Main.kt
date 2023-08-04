@@ -44,6 +44,7 @@ import passwordStore.services.performDownload
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
+import passwordStore.utils.StatusHolder
 import javax.sql.DataSource
 import kotlin.io.path.writer
 
@@ -55,9 +56,8 @@ fun app(di: DI) = withDI(di) {
 
     val serviceModel by rememberInstance<ServiceViewModel>()
     val coroutineScope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val trayState = rememberTrayState()
-    val scaffoldState = rememberScaffoldState()
+    StatusHolder.drawerState = rememberDrawerState(DrawerValue.Closed)
+    StatusHolder.scaffoldState = rememberScaffoldState()
 
     val currentUser = remember {
         serviceModel.user
@@ -65,25 +65,23 @@ fun app(di: DI) = withDI(di) {
 
     navController.onSelection {
         coroutineScope.launch(Dispatchers.Main) {
-            drawerState.close()
+            StatusHolder.drawerState.close()
         }
     }
 
     MaterialTheme {
-
-        trayState.sendNotification(Notification("KPasswordStore", "Open app"))
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
-            scaffoldState = scaffoldState,
+            scaffoldState = StatusHolder.scaffoldState,
             topBar = {
                 TopAppBar(navigationIcon = {
                     if (serviceModel.user.value.id > 0) {
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
-                                    if (drawerState.isClosed) {
-                                        drawerState.open()
+                                    if (StatusHolder.drawerState.isClosed) {
+                                        StatusHolder.drawerState.open()
                                     } else {
-                                        drawerState.close()
+                                        StatusHolder.drawerState.close()
                                     }
                                 }
                             },
@@ -122,9 +120,9 @@ fun app(di: DI) = withDI(di) {
             }) {
 
             ModalDrawer(
-                drawerState = drawerState,
+                drawerState = StatusHolder.drawerState,
                 drawerContent = {
-                    drawer(navController, scaffoldState)
+                    drawer(navController)
                 },
                 drawerShape = customShape(),
             ) {
@@ -147,7 +145,7 @@ fun customShape() = object : Shape {
 }
 
 @Composable
-fun drawer(navController: NavController, scaffoldState: ScaffoldState) {
+fun drawer(navController: NavController) {
     val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
     val serviceViewModel by rememberInstance<ServiceViewModel>()
@@ -214,7 +212,7 @@ fun drawer(navController: NavController, scaffoldState: ScaffoldState) {
     Row {
         IconButton(
             onClick = {
-                coroutineScope.download(di, scaffoldState)
+                coroutineScope.download(di)
             },
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
@@ -228,22 +226,23 @@ fun drawer(navController: NavController, scaffoldState: ScaffoldState) {
             text = "Export CSV",
             style = MaterialTheme.typography.h5,
             modifier = Modifier.clickable {
-                coroutineScope.download(di, scaffoldState)
+                coroutineScope.download(di)
             }.align(Alignment.CenterVertically)
         )
     }
 
 }
 
-private fun CoroutineScope.download(di: DI, scaffoldState: ScaffoldState) {
+private fun CoroutineScope.download(di: DI) {
     val exportPath = exportPath()
     LOGGER.warn { "Writing in directory: $exportPath" }
 
     launch(Dispatchers.IO) {
+        StatusHolder.drawerState.close()
         exportPath.writer().use {
             it.performDownload(di)
         }
-        scaffoldState.snackbarHostState.showSnackbar("Download completed")
+        StatusHolder.scaffoldState.snackbarHostState.showSnackbar("Download completed")
     }
 }
 
