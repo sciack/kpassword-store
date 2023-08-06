@@ -38,7 +38,6 @@ build:
 test:
   stage: test
   script:
-    - yum install mesa-libGL -y
     - ./gradlew check koverXmlReport
   artifacts:
     when: always
