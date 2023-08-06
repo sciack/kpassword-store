@@ -12,6 +12,12 @@
 
 image: registry.access.redhat.com/ubi8/openjdk-17:1.16-2
 
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
 before_script:
   - GRADLE_USER_HOME="$(pwd)/.gradle"
   - export GRADLE_USER_HOME
@@ -29,7 +35,7 @@ build:
 test:
   stage: test
   script:
-    - microdnf install mesa-libGL
+    - sudo microdnf install mesa-libGL -y
     - ./gradlew check koverXmlReport
   artifacts:
     when: always
@@ -46,7 +52,17 @@ test:
       - build
       - .gradle
 
+package:
+  stage: package
+  script: ./gradlew --build-cache packageRpm
+  environment: production
+  rules:
+    - if: $CI_COMMIT_TAG =~ /\d+\.\d+\.\d+/
+
 deploy:
   stage: deploy
-  script: echo "Define your deployment script!"
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
   environment: production
+  rules:
+    - if: $CI_COMMIT_TAG =~ /\d+\.\d+\.\d+/
