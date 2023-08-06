@@ -63,7 +63,9 @@ package:
     - saas-linux-medium-amd64
   script:
     - ./gradlew --build-cache packageRpm
-    -  'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file FILE_NAME=build/compose/binaries/main/rpm/${FILENAME} "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/kpassword-store/${FILE_VERSION}/$FILE_NAME"'
+    - echo $FILE_NAME
+    - echo $FILE_VERSION
+    -  'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file build/compose/binaries/main/rpm/${FILE_NAME} "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/kpassword-store/${FILE_VERSION}/$FILE_NAME"'
   environment: production
   rules:
     - if: $CI_COMMIT_TAG =~ /\d+\.\d+\.\d+/
