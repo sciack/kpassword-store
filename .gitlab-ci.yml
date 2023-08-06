@@ -18,6 +18,8 @@ stages:
   - package
   - deploy
 
+variables:
+  JAVA_HOME: /root/.sdkman/candidates/java/current
 
 before_script:
   - GRADLE_USER_HOME="$(pwd)/.gradle"
