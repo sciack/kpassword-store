@@ -28,7 +28,17 @@ build:
 
 test:
   stage: test
-  script: ./gradlew check
+  script:
+    - microdnf install mesa-libGL
+    - ./gradlew check koverXmlReport
+  artifacts:
+    when: always
+    expire_in: 2 hours
+    reports:
+      junit: "**/build/test-results/test/**/TEST-*.xml"
+#      coverage_report:
+#        coverage_format: cobertura
+#        path: "**/build/reports/xml/cobertura.xml"
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
