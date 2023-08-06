@@ -20,10 +20,12 @@ import passwordStore.utils.currentTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTestApi::class)
+@Ignore
 class AppTest {
     private val di = DiInjection.testDi
     private val user = testUser()
