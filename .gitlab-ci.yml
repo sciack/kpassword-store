@@ -17,8 +17,7 @@ stages:
   - test
   - package
   - deploy
-variables:
-  JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+
 
 before_script:
   - GRADLE_USER_HOME="$(pwd)/.gradle"
