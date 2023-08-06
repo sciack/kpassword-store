@@ -10,7 +10,7 @@
 # https://gradle.org/
 # https://github.com/gradle/gradle
 
-image: registry.access.redhat.com/ubi8/openjdk-17:1.16-2
+image: registry.gitlab.com/m.sciachero/kpassword-store/fedora-java:latest
 
 stages:
   - build
