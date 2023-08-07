@@ -48,9 +48,12 @@ import passwordStore.users.User
 import passwordStore.users.UserRepository
 import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
+import java.nio.charset.Charset
+import java.nio.file.Files
 import java.nio.file.Path
 import javax.sql.DataSource
 import kotlin.io.path.createDirectories
+import kotlin.io.path.notExists
 import kotlin.io.path.writer
 
 @Composable
@@ -319,8 +322,12 @@ fun configureEnvironment() {
     val configFile = if (mode == "PROD") {
         val dir = configDir()
         dir.createDirectories()
-        dir.resolve("config.properties")
-
+        dir.resolve("config.properties").also{ path ->
+            if (path.notExists()) {
+                val template = Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText().orEmpty()
+                Files.writeString(path, template)
+            }
+        }
     } else {
         Path.of(".env")
     }
