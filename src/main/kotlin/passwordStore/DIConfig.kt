@@ -6,51 +6,30 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.datetime.Clock
 import org.kodein.di.DI
 import org.kodein.di.bind
-import org.kodein.di.instance
 import org.kodein.di.singleton
 import passwordStore.audit.auditModule
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.navigation.navigation
-import passwordStore.services.ServiceViewModel
-import passwordStore.services.ServicesRepository
+import passwordStore.services.services
 import passwordStore.sql.prodDatasource
 import passwordStore.tags.tagModule
-import passwordStore.users.UserRepository
+import passwordStore.users.userModule
 import javax.sql.DataSource
 
 fun diCore(): DI.Module = DI.Module("core") {
 
     import(auditModule)
-    import(repositories)
+    import(services)
     import(navigation)
     import(tagModule)
+    import(userModule)
     bind {
         singleton {
             CoroutineScope(SupervisorJob() + CoroutineName("KPasswordStore"))
         }
     }
-
-    bind {
-        singleton {
-            ServiceViewModel(instance(), instance(), instance())
-        }
-    }
-
 }
 
-
-val repositories = DI.Module("repositories") {
-    bind<UserRepository> {
-        singleton {
-            UserRepository(instance())
-        }
-    }
-    bind<ServicesRepository> {
-        singleton {
-            ServicesRepository(instance(), instance(), instance())
-        }
-    }
-}
 
 fun di() = DI {
     import(diCore())

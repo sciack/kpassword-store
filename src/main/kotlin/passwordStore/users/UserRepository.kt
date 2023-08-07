@@ -60,7 +60,7 @@ class UserRepository(
         Roles.valueOf(it.trim())
     }.toSet()
 
-    fun get(param: String?) = ds.query(
+    fun list() = ds.query(
         """select userid, email, fullname, role, 
                     (select count(*) from services where userid = u.userid) as services 
                     from PS_User u

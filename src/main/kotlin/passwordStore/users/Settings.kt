@@ -1,10 +1,9 @@
 package passwordStore.users
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -13,16 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.services.ServiceViewModel
-import passwordStore.widget.bottomBorder
-import passwordStore.widget.passwordDialog
+import passwordStore.widget.*
 
 @Composable
 fun userSettings(currentUser: User) {
@@ -99,7 +101,7 @@ fun userSettings(currentUser: User) {
             modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password")
         )
         Spacer(Modifier.height(12.dp))
-        Card (Modifier.align(Alignment.CenterHorizontally).padding(4.dp)) {
+        Card(Modifier.align(Alignment.CenterHorizontally).padding(4.dp)) {
             passwordDialog(showPasswordDialog) {
                 user.value = user.value.copy(password = it)
                 passwordConfirmation.value = TextFieldValue(it)
@@ -126,10 +128,10 @@ fun userSettings(currentUser: User) {
                 Column {
                     Text("Roles:")
 
-                    Roles.values().forEach {role ->
+                    Roles.values().forEach { role ->
                         Row {
                             Checkbox(checked = user.value.roles.contains(role),
-                                onCheckedChange = {value ->
+                                onCheckedChange = { value ->
                                     val roles = user.value.roles.toMutableSet()
                                     if (value) {
                                         roles.add(role)
@@ -138,7 +140,7 @@ fun userSettings(currentUser: User) {
                                     }
                                     user.value = user.value.copy(roles = roles)
                                 }
-                                )
+                            )
                             Text(
                                 text = role.name,
                                 fontStyle = FontStyle.Italic,
@@ -179,4 +181,42 @@ fun userSettings(currentUser: User) {
 
         }
     }
+}
+
+@Composable
+fun users() {
+    val userVM by rememberInstance<UserVM>()
+    val navController by rememberInstance<NavController>()
+    val users = remember {
+        userVM.users
+    }
+
+    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Table(
+                modifier = Modifier.fillMaxSize(),
+                rowModifier = Modifier.fillMaxWidth().bottomBorder(1.dp, color = Color.LightGray),
+                rowCount = users.size,
+                headers = listOf("Username", "Full Name", "Email", "Roles", "Services"),
+                values = users.toList(),
+                cellContent = { columnIndex, user ->
+                    cell(user, columnIndex)
+                },
+
+            )
+        }
+    }
+}
+
+@Composable
+fun cell(user: ListUser, col: Int) {
+    when(col) {
+        0 -> Text(user.userid)
+        1 -> Text(user.fullName)
+        2 -> Text(user.email)
+        3 -> Text(user.roles.joinToString(","))
+        4 -> Text(user.services.toString())
+        else -> Text("")
+    }
+
 }

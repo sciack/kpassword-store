@@ -23,8 +23,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
-import ch.qos.logback.classic.spi.PlatformInfo
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,8 +48,6 @@ import passwordStore.users.User
 import passwordStore.users.UserRepository
 import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
-import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import javax.sql.DataSource
 import kotlin.io.path.createDirectories
@@ -236,6 +235,27 @@ fun drawer(navController: NavController) {
             }.align(Alignment.CenterVertically)
         )
     }
+    Divider(color = Color.LightGray, thickness = 1.dp)
+    Row {
+        IconButton(
+            onClick = {
+                navController.navigate(Screen.Users)
+            },
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.AccountCircle,
+                "Users"
+            )
+        }
+        Text(
+            text = "Users",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.clickable {
+                navController.navigate(Screen.Users)
+            }.align(Alignment.CenterVertically)
+        )
+    }
 
 }
 
@@ -304,7 +324,7 @@ fun configureEnvironment() {
     } else {
         Path.of(".env")
     }
-    LOGGER.info {"Reading configuration for file ${configFile.toAbsolutePath()}"}
+    LOGGER.info { "Reading configuration for file ${configFile.toAbsolutePath()}" }
     SetupEnv.configure(configFile)
 }
 

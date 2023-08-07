@@ -15,7 +15,9 @@ import passwordStore.navigation.authenticatedComposable
 import passwordStore.navigation.composable
 import passwordStore.services.*
 import passwordStore.users.User
+import passwordStore.users.UserVM
 import passwordStore.users.userSettings
+import passwordStore.users.users
 
 sealed interface Screen {
     val name: String
@@ -61,12 +63,18 @@ sealed interface Screen {
         override val allowBack: Boolean
             get() = true
     }
+
+    object Users: Screen {
+        override val name: String
+            get() = "Users"
+    }
 }
 
 @Composable
 fun route(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val serviceModel by rememberInstance<ServiceViewModel>()
+    val userVM by rememberInstance<UserVM>()
     val di = localDI()
     val user = remember {
         mutableStateOf<User?>(null)
@@ -118,6 +126,13 @@ fun route(navController: NavController) {
 
         authenticatedComposable(Screen.Settings) {
             userSettings(serviceModel.user.value)
+        }
+
+        authenticatedComposable(Screen.Users) {
+            coroutineScope.launch {
+                userVM.loadUsers()
+            }
+            users()
         }
 
     }.build()
