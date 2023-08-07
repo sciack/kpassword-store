@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
+import ch.qos.logback.classic.spi.PlatformInfo
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,8 +45,13 @@ import passwordStore.services.performDownload
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
+import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import javax.sql.DataSource
+import kotlin.io.path.createDirectories
 import kotlin.io.path.writer
 
 @Composable
@@ -265,7 +271,7 @@ fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<U
 private val LOGGER = KotlinLogging.logger { }
 
 fun main() {
-    SetupEnv.configure(".env")
+    configureEnvironment()
     val di = di()
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
@@ -285,4 +291,25 @@ fun main() {
             app(di)
         }
     }
+}
+
+fun configureEnvironment() {
+    val mode = System.getProperty("kpassword-store.mode", "TEST")
+
+    val configFile = if (mode == "PROD") {
+        val dir = configDir()
+        dir.createDirectories()
+        dir.resolve("config.properties")
+
+    } else {
+        Path.of(".env")
+    }
+    LOGGER.info {"Reading configuration for file ${configFile.toAbsolutePath()}"}
+    SetupEnv.configure(configFile)
+}
+
+fun configDir(): Path {
+    val os = Platform.os()
+    val userHome = System.getProperty("user.home")
+    return os.configDirectory(userHome)
 }

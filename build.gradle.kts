@@ -39,6 +39,7 @@ dependencies {
 // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.5.1")
 
+
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("ch.qos.logback:logback-classic:1.4.7")
     implementation("org.jasypt:jasypt:1.9.3")
@@ -75,12 +76,23 @@ compose.desktop {
 
     application {
         mainClass = "passwordStore.MainKt"
+        jvmArgs += listOf("-Dkpassword-store.mode=PROD")
 
         nativeDistributions {
             targetFormats( TargetFormat.Rpm, TargetFormat.Msi)
             packageName = "kpassword-store"
             modules("java.sql", "java.desktop", "java.naming")
             packageVersion = semver.version.substringBefore('-')
+            licenseFile.set(File("LICENSE"))
+            linux {
+                menuGroup = "Password Store"
+                rpmLicenseType = "UNLICENSE"
+            }
+            windows {
+                upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
+                menuGroup = "Password Store"
+                console = true
+            }
         }
     }
 }

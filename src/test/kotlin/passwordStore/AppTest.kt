@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.instance
@@ -20,12 +21,10 @@ import passwordStore.utils.currentTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTestApi::class)
-@Ignore
 class AppTest {
     private val di = DiInjection.testDi
     private val user = testUser()
@@ -144,6 +143,13 @@ class AppTest {
     }
 
     @Test
+    fun printProperties() {
+        System.getProperties().forEach { key, value ->
+            LOGGER.info {"$key:$value"}
+        }
+    }
+
+    @Test
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
         rule.setContent {
             app(di)
@@ -231,3 +237,5 @@ class AppTest {
         rule.onNodeWithTag("login").assertExists().performClick()
     }
 }
+
+val LOGGER = KotlinLogging.logger {}

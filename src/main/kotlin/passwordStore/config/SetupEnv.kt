@@ -8,8 +8,7 @@ import kotlin.io.path.reader
 
 object SetupEnv {
     private val LOGGER = KotlinLogging.logger { }
-    fun configure(envFile: String) {
-        val path = Path.of(envFile)
+    fun configure(path: Path) {
         LOGGER.info { "Read configuration from ${path.absolutePathString()}" }
         val properties = Properties()
         path.reader().use {
@@ -17,7 +16,11 @@ object SetupEnv {
         }
         properties.keys.forEach { k ->
             val key = k.toString()
-            System.setProperty(key, properties.getProperty(key))
+            if (System.getProperty(key).isNullOrEmpty()) {
+                System.setProperty(key, properties.getProperty(key))
+            } else {
+                LOGGER.info {"Property $key already set, avoid override"}
+            }
         }
     }
 
