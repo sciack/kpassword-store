@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -42,12 +41,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
-import passwordStore.services.ServiceVM
 import passwordStore.services.exportPath
 import passwordStore.services.performDownload
 import passwordStore.sql.Migration
-import passwordStore.users.User
-import passwordStore.users.UserRepository
 import passwordStore.users.UserVM
 import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
@@ -264,7 +260,7 @@ fun drawer(navController: NavController) {
         )
     }
     Spacer(Modifier.height(12.dp))
-    if(userVM.loggedUser.value.isAdmin()) {
+    if (userVM.loggedUser.value.isAdmin()) {
         Row {
             IconButton(
                 onClick = {
@@ -302,10 +298,10 @@ private fun CoroutineScope.download(di: DI) {
 }
 
 
-private fun configureLog():KLogger {
+private fun configureLog(): KLogger {
     SLF4JBridgeHandler.removeHandlersForRootLogger()
     SLF4JBridgeHandler.install()
-    return KotlinLogging.logger{}
+    return KotlinLogging.logger {}
 }
 
 fun main() {
@@ -337,9 +333,11 @@ fun configureEnvironment() {
     val configFile = if (mode == "PROD") {
         val dir = configDir()
         dir.createDirectories()
-        dir.resolve("db.properties").also{ path ->
+        dir.resolve("db.properties").also { path ->
             if (path.notExists()) {
-                val template = Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText().orEmpty()
+                val template =
+                    Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText()
+                        .orEmpty()
                 Files.writeString(path, template)
             }
         }

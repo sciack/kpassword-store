@@ -2,7 +2,6 @@ package passwordStore.services
 
 import org.apache.commons.csv.CSVFormat
 import org.kodein.di.DI
-import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.users.UserVM
 import java.io.Writer

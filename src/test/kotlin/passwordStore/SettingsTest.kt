@@ -1,20 +1,17 @@
 package passwordStore
 
-import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import com.github.javafaker.Faker
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Clock
-import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.navigation.NavController
-import passwordStore.services.ServiceVM
-import passwordStore.services.ServicesRepository
 import passwordStore.users.EditableUser
 import passwordStore.users.User
 import passwordStore.users.UserRepository
@@ -28,7 +25,7 @@ import kotlin.time.toJavaDuration
 class SettingsTest {
     private val di = DiInjection.testDi
     private val faker = Faker()
-    private lateinit var user:User
+    private lateinit var user: User
     private val userRepository by di.instance<UserRepository>()
 
     @get:Rule

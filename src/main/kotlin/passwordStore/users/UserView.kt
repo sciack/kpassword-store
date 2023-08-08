@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import passwordStore.navigation.NavController
-import passwordStore.services.ServiceVM
 import passwordStore.utils.StatusHolder
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder

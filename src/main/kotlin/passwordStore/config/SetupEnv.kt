@@ -19,7 +19,7 @@ object SetupEnv {
             if (System.getProperty(key).isNullOrEmpty()) {
                 System.setProperty(key, properties.getProperty(key))
             } else {
-                LOGGER.info {"Property $key already set, avoid override"}
+                LOGGER.info { "Property $key already set, avoid override" }
             }
         }
     }

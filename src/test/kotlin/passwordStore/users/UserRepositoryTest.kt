@@ -29,6 +29,7 @@ class UserRepositoryTest() {
         )
         userRepository.updateUser(resetUser, user.asPrincipal())
     }
+
     @Test
     fun testLogin() {
         val user = userRepository.login("m.sciachero", "secret")
@@ -55,10 +56,12 @@ class UserRepositoryTest() {
     @Test
     fun `should not change password if is empty`() {
         val user = userRepository.login("dummy", "secret").let {
-            EditableUser(fullName = it.fullName,
+            EditableUser(
+                fullName = it.fullName,
                 password = "",
                 email = it.email,
-                userid = it.userid)
+                userid = it.userid
+            )
         }
         userRepository.updateUser(user, Principal { user.userid })
         userRepository.login("dummy", "secret")
@@ -68,16 +71,18 @@ class UserRepositoryTest() {
     @Test
     fun `should store a new user`() {
         val faker = Faker()
-        val user = EditableUser(fullName = faker.dune().character(),
+        val user = EditableUser(
+            fullName = faker.dune().character(),
             password = faker.internet().password(),
             email = faker.internet().emailAddress(),
             roles = setOf(Roles.NormalUser),
-            userid = userRepository.login("dummy", "secret").userid)
+            userid = userRepository.login("dummy", "secret").userid
+        )
         userRepository.updateUser(user) { user.userid }
         val userRead = userRepository.login(user.userid, user.password)
         assertThat(userRead.fullName, equalTo(user.fullName))
         assertThat(userRead.email, equalTo(user.email))
-        assertThat(userRead.roles, equalTo(setOf( Roles.NormalUser)))
+        assertThat(userRead.roles, equalTo(setOf(Roles.NormalUser)))
     }
 }
 
