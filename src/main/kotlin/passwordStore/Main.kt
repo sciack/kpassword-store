@@ -298,7 +298,7 @@ private fun CoroutineScope.download(di: DI) {
         exportPath.writer().use {
             it.performDownload(di)
         }
-        StatusHolder.scaffoldState.snackbarHostState.showSnackbar("Download completed")
+        StatusHolder.sendMessage("Download completed")
     }
 }
 

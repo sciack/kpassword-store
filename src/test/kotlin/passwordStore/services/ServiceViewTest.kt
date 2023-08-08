@@ -46,7 +46,7 @@ class ServiceViewTest {
             serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService {
+                    newService({}) {
                         service = it
                     }
                 }
@@ -93,7 +93,7 @@ class ServiceViewTest {
             serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService() {
+                    newService({}) {
                         service = it
                     }
                 }
@@ -129,7 +129,7 @@ class ServiceViewTest {
             serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService() {
+                    newService({}) {
                         service = it
                     }
                 }
@@ -162,7 +162,7 @@ class ServiceViewTest {
             val expectedService = service.copy()
             rule.setContent {
                 withDI(di) {
-                    newService() {
+                    newService({}) {
                         service = it
                     }
                 }

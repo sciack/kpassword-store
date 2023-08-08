@@ -21,7 +21,7 @@ class UserRepositoryTest() {
     @AfterTest
     fun tearDown() {
         val user = userRepository.findUser("dummy")
-        val resetUser = UpdateUser(
+        val resetUser = EditableUser(
             userid = user.userid,
             email = "dummy@example.com",
             fullName = "dummpy",
@@ -55,7 +55,7 @@ class UserRepositoryTest() {
     @Test
     fun `should not change password if is empty`() {
         val user = userRepository.login("dummy", "secret").let {
-            UpdateUser(fullName = it.fullName,
+            EditableUser(fullName = it.fullName,
                 password = "",
                 email = it.email,
                 userid = it.userid)
@@ -68,7 +68,7 @@ class UserRepositoryTest() {
     @Test
     fun `should store a new user`() {
         val faker = Faker()
-        val user = UpdateUser(fullName = faker.dune().character(),
+        val user = EditableUser(fullName = faker.dune().character(),
             password = faker.internet().password(),
             email = faker.internet().emailAddress(),
             roles = setOf(Roles.NormalUser),

@@ -83,7 +83,7 @@ class UserVMTest {
 
     private suspend fun createUser(userId: String): User {
         val faker = Faker()
-        val user = AddUser(
+        val user = EditableUser(
             userid = userId,
             fullName = faker.friends().character(),
             email = faker.internet().emailAddress(),

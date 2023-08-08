@@ -43,7 +43,7 @@ class UserRepository(
 ) {
 
     @Throws(SQLException::class)
-    fun insertUser(user: AddUser) {
+    fun insertUser(user: EditableUser) {
         ds.saveOrUpdate("""insert into PS_User (userid, email, password, fullname, role) 
             values (?, ?, ?,?, ?)
         """.trimIndent(),
@@ -117,7 +117,7 @@ class UserRepository(
         }
     }
 
-    fun updateUser(user: UpdateUser, principal: Principal): User {
+    fun updateUser(user: EditableUser, principal: Principal): User {
         val params = mutableListOf(user.fullName)
         val statement = buildString {
             append(

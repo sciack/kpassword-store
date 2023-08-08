@@ -2,17 +2,6 @@ package passwordStore.users
 
 import java.security.Principal
 
-class Users {
-}
-
-
-data class AddUser(
-    var userid: String = "",
-    var email: String = "",
-    var fullName: String = "",
-    var password: String = "",
-    var roles: Set<Roles> = setOf(Roles.NormalUser)
-)
 
 data class ListUser(
     val userid: String,
@@ -39,12 +28,11 @@ data class User(
 
 }
 
-
-data class UpdateUser(
+data class EditableUser(
+    var userid: String = "",
     var fullName: String = "",
     var email: String = "",
     var password: String = "",
-    var userid: String = "",
     var roles: Set<Roles> = setOf()
 ) {
     fun validate(): Boolean {

@@ -144,7 +144,7 @@ fun servicesTable() {
                 placeable.place(x, 10)
             }
         }) {
-            newService { service ->
+            newService(onCancel = {serviceModel.resetService()}) { service ->
                 coroutineScope.launch {
                     if (service.dirty) {
                         serviceModel.update(service)
@@ -200,7 +200,7 @@ private fun String.obfuscate(): String {
 
 
 @Composable
-fun newService(onSubmit: (Service) -> Unit) {
+fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val serviceModel by localDI().instance<ServiceVM>()
     val navController by localDI().instance<NavController>()
 
@@ -333,11 +333,7 @@ fun newService(onSubmit: (Service) -> Unit) {
                 }
                 Spacer(Modifier.width(16.dp))
                 Button(onClick = {
-                    if (readonly.value) {
-                        serviceModel.resetService()
-                    } else {
-                        navController.navigateBack()
-                    }
+                    onCancel()
                 }) {
                     Text("Cancel")
                 }

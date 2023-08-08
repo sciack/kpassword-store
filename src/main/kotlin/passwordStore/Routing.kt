@@ -106,7 +106,7 @@ fun route(navController: NavController) {
 
         authenticatedComposable(Screen.NewService) {
 
-            newService {
+            newService(onCancel = { navController.navigateBack() }) {
                 coroutineScope.launch(Dispatchers.IO) {
                     serviceModel.store(it).onSuccess {
                         serviceModel.resetService()

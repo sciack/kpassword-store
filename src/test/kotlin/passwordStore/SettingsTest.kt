@@ -13,7 +13,7 @@ import org.kodein.di.instance
 import passwordStore.navigation.NavController
 import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
-import passwordStore.users.UpdateUser
+import passwordStore.users.EditableUser
 import passwordStore.users.User
 import passwordStore.users.UserRepository
 import passwordStore.users.userSettings
@@ -43,7 +43,7 @@ class SettingsTest {
     @AfterTest
     fun tearDown() {
         val user = userRepository.findUser("dummy")
-        val resetUser = UpdateUser(
+        val resetUser = EditableUser(
             userid = user.userid,
             email = "dummy@example.com",
             fullName = "dummy",
