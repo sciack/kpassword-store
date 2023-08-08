@@ -105,7 +105,7 @@ class AppTest {
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
             //waiting that the system is able to read the new data, if not the visualization is flaky
-            serviceModel.services.value.size == 1
+            serviceModel.services.size == 1
         }
         rule.onNodeWithTag("Search field").assertExists()
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
@@ -136,7 +136,7 @@ class AppTest {
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
             //waiting that the system is able to read the new data, if not the visualization is flaky
-            serviceModel.services.value.size == 1
+            serviceModel.services.size == 1
         }
         rule.onNodeWithTag("Search field").assertExists()
         fillService(service)
@@ -179,7 +179,7 @@ class AppTest {
 
             await.atMost(Duration.ofSeconds(1)).until {
                 //waiting that the system is able to read the new data, if not the visualization is flaky
-                serviceModel.services.value.size == it
+                serviceModel.services.size == it
             }
             services.add(service)
         }

@@ -43,9 +43,12 @@ class UserVMTest {
     fun `should fail to delete a user if has services`() = runTest {
         val user = userRepository.findUser("dummy")
         val serviceRepository by di.instance<ServicesRepository>()
+        val faker = Faker()
         serviceRepository.store(
             Service(
                 service = "testService",
+                username = faker.friends().character(),
+                password = faker.internet().password(),
                 userid = user.userid,
                 dirty = true
             )

@@ -32,7 +32,7 @@ fun <T> Table(
     values: List<T>,
     cellContent: @Composable (col: Int, row: T) -> Unit,
     beforeRow: @Composable (row: T) -> Unit = {},
-    rowCount: Int,
+    rowCount: Int = values.size,
     columnCount: Int = headers.size,
     contentRowModifier: @Composable (T) -> Modifier = { Modifier }
 ) {

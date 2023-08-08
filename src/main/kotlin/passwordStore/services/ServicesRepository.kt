@@ -146,6 +146,9 @@ class ServicesRepository(
     @Throws(SQLException::class)
     suspend fun store(service: Service): Service {
         LOGGER.debug("Storing service {}", service)
+        check(service.validate().isSuccess) {
+            "Service ${service.service} is not valid"
+        }
         datasource.performTransaction {
             val insertedRows = this.saveOrUpdate(
                 """ insert into services (service, username, password, note, lastUpdate, userid)

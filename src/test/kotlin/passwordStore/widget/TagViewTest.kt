@@ -87,7 +87,7 @@ class TagViewTest {
         val serviceModel by di.instance<ServiceVM>()
         serviceModel.fetchAll()
         await.atMost(Duration.ofSeconds(1)).until {
-            serviceModel.services.value.size == 2
+            serviceModel.services.size == 2
         }
         rule.setContent {
             withDI(di) {
@@ -103,7 +103,7 @@ class TagViewTest {
 
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(5)).untilAsserted {
-            assertThat(serviceModel.services.value, equalTo(listOf(service)))
+            assertThat(serviceModel.services.toList(), equalTo(listOf(service)))
         }
     }
 

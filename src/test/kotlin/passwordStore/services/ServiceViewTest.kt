@@ -4,11 +4,13 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.hasElement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -16,9 +18,13 @@ import passwordStore.DiInjection
 import passwordStore.testUser
 import passwordStore.users.UserVM
 import passwordStore.utils.currentTime
+import java.nio.file.Path
+import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 
 class ServiceViewTest {
@@ -187,5 +193,41 @@ class ServiceViewTest {
         }
 
 
+    }
+
+    @Test
+    fun `should import a csv`() {
+        val path = Path.of(this::class.java.getResource("/testCsv.csv").toURI())
+        val expectedServices= Service(
+            service="service",
+            username = "what",
+            password="#4TRMlRNw",
+            note="test",
+            tags=listOf("Mine"),
+            updateTime = LocalDateTime.parse("2023-08-01T17:38:16.460784"),
+            userid = user.userid,
+            score = 1.0
+        )
+        val gitService= Service(
+            service="Github",
+            username = "myUser",
+            password="123456",
+            note="https://github.com",
+            tags=listOf("Technology","Git","Code"),
+            updateTime = LocalDateTime.parse("2023-07-27T10:04:55.972140"),
+            userid = user.userid,
+            score = 1.0
+        )
+
+        runTest {
+            serviceModel.readFile(path)
+            serviceModel.fetchAll()
+            await.atMost(2.seconds.toJavaDuration()).untilAsserted {
+                assertThat(serviceModel.services.size, equalTo(2))
+                assertThat(serviceModel.services.toList(), hasElement(expectedServices))
+                assertThat(serviceModel.services.toList(), hasElement(gitService))
+            }
+
+        }
     }
 }

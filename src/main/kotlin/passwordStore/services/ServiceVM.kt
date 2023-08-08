@@ -1,14 +1,21 @@
 package passwordStore.services
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
+import org.apache.commons.csv.CSVFormat
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.UserVM
+import java.nio.file.Path
 import java.sql.SQLException
+import kotlin.io.path.bufferedReader
+
 
 class ServiceVM(
     private val servicesRepository: ServicesRepository,
@@ -16,7 +23,7 @@ class ServiceVM(
     private val userVM: UserVM
 ) {
 
-    val services = mutableStateOf(listOf<Service>())
+    val services = mutableStateListOf<Service>()
 
     val historyEvents = mutableStateOf(listOf<Event>())
 
@@ -36,7 +43,9 @@ class ServiceVM(
             val result = servicesRepository.search(user, pattern, tag)
             val currentTags = tagRepository.tags(user)
             withContext(Dispatchers.Main) {
-                services.value = result
+                LOGGER.warn("Found ${result.size} records")
+                services.clear()
+                services.addAll(result)
                 tags.value = currentTags
                 resetHistory()
             }
@@ -87,7 +96,8 @@ class ServiceVM(
         withContext(Dispatchers.IO) {
             val result = servicesRepository.search(user, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
-                services.value = result
+                services.clear()
+                services.addAll(result)
                 saveError.value = ""
             }
         }
@@ -123,8 +133,44 @@ class ServiceVM(
     }
 
     fun shouldLoadHistory() = historyEvents.value.isEmpty()
+    suspend fun readFile(path: Path) {
+        fun convert(tagString: String): List<String> {
+            val tag = tagString.substringAfter('[').substringBeforeLast(']').split(',')
+            return tag.map { it.trim() }.toList()
+        }
+
+        withContext(Dispatchers.IO) {
+            val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(*HEADERS)
+                .setSkipHeaderRecord(true)
+                .build()
+
+            runCatching {
+                path.bufferedReader().use {
+                    csvFormat.parse(it).map { record ->
+                        Service(
+                            service = record[HEADERS[0]],
+                            username = record[HEADERS[1]],
+                            password = record[HEADERS[2]],
+                            note = record[HEADERS[3]],
+                            tags = convert(record[HEADERS[4]]),
+                            updateTime = LocalDateTime.parse(record[HEADERS[5]]).toJavaLocalDateTime(),
+                            userid = userVM.loggedUser.value.userid
+                        )
+                    }.forEach { service ->
+                        servicesRepository.store(service)
+                    }
+                }
+            }.onSuccess {
+                fetchAll()
+            }.onFailure {
+                LOGGER.warn(it) { "Error loading csv" }
+            }
+        }
+    }
+
 
     companion object {
-
+        private val HEADERS = arrayOf("Service", "Username", "Password", "Notes", "Tags", "Last Update")
     }
 }

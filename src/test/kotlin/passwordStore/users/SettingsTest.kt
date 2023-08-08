@@ -1,4 +1,4 @@
-package passwordStore
+package passwordStore.users
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,10 +12,7 @@ import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.users.EditableUser
-import passwordStore.users.User
-import passwordStore.users.UserRepository
-import passwordStore.users.userSettings
+import passwordStore.DiInjection
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

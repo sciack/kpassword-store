@@ -43,6 +43,7 @@ import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
 import passwordStore.services.exportPath
 import passwordStore.services.performDownload
+import passwordStore.services.upload
 import passwordStore.sql.Migration
 import passwordStore.users.UserVM
 import passwordStore.utils.Platform
@@ -233,6 +234,32 @@ fun drawer(navController: NavController) {
             style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 coroutineScope.download(di)
+            }.align(Alignment.CenterVertically)
+        )
+    }
+    Spacer(Modifier.height(12.dp))
+    Row {
+        IconButton(
+            onClick = {
+                coroutineScope.launch {
+                    upload(di)
+                }
+            },
+            modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
+        ) {
+
+            Icon(
+                painterResource("/icons/file_csv.svg"),
+                contentDescription = "Import CSV"
+            )
+        }
+        Text(
+            text = "IMport CSV",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.clickable {
+                coroutineScope.launch {
+                    upload(di)
+                }
             }.align(Alignment.CenterVertically)
         )
     }

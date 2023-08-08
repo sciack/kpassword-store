@@ -28,10 +28,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
@@ -41,6 +43,8 @@ import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
 import passwordStore.utils.currentTime
 import passwordStore.widget.*
+import javax.swing.JFileChooser
+import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.random.Random
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -70,9 +74,8 @@ fun servicesTable() {
             Table(
                 modifier = Modifier.fillMaxSize(),
                 rowModifier = Modifier.fillMaxWidth().bottomBorder(1.dp, color = Color.LightGray),
-                rowCount = services.value.size,
                 headers = listOf("Service", "Username", "Password", "Note"),
-                values = services.value,
+                values = services.toList(),
                 cellContent = { columnIndex, service ->
                     cell(service, columnIndex)
                 },
@@ -378,4 +381,22 @@ fun searchField() {
         },
         modifier = Modifier.testTag("Search field")
     )
+}
+
+suspend fun upload(di:DI) {
+    withContext(Dispatchers.Main) {
+        val serviceVM by di.instance<ServiceVM>()
+        val home = System.getProperty("user.home")
+        val fileChooser = JFileChooser(home)
+        fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
+        fileChooser.showOpenDialog(null).let { result ->
+            if (result == JFileChooser.APPROVE_OPTION) {
+                val path = fileChooser.selectedFile.toPath()
+                withContext(Dispatchers.IO) {
+                    serviceVM.readFile(path)
+                }
+            }
+        }
+    }
+
 }
