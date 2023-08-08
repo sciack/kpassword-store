@@ -183,13 +183,13 @@ class AppTest {
             services.add(service)
         }
         rule.onNodeWithTag("Search field").assertExists()
-
+        LOGGER.warn {"Check if service are displayed"}
         services.forEach { service ->
             //rule.onNodeWithTag("TableBody").performScrollToNode(hasText(service.service)).assertExists()
             rule.onNodeWithText(service.service).assertExists()
         }
         val service = services[2]
-        System.err.println("Click to edit a service")
+        LOGGER.warn {"Try to edit a service"}
         rule.onNodeWithTag("Edit ${service.service}").assertExists().performClick()
         rule.awaitIdle()
         System.err.println("Waiting for the service")

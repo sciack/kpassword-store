@@ -341,13 +341,13 @@ data class Service(
 
     fun validate(): Result<Unit> =
         runCatching {
-            check(!service.isNullOrEmpty()) {
+            check(service.isNotEmpty()) {
                 "Service name must be present"
             }
-            check(!username.isNullOrEmpty()) {
+            check(username.isNotEmpty()) {
                 "Username must be present"
             }
-            check(!password.isNullOrEmpty()) {
+            check(password.isNotEmpty()) {
                 "Password must be present"
             }
         }

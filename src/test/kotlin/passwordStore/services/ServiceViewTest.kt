@@ -24,7 +24,7 @@ class ServiceViewTest {
 
     @get:Rule
     val rule = createComposeRule()
-    val serviceModel by di.instance<ServiceVM>()
+    private val serviceModel by di.instance<ServiceVM>()
 
     @BeforeTest
     fun setUp() = runBlocking {
@@ -136,10 +136,15 @@ class ServiceViewTest {
             }
             rule.awaitIdle()
             val expectedService = service.copy(tags = listOf("Tag"), dirty = true)
-            rule.onNodeWithTag("tags").performTextReplacement(expectedService.tags[0])
-            rule.onNodeWithTag("submit").performClick()
+            rule.onNodeWithTag("tags").assertExists().performTextReplacement(expectedService.tags[0])
+            rule.onNodeWithTag("note").performTextReplacement(expectedService.note)
             rule.awaitIdle()
-            assertThat(service, equalTo(expectedService))
+            rule.onNodeWithTag("submit").assertExists().assertHasClickAction().performClick()
+            rule.awaitIdle()
+            rule.waitUntil {
+                service == expectedService
+            }
+
         }
     }
 

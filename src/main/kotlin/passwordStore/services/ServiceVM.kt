@@ -3,6 +3,7 @@ package passwordStore.services
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.*
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
+import passwordStore.LOGGER
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
@@ -96,6 +97,7 @@ class ServiceVM(
     }
 
     fun selectService(service: Service) {
+        LOGGER.warn {"Set service $service"}
         selectedService.value = service
     }
 

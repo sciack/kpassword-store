@@ -4,7 +4,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.1"
+    id("org.jetbrains.compose") version "1.5.0-beta01"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
     id("com.github.jmongard.git-semver-plugin") version "0.4.2"
@@ -25,6 +25,7 @@ testlogger {
     slowThreshold = 5000
     logLevel = LogLevel.WARN
 }
+
 
 
 dependencies {

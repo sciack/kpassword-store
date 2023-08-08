@@ -318,7 +318,7 @@ fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<U
     }
 }
 
-private val LOGGER = configureLog()
+
 
 private fun configureLog():KLogger {
     SLF4JBridgeHandler.removeHandlersForRootLogger()
@@ -373,3 +373,5 @@ fun configDir(): Path {
     val userHome = System.getProperty("user.home")
     return os.configDirectory(userHome)
 }
+
+val LOGGER = configureLog()

@@ -32,8 +32,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import mu.KotlinLogging
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
+import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
@@ -202,7 +204,6 @@ private fun String.obfuscate(): String {
 @Composable
 fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val serviceModel by localDI().instance<ServiceVM>()
-    val navController by localDI().instance<NavController>()
 
     val service = remember {
         serviceModel.selectedService
@@ -225,7 +226,6 @@ fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val clock: Clock by localDI().instance()
 
     tags.value = serviceModel.selectedService.value.tags.toSet()
-
     Row(Modifier.padding(16.dp)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
@@ -316,16 +316,20 @@ fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
             Row(Modifier.align(Alignment.CenterHorizontally)) {
                 Button(
                     modifier = Modifier.testTag("submit"),
+                    enabled = dirty.value,
                     onClick = {
-                        val user = serviceModel.user
-                        val newService = service.value.copy(
-                            userid = user.value.userid, dirty = dirty.value,
-                            updateTime = clock.currentTime()
-                        ).trim()
-                        newService.validate().onSuccess {
-                            onSubmit(newService)
-                        }.onFailure {
-                            errorMsg.value = it.localizedMessage
+
+                        if(dirty.value) {
+                            val user = serviceModel.user
+                            val newService = service.value.copy(
+                                userid = user.value.userid, dirty = dirty.value,
+                                updateTime = clock.currentTime()
+                            ).trim()
+                            newService.validate().onSuccess {
+                                onSubmit(newService)
+                            }.onFailure {
+                                errorMsg.value = it.localizedMessage
+                            }
                         }
                     }
                 ) {

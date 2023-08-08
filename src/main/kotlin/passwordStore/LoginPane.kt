@@ -22,8 +22,6 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import mu.KotlinLogging
 
-private val LOGGER = KotlinLogging.logger { }
-
 @Composable
 fun loginPane(loginFunction: LoginFunction) {
     val username = remember {
