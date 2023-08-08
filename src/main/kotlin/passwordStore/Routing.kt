@@ -98,12 +98,11 @@ fun route(navController: NavController) {
         }
 
         authenticatedComposable(Screen.List) {
-            servicesTable()
             coroutineScope.launch(Dispatchers.Main) {
                 serviceModel.resetService()
                 serviceModel.fetchAll()
             }
-
+            servicesTable()
         }
 
         authenticatedComposable(Screen.NewService) {

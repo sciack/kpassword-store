@@ -30,31 +30,34 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
     }
 
     suspend fun delete(userid: String): Result<Unit> =
-
-        runCatching {
-            errorMsg.value = ""
-            userRepository.deleteUser(userid)
-        }.onSuccess {
-            loadUsers()
-        }.onFailure {
-            LOGGER.warn(it) { "Error deleting user" }
-            errorMsg.value = it.localizedMessage
+        withContext(Dispatchers.Main) {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    errorMsg.value = ""
+                }
+                userRepository.deleteUser(userid)
+            }.onSuccess {
+                loadUsers()
+            }.onFailure {
+                LOGGER.warn(it) { "Error deleting user" }
+                errorMsg.value = it.localizedMessage
+            }
         }
 
 
     suspend fun createUser(user: EditableUser): Result<Unit> =
-        runCatching {
-            withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
+            runCatching {
                 errorMsg.value = ""
+                withContext(Dispatchers.IO) {
+                    userRepository.insertUser(user)
+                }
+            }.onSuccess {
+                loadUsers()
+            }.onFailure {
+                LOGGER.warn(it) { "Error creating user" }
+                errorMsg.value = it.localizedMessage
             }
-            withContext(Dispatchers.IO) {
-                userRepository.insertUser(user)
-            }
-        }.onSuccess {
-            loadUsers()
-        }.onFailure {
-            LOGGER.warn(it) { "Error creating user" }
-            errorMsg.value = it.localizedMessage
         }
 
     suspend fun findUser(userid: String): Result<User> = withContext(Dispatchers.IO) {
@@ -67,10 +70,12 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
         }
     }
 
-    suspend fun updateUser(newUser: EditableUser, principal: Principal): Result<User> = withContext(Dispatchers.IO) {
+    suspend fun updateUser(newUser: EditableUser, principal: Principal): Result<User> = withContext(Dispatchers.Main) {
         runCatching {
             errorMsg.value = ""
-            userRepository.updateUser(newUser, principal)
+            withContext(Dispatchers.IO) {
+                userRepository.updateUser(newUser, principal)
+            }
         }.onFailure {
             LOGGER.warn(it) {
                 "Error finding user"

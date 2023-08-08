@@ -50,17 +50,17 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")
     implementation("org.apache.commons:commons-csv:1.10.0")
-    implementation("org.slf4j:jul-to-slf4j:2.0.4")
+    implementation("org.slf4j:jul-to-slf4j:2.0.5")
 
-    testImplementation(kotlin("test-junit"))
-    testImplementation(kotlin("reflect"))
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.8.20-RC")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.20-RC")
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.7.0-Beta")
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }
