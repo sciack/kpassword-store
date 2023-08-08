@@ -40,6 +40,8 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import org.slf4j.bridge.SLF4JBridgeHandler
 import passwordStore.config.SetupEnv
+import passwordStore.config.configureEnvironment
+import passwordStore.config.getMode
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
 import passwordStore.services.download
@@ -57,6 +59,7 @@ import javax.swing.UIManager
 import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 import kotlin.io.path.writer
+import kotlin.system.exitProcess
 
 @Composable
 @Preview
@@ -111,7 +114,7 @@ fun app(di: DI) = withDI(di) {
                     }
                 }, title = {
                     Spacer(modifier = Modifier.width(24.dp))
-                    Text("Password Store")
+                    Text("Password Store - ${getMode()}")
                     Spacer(modifier = Modifier.width(24.dp))
                     if (currentUser.value.id > 0) {
                         Text(currentUser.value.fullName)
@@ -312,6 +315,28 @@ fun drawer(navController: NavController) {
             )
         }
     }
+    Divider(color = Color.LightGray, thickness = 1.dp)
+    Spacer(Modifier.height(12.dp))
+    Row {
+        IconButton(
+            onClick = {
+               exitProcess(0)
+            },
+            modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
+        ) {
+            Icon(
+                Icons.Default.ExitToApp,
+                "Exit"
+            )
+        }
+        Text(
+            text = "Exit",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.clickable {
+                exitProcess(0)
+            }.align(Alignment.CenterVertically)
+        )
+    }
 }
 
 
@@ -328,16 +353,21 @@ fun main() {
     val di = di()
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
+
     application(exitProcessOnExit = true) {
         val coroutineScope = rememberCoroutineScope()
+        Runtime.getRuntime().addShutdownHook(object : Thread() {
+            override fun run() {
+                (datasource as HikariDataSource).close()
+                coroutineScope.cancel("Shutdown")
+            }
+        })
         Window(
             icon = painterResource("/icons/lockoverlay.png"),
             onCloseRequest = {
-                (datasource as HikariDataSource).close()
-                coroutineScope.cancel("Shutdown")
                 exitApplication()
             },
-            title = "Password Store",
+            title = "Password Store - ${getMode()}",
             state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
             LOGGER.info { "Building the app" }
@@ -346,31 +376,5 @@ fun main() {
     }
 }
 
-fun configureEnvironment() {
-    val mode = System.getProperty("kpassword-store.mode", "TEST")
-
-    val configFile = if (mode == "PROD") {
-        val dir = configDir()
-        dir.createDirectories()
-        dir.resolve("config.properties").also { path ->
-            if (path.notExists()) {
-                val template =
-                    Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText()
-                        .orEmpty()
-                Files.writeString(path, template)
-            }
-        }
-    } else {
-        Path.of(".env")
-    }
-    LOGGER.info { "Reading configuration for file ${configFile.toAbsolutePath()}" }
-    SetupEnv.configure(configFile)
-}
-
-fun configDir(): Path {
-    val os = Platform.os()
-    val userHome = System.getProperty("user.home")
-    return os.configDirectory(userHome)
-}
-
 val LOGGER = configureLog()
+
