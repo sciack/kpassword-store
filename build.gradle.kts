@@ -86,14 +86,25 @@ compose.desktop {
             modules("java.sql", "java.desktop", "java.naming")
             packageVersion = semver.version.substringBefore('-')
             licenseFile.set(File("LICENSE"))
+            vendor = "Mirko Sciachero <m.sciachero@gmail.com>"
+            this.description= """
+                Program to manage and store credentials, similar to keepass but simpler \
+                Implemented in Kotlin and JCompose
+            """.trimIndent()
+
+
+
             linux {
                 menuGroup = "Password Store"
                 rpmLicenseType = "UNLICENSE"
+                iconFile.set(File("src/main/resources/icons/lockoverlay.png"))
+                this.shortcut = true
             }
             windows {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
                 menuGroup = "Password Store"
                 console = true
+                iconFile.set(File("lockoverlay.ico"))
             }
         }
     }

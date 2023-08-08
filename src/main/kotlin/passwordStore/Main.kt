@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -327,9 +328,10 @@ fun main() {
     val di = di()
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
-    application {
+    application(exitProcessOnExit = true) {
         val coroutineScope = rememberCoroutineScope()
         Window(
+            icon = painterResource("/icons/lockoverlay.png"),
             onCloseRequest = {
                 (datasource as HikariDataSource).close()
                 coroutineScope.cancel("Shutdown")
