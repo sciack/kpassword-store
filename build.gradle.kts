@@ -49,6 +49,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")
     implementation("org.apache.commons:commons-csv:1.10.0")
+    implementation("org.slf4j:jul-to-slf4j:2.0.4")
 
     testImplementation(kotlin("test-junit"))
     testImplementation(kotlin("reflect"))

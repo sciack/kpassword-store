@@ -44,7 +44,7 @@ import kotlin.random.Random
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun servicesTable() {
-    val serviceModel by localDI().instance<ServiceViewModel>()
+    val serviceModel by localDI().instance<ServiceVM>()
     val navController by localDI().instance<NavController>()
     val coroutineScope = rememberCoroutineScope()
 
@@ -201,7 +201,7 @@ private fun String.obfuscate(): String {
 
 @Composable
 fun newService(onSubmit: (Service) -> Unit) {
-    val serviceModel by localDI().instance<ServiceViewModel>()
+    val serviceModel by localDI().instance<ServiceVM>()
     val navController by localDI().instance<NavController>()
 
     val service = remember {
@@ -352,7 +352,7 @@ fun searchField() {
     val search = remember {
         mutableStateOf(TextFieldValue())
     }
-    val serviceViewModel by localDI().instance<ServiceViewModel>()
+    val serviceVM by localDI().instance<ServiceVM>()
 
     OutlinedTextField(
         label = { Text("Search") },
@@ -365,7 +365,7 @@ fun searchField() {
         },
         onValueChange = {
             search.value = it
-            serviceViewModel.searchPattern(it.text)
+            serviceVM.searchPattern(it.text)
         },
         modifier = Modifier.testTag("Search field")
     )

@@ -29,6 +29,7 @@ package passwordStore.users
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension.Companion.hash
 import passwordStore.crypto.CryptExtension.Companion.verify
+import passwordStore.services.ServicesRepository
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
@@ -38,7 +39,7 @@ import javax.sql.DataSource
 
 class UserRepository(
     private val ds: DataSource,
-    //private val servicesRepository: ServicesRepository,
+    private val servicesRepository: ServicesRepository,
 ) {
 
     @Throws(SQLException::class)
@@ -56,9 +57,9 @@ class UserRepository(
 
     private fun String.asSetOfRoles(): Set<Roles> = this.trim().split(",")
         .filterNot(String::isEmpty).map {
-        LOGGER.warn { "Looking for role: $it" }
-        Roles.valueOf(it.trim())
-    }.toSet()
+            LOGGER.warn { "Looking for role: $it" }
+            Roles.valueOf(it.trim())
+        }.toSet()
 
     fun list() = ds.query(
         """select userid, email, fullname, role, 
@@ -147,44 +148,21 @@ class UserRepository(
         return findUser(user.userid)
     }
 
-    fun updateUser(user: AddUser, principal: Principal): User {
-        ds.saveOrUpdate(
-            """update ps_user 
-            set fullname = ?,
-                password = ?,
-                email = ?,
-                role = ?
-            where userid = ?
-            
-        """.trimIndent(),
-            user.fullName,
-            user.password.hash(),
-            user.email,
-            user.roles.joinToString { it.name },
-            user.userid
-        ).also {
-            if (it == 0) throw IllegalArgumentException("User ${user.userid} does not exists")
-        }
-        return login(user.userid, user.password)
-    }
 
-    /*
-    fun deleteUser(userid: String, principal: Principal) {
-        runBlocking {
-            check(servicesRepository.search(userid).isEmpty()) {
-                "The user has service stored, before delete the user all the service must be deleted"
-            }
-            ds.saveOrUpdate(
-                """
+    suspend fun deleteUser(userid: String) {
+        check(servicesRepository.search(findUser(userid)).isEmpty()) {
+            "The user has service stored, before delete the user all the service must be deleted"
+        }
+        ds.saveOrUpdate(
+            """
             delete from ps_user 
             where userid = ?
         """.trimIndent(), userid
-            ).also {
-                if (it == 0) throw IllegalArgumentException("User $userid not exists")
-            }
+        ).also {
+            if (it == 0) throw IllegalArgumentException("User $userid not exists")
         }
+
     }
-     */
 
     companion object {
         private val LOGGER = KotlinLogging.logger {}

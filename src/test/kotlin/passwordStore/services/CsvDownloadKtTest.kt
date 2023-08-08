@@ -28,8 +28,8 @@ class CsvDownloadKtTest {
 
     @BeforeTest
     fun setup() {
-        val serviceViewModel by di.instance<ServiceViewModel>()
-        serviceViewModel.user.value = user
+        val serviceVM by di.instance<ServiceVM>()
+        serviceVM.user.value = user
     }
     @AfterTest
     fun tearDown() {

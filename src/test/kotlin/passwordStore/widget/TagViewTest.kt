@@ -13,7 +13,7 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
-import passwordStore.services.ServiceViewModel
+import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import passwordStore.testService
@@ -35,7 +35,7 @@ class TagViewTest {
 
     @BeforeTest
     fun setup() {
-        val serviceModel by di.instance<ServiceViewModel>()
+        val serviceModel by di.instance<ServiceVM>()
         serviceModel.user.value = user
         runBlocking {
             servicesRepository.search(user).forEach {
@@ -59,7 +59,7 @@ class TagViewTest {
         servicesRepository.store(service)
         rule.setContent {
             withDI(di) {
-                val serviceModel by localDI().instance<ServiceViewModel>()
+                val serviceModel by localDI().instance<ServiceVM>()
                 serviceModel.fetchAll()
                 tagView()
             }
@@ -75,7 +75,7 @@ class TagViewTest {
         var service = testService().copy(tags = listOf("Tags"))
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
-        val serviceModel by di.instance<ServiceViewModel>()
+        val serviceModel by di.instance<ServiceVM>()
         serviceModel.fetchAll()
         await.atMost(Duration.ofSeconds(1)).until {
             serviceModel.services.value.size == 2

@@ -14,10 +14,7 @@ import passwordStore.navigation.NavigationHost
 import passwordStore.navigation.authenticatedComposable
 import passwordStore.navigation.composable
 import passwordStore.services.*
-import passwordStore.users.User
-import passwordStore.users.UserVM
-import passwordStore.users.userSettings
-import passwordStore.users.users
+import passwordStore.users.*
 
 sealed interface Screen {
     val name: String
@@ -64,16 +61,24 @@ sealed interface Screen {
             get() = true
     }
 
-    object Users: Screen {
+    object Users : Screen {
         override val name: String
             get() = "Users"
+    }
+
+    object CreateUser : Screen {
+        override val name: String
+            get() = "Create User"
+
+        override val allowBack: Boolean
+            get() = true
     }
 }
 
 @Composable
 fun route(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
-    val serviceModel by rememberInstance<ServiceViewModel>()
+    val serviceModel by rememberInstance<ServiceVM>()
     val userVM by rememberInstance<UserVM>()
     val di = localDI()
     val user = remember {
@@ -133,6 +138,9 @@ fun route(navController: NavController) {
                 userVM.loadUsers()
             }
             users()
+        }
+        authenticatedComposable(Screen.CreateUser) {
+            createUser()
         }
 
     }.build()

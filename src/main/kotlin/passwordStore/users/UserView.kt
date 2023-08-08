@@ -8,22 +8,20 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.Screen
 import passwordStore.navigation.NavController
-import passwordStore.services.ServiceViewModel
+import passwordStore.services.ServiceVM
 import passwordStore.widget.*
 
 @Composable
@@ -50,7 +48,7 @@ fun userSettings(currentUser: User) {
     }
 
     val userRepository by rememberInstance<UserRepository>()
-    val serviceViewModel by rememberInstance<ServiceViewModel>()
+    val serviceVM by rememberInstance<ServiceVM>()
     val navController by rememberInstance<NavController>()
     val showPasswordDialog = remember {
         mutableStateOf(false)
@@ -170,7 +168,7 @@ fun userSettings(currentUser: User) {
             onClick = {
                 if (dirty.value) {
                     val newUser = userRepository.updateUser(user.value, currentUser.asPrincipal())
-                    serviceViewModel.user.value = newUser
+                    serviceVM.user.value = newUser
                     navController.navigate(Screen.List)
                 }
             },
@@ -184,9 +182,16 @@ fun userSettings(currentUser: User) {
 }
 
 @Composable
+fun createUser() {
+
+}
+
+@Composable
 fun users() {
     val userVM by rememberInstance<UserVM>()
+    val serviceVM by rememberInstance<ServiceVM>()
     val navController by rememberInstance<NavController>()
+    val coroutineScope = rememberCoroutineScope()
     val users = remember {
         userVM.users
     }
@@ -202,7 +207,48 @@ fun users() {
                 cellContent = { columnIndex, user ->
                     cell(user, columnIndex)
                 },
+                beforeRow = {user ->
+                    if(serviceVM.user.value.isAdmin()) {
+                        Row(modifier = Modifier.align(Alignment.CenterVertically)) {
+                            IconButton(
+                                onClick = {
 
+                                },
+                                modifier = Modifier.testTag("Edit ${user.userid}")
+                            ) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    "Edit",
+
+                                    )
+                            }
+                            val showAlert = remember {
+                                mutableStateOf(false)
+                            }
+                            IconButton(
+                                onClick = { showAlert.value = true },
+                                modifier = Modifier.testTag("Delete ${user.userid}")
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    "Delete",
+
+                                    )
+                            }
+
+                            showOkCancel(
+                                title = "Delete confirmation",
+                                message = "Do you want to delete user ${user.userid}?",
+                                showAlert,
+                                onConfirm = {
+                                    coroutineScope.launch {
+                                        userVM.delete(user.userid)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
             )
         }
     }

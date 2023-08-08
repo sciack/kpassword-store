@@ -14,8 +14,8 @@ import org.junit.Rule
 import org.kodein.di.instance
 import passwordStore.navigation.NavController
 import passwordStore.services.Service
-import passwordStore.services.ServiceViewModel
-import passwordStore.services.ServiceViewModel.Companion.NONE
+import passwordStore.services.ServiceVM
+import passwordStore.services.ServiceVM.Companion.NONE
 import passwordStore.services.ServicesRepository
 import passwordStore.utils.currentTime
 import java.time.Duration
@@ -30,7 +30,7 @@ class AppTest {
     private val user = testUser()
     private val clock: Clock by di.instance()
     private val servicesRepository by di.instance<ServicesRepository>()
-    private val serviceModel by di.instance<ServiceViewModel>()
+    private val serviceModel by di.instance<ServiceVM>()
     private val navController by di.instance<NavController>()
     private val faker = Faker()
 

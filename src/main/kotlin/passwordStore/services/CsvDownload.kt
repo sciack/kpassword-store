@@ -8,9 +8,9 @@ import java.nio.file.Path
 
 suspend fun Writer.performDownload(di: DI) {
     val serviceRepository by di.instance<ServicesRepository>()
-    val serviceViewModel by di.instance<ServiceViewModel>()
+    val serviceVM by di.instance<ServiceVM>()
 
-    val user = serviceViewModel.user.value
+    val user = serviceVM.user.value
     check(user.id > 0) {
         "User must be authenticated"
     }

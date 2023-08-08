@@ -31,7 +31,7 @@ import java.time.format.FormatStyle
 
 @Composable
 fun historyTable(historyEvents: List<Event>) {
-    val serviceModel by localDI().instance<ServiceViewModel>()
+    val serviceModel by localDI().instance<ServiceVM>()
     val coroutineScope = rememberCoroutineScope()
     val navController by localDI().instance<NavController>()
     val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Note")

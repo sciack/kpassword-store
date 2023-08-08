@@ -6,7 +6,7 @@ import org.kodein.di.*
 internal val userModule = DI.Module("userModule") {
     bind<UserRepository> {
         singleton {
-            UserRepository(instance())
+            UserRepository(instance(), instance())
         }
     }
     bind<UserVM> {

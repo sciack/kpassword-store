@@ -8,7 +8,7 @@ import passwordStore.tags.TagRepository
 import passwordStore.users.User
 import java.sql.SQLException
 
-class ServiceViewModel(
+class ServiceVM(
     private val servicesRepository: ServicesRepository,
     private val tagRepository: TagRepository,
     private val scope: CoroutineScope

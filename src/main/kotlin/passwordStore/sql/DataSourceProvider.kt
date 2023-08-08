@@ -2,6 +2,7 @@ package passwordStore.sql
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import mu.KotlinLogging
 import javax.sql.DataSource
 
 fun prodDatasource(): DataSource {
@@ -10,6 +11,11 @@ fun prodDatasource(): DataSource {
     if (jdbcUrl != null) {
         hikariConfig.jdbcUrl = jdbcUrl
     }
+    val password = System.getProperty("dbPassword")
+    if (password != null) {
+        hikariConfig.password = password
+    }
+
     return HikariDataSource(hikariConfig)
 }
 

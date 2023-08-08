@@ -31,16 +31,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import mu.KLogger
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
+import org.slf4j.bridge.SLF4JBridgeHandler
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
-import passwordStore.services.ServiceViewModel
+import passwordStore.services.ServiceVM
 import passwordStore.services.exportPath
 import passwordStore.services.performDownload
 import passwordStore.sql.Migration
@@ -48,7 +50,6 @@ import passwordStore.users.User
 import passwordStore.users.UserRepository
 import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.sql.DataSource
@@ -62,7 +63,7 @@ fun app(di: DI) = withDI(di) {
 
     val navController by rememberNavController()
 
-    val serviceModel by rememberInstance<ServiceViewModel>()
+    val serviceModel by rememberInstance<ServiceVM>()
     val coroutineScope = rememberCoroutineScope()
     StatusHolder.drawerState = rememberDrawerState(DrawerValue.Closed)
     StatusHolder.scaffoldState = rememberScaffoldState()
@@ -156,12 +157,12 @@ fun customShape() = object : Shape {
 fun drawer(navController: NavController) {
     val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
-    val serviceViewModel by rememberInstance<ServiceViewModel>()
+    val serviceVM by rememberInstance<ServiceVM>()
     Row {
 
         IconButton(
             onClick = { navController.navigate(Screen.List) },
-            modifier = Modifier.testTag("Home").align(Alignment.CenterVertically)
+            modifier = Modifier.testTag("Home").align(Alignment.CenterVertically).size(24.dp)
         ) {
             Icon(
                 Icons.Default.Home, contentDescription = Screen.List.name,
@@ -169,7 +170,7 @@ fun drawer(navController: NavController) {
         }
         Text(
             text = Screen.List.name,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 navController.navigate(Screen.List)
             }.align(Alignment.CenterVertically)
@@ -181,7 +182,7 @@ fun drawer(navController: NavController) {
             onClick = {
                 navController.navigate(Screen.NewService)
             },
-            modifier = Modifier.testTag("New Service").align(Alignment.CenterVertically)
+            modifier = Modifier.testTag("New Service").align(Alignment.CenterVertically).size(24.dp)
         ) {
             Icon(
                 Icons.Default.Create, contentDescription = Screen.NewService.name,
@@ -190,7 +191,7 @@ fun drawer(navController: NavController) {
         }
         Text(
             text = Screen.NewService.name,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 navController.navigate(Screen.NewService)
             }.align(Alignment.CenterVertically)
@@ -200,7 +201,7 @@ fun drawer(navController: NavController) {
     Row {
         IconButton(
             onClick = { navController.navigate(Screen.History) },
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
         ) {
 
             Icon(
@@ -210,19 +211,21 @@ fun drawer(navController: NavController) {
         }
         Text(
             text = Screen.History.name,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 navController.navigate(Screen.History)
             }.align(Alignment.CenterVertically)
         )
     }
+    Spacer(Modifier.height(12.dp))
     Divider(color = Color.LightGray, thickness = 1.dp)
+    Spacer(Modifier.height(12.dp))
     Row {
         IconButton(
             onClick = {
                 coroutineScope.download(di)
             },
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
         ) {
 
             Icon(
@@ -232,19 +235,21 @@ fun drawer(navController: NavController) {
         }
         Text(
             text = "Export CSV",
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 coroutineScope.download(di)
             }.align(Alignment.CenterVertically)
         )
     }
+    Spacer(Modifier.height(12.dp))
     Divider(color = Color.LightGray, thickness = 1.dp)
+    Spacer(Modifier.height(12.dp))
     Row {
         IconButton(
             onClick = {
                 navController.navigate(Screen.Users)
             },
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
         ) {
             Icon(
                 Icons.Default.AccountCircle,
@@ -253,13 +258,35 @@ fun drawer(navController: NavController) {
         }
         Text(
             text = "Users",
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 navController.navigate(Screen.Users)
             }.align(Alignment.CenterVertically)
         )
     }
-
+    Spacer(Modifier.height(12.dp))
+    if(serviceVM.user.value.isAdmin()) {
+        Row {
+            IconButton(
+                onClick = {
+                    navController.navigate(Screen.Users)
+                },
+                modifier = Modifier.align(Alignment.CenterVertically).size(24.dp)
+            ) {
+                Icon(
+                    Icons.Default.AccountBox,
+                    "Users"
+                )
+            }
+            Text(
+                text = "Create User",
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.clickable {
+                    navController.navigate(Screen.CreateUser)
+                }.align(Alignment.CenterVertically)
+            )
+        }
+    }
 }
 
 private fun CoroutineScope.download(di: DI) {
@@ -291,7 +318,13 @@ fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<U
     }
 }
 
-private val LOGGER = KotlinLogging.logger { }
+private val LOGGER = configureLog()
+
+private fun configureLog():KLogger {
+    SLF4JBridgeHandler.removeHandlersForRootLogger()
+    SLF4JBridgeHandler.install()
+    return KotlinLogging.logger{}
+}
 
 fun main() {
     configureEnvironment()
