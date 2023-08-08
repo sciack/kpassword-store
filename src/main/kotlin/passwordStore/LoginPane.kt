@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import mu.KotlinLogging
+import passwordStore.users.User
+
+typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
 @Composable
 fun loginPane(loginFunction: LoginFunction) {

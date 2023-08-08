@@ -10,8 +10,6 @@ object StatusHolder {
 
     lateinit var scaffoldState: ScaffoldState
 
-    lateinit var drawerState: DrawerState
-
     suspend fun sendMessage(message: String) {
         if (::scaffoldState.isInitialized) {
             withContext(Dispatchers.Default) {

@@ -48,6 +48,7 @@ import passwordStore.services.performDownload
 import passwordStore.sql.Migration
 import passwordStore.users.User
 import passwordStore.users.UserRepository
+import passwordStore.users.UserVM
 import passwordStore.utils.Platform
 import passwordStore.utils.StatusHolder
 import java.nio.file.Files
@@ -63,18 +64,17 @@ fun app(di: DI) = withDI(di) {
 
     val navController by rememberNavController()
 
-    val serviceModel by rememberInstance<ServiceVM>()
+    val userVM by rememberInstance<UserVM>()
     val coroutineScope = rememberCoroutineScope()
-    StatusHolder.drawerState = rememberDrawerState(DrawerValue.Closed)
     StatusHolder.scaffoldState = rememberScaffoldState()
 
     val currentUser = remember {
-        serviceModel.user
+        userVM.loggedUser
     }
 
     navController.onSelection {
         coroutineScope.launch(Dispatchers.Main) {
-            StatusHolder.drawerState.close()
+            StatusHolder.scaffoldState.drawerState.close()
         }
     }
 
@@ -83,14 +83,14 @@ fun app(di: DI) = withDI(di) {
             scaffoldState = StatusHolder.scaffoldState,
             topBar = {
                 TopAppBar(navigationIcon = {
-                    if (serviceModel.user.value.id > 0) {
+                    if (currentUser.value.id > 0) {
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
-                                    if (StatusHolder.drawerState.isClosed) {
-                                        StatusHolder.drawerState.open()
+                                    if (StatusHolder.scaffoldState.drawerState.isClosed) {
+                                        StatusHolder.scaffoldState.drawerState.open()
                                     } else {
-                                        StatusHolder.drawerState.close()
+                                        StatusHolder.scaffoldState.drawerState.close()
                                     }
                                 }
                             },
@@ -129,7 +129,7 @@ fun app(di: DI) = withDI(di) {
             }) {
 
             ModalDrawer(
-                drawerState = StatusHolder.drawerState,
+                drawerState = StatusHolder.scaffoldState.drawerState,
                 drawerContent = {
                     drawer(navController)
                 },
@@ -140,8 +140,6 @@ fun app(di: DI) = withDI(di) {
         }
     }
 }
-
-typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
 
 fun customShape() = object : Shape {
     override fun createOutline(
@@ -157,7 +155,8 @@ fun customShape() = object : Shape {
 fun drawer(navController: NavController) {
     val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
-    val serviceVM by rememberInstance<ServiceVM>()
+    val userVM by rememberInstance<UserVM>()
+
     Row {
 
         IconButton(
@@ -265,7 +264,7 @@ fun drawer(navController: NavController) {
         )
     }
     Spacer(Modifier.height(12.dp))
-    if(serviceVM.user.value.isAdmin()) {
+    if(userVM.loggedUser.value.isAdmin()) {
         Row {
             IconButton(
                 onClick = {
@@ -294,30 +293,13 @@ private fun CoroutineScope.download(di: DI) {
     LOGGER.warn { "Writing in directory: $exportPath" }
 
     launch(Dispatchers.IO) {
-        StatusHolder.drawerState.close()
+        StatusHolder.scaffoldState.drawerState.close()
         exportPath.writer().use {
             it.performDownload(di)
         }
         StatusHolder.sendMessage("Download completed")
     }
 }
-
-
-fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
-    val userRepository by di.instance<UserRepository>()
-    LOGGER.info {
-
-        """Username: ${username.text}
-        |Password: ${password.text}
-    """.trimMargin()
-    }
-    return runCatching {
-        userRepository.login(username.text, password.text)
-    }.onFailure {
-        LOGGER.warn(it) { "Wrong credentials" }
-    }
-}
-
 
 
 private fun configureLog():KLogger {
@@ -355,7 +337,7 @@ fun configureEnvironment() {
     val configFile = if (mode == "PROD") {
         val dir = configDir()
         dir.createDirectories()
-        dir.resolve("config.properties").also{ path ->
+        dir.resolve("db.properties").also{ path ->
             if (path.notExists()) {
                 val template = Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText().orEmpty()
                 Files.writeString(path, template)

@@ -89,19 +89,21 @@ fun route(navController: NavController) {
         composable(Screen.Login) {
 
             loginPane(loginFunction = { currentUsername, pwd ->
-                submit(di, currentUsername, pwd).onSuccess {
+                userVM.submit(di, currentUsername, pwd).onSuccess {
                     user.value = it
-                    serviceModel.user.value = it
+                    userVM.loggedUser.value = it
                     navController.navigate(Screen.List)
                 }
             })
         }
 
         authenticatedComposable(Screen.List) {
-
-            serviceModel.resetService()
-            serviceModel.fetchAll()
             servicesTable()
+            coroutineScope.launch(Dispatchers.Main) {
+                serviceModel.resetService()
+                serviceModel.fetchAll()
+            }
+
         }
 
         authenticatedComposable(Screen.NewService) {
@@ -130,7 +132,7 @@ fun route(navController: NavController) {
         }
 
         authenticatedComposable(Screen.Settings) {
-            userSettings(serviceModel.user.value)
+            userSettings(userVM.loggedUser.value)
         }
 
         authenticatedComposable(Screen.Users) {

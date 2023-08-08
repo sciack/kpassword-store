@@ -15,8 +15,9 @@ import org.kodein.di.instance
 import passwordStore.navigation.NavController
 import passwordStore.services.Service
 import passwordStore.services.ServiceVM
-import passwordStore.services.ServiceVM.Companion.NONE
 import passwordStore.services.ServicesRepository
+import passwordStore.users.UserVM
+import passwordStore.users.UserVM.Companion.NONE
 import passwordStore.utils.currentTime
 import java.time.Duration
 import kotlin.test.AfterTest
@@ -33,13 +34,14 @@ class AppTest {
     private val serviceModel by di.instance<ServiceVM>()
     private val navController by di.instance<NavController>()
     private val faker = Faker()
+    private val userVM by di.instance<UserVM>()
 
     @get:Rule
     val rule = createComposeRule()
 
     @BeforeTest
     fun setUp() {
-        serviceModel.user.value = NONE
+        userVM.loggedUser.value = NONE
         val navController by di.instance<NavController>()
         navController.currentScreen.value = Screen.Login
         rule.mainClock.autoAdvance = true
@@ -48,12 +50,11 @@ class AppTest {
     @AfterTest
     fun tearDown() {
         runBlocking(Dispatchers.IO) {
-            servicesRepository.search(serviceModel.user.value).forEach {
+            servicesRepository.search(userVM.loggedUser.value).forEach {
                 servicesRepository.delete(it.service, it.userid)
             }
         }
-        serviceModel.user.value = NONE
-
+        userVM.loggedUser.value = NONE
     }
 
     @Test
@@ -202,7 +203,7 @@ class AppTest {
         fillService(service)
         rule.waitUntil(timeoutMillis = 1000) {
             runBlocking {
-                servicesRepository.search(serviceModel.user.value, "", "").any {
+                servicesRepository.search(userVM.loggedUser.value, "", "").any {
                     it.service == service.service
                 }
             }

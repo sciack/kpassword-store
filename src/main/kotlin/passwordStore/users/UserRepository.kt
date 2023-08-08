@@ -94,7 +94,7 @@ class UserRepository(
                 email = rs.getString("email"),
                 userid = rs.getString("userid"),
                 roles = rs.getString("role").asSetOfRoles()
-            ).also { LOGGER.debug("User: $it") }
+            ).also { LOGGER.debug{"User: $it"} }
         }
     }
 

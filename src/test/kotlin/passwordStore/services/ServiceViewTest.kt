@@ -4,6 +4,8 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
@@ -12,6 +14,7 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.testUser
+import passwordStore.users.UserVM
 import passwordStore.utils.currentTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -21,6 +24,7 @@ import kotlin.test.Test
 class ServiceViewTest {
     private val di = DiInjection.testDi
     private val user = testUser()
+    private val coroutineScope by di.instance<CoroutineScope>()
 
     @get:Rule
     val rule = createComposeRule()
@@ -28,14 +32,16 @@ class ServiceViewTest {
 
     @BeforeTest
     fun setUp() = runBlocking {
-
-        serviceModel.user.value = user
+        val userVM by di.instance<UserVM>()
+        userVM.loggedUser.value = user
         serviceModel.resetService()
     }
 
     @AfterTest
     fun tearDown() {
-        serviceModel.resetService()
+        coroutineScope.launch {
+            serviceModel.resetService()
+        }
     }
 
     @Test

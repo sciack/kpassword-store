@@ -7,6 +7,8 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -20,13 +22,11 @@ import passwordStore.users.userSettings
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class SettingsTest {
     private val di = DiInjection.testDi
-    private val clock: Clock by di.instance()
-    private val servicesRepository by di.instance<ServicesRepository>()
-    private val serviceModel by di.instance<ServiceVM>()
-    private val navController by di.instance<NavController>()
     private val faker = Faker()
     private lateinit var user:User
     private val userRepository by di.instance<UserRepository>()
@@ -71,9 +71,10 @@ class SettingsTest {
 
         rule.onNodeWithTag("submit").assertExists().performClick()
 
-        val changedUser = userRepository.login("dummy", password)
-
-        assertThat(changedUser.email, equalTo(email))
+        await.atMost(1.seconds.toJavaDuration()).untilAsserted {
+            val changedUser = userRepository.login("dummy", password)
+            assertThat(changedUser.email, equalTo(email))
+        }
     }
 
     @Test

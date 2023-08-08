@@ -32,13 +32,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import mu.KotlinLogging
 import org.kodein.di.compose.localDI
+import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
-import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
+import passwordStore.users.UserVM
 import passwordStore.utils.currentTime
 import passwordStore.widget.*
 import kotlin.random.Random
@@ -125,7 +125,9 @@ fun servicesTable() {
                             message = "Do you want to delete service ${service.service}?",
                             showAlert,
                             onConfirm = {
-                                serviceModel.delete(service)
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    serviceModel.delete(service)
+                                }
                             }
                         )
 
@@ -146,7 +148,11 @@ fun servicesTable() {
                 placeable.place(x, 10)
             }
         }) {
-            newService(onCancel = {serviceModel.resetService()}) { service ->
+            newService(onCancel = {
+                coroutineScope.launch {
+                    serviceModel.resetService()
+                }
+            }) { service ->
                 coroutineScope.launch {
                     if (service.dirty) {
                         serviceModel.update(service)
@@ -202,9 +208,9 @@ private fun String.obfuscate(): String {
 
 
 @Composable
-fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
-    val serviceModel by localDI().instance<ServiceVM>()
-
+fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
+    val serviceModel by rememberInstance<ServiceVM>()
+    val userVM by rememberInstance<UserVM>()
     val service = remember {
         serviceModel.selectedService
     }
@@ -319,8 +325,8 @@ fun newService( onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
                     enabled = dirty.value,
                     onClick = {
 
-                        if(dirty.value) {
-                            val user = serviceModel.user
+                        if (dirty.value) {
+                            val user = userVM.loggedUser
                             val newService = service.value.copy(
                                 userid = user.value.userid, dirty = dirty.value,
                                 updateTime = clock.currentTime()
@@ -352,6 +358,7 @@ fun searchField() {
     val search = remember {
         mutableStateOf(TextFieldValue())
     }
+    val coroutineScope = rememberCoroutineScope()
     val serviceVM by localDI().instance<ServiceVM>()
 
     OutlinedTextField(
@@ -365,7 +372,9 @@ fun searchField() {
         },
         onValueChange = {
             search.value = it
-            serviceVM.searchPattern(it.text)
+            coroutineScope.launch {
+                serviceVM.searchPattern(it.text)
+            }
         },
         modifier = Modifier.testTag("Search field")
     )

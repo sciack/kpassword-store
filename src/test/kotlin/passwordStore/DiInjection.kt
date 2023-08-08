@@ -1,6 +1,9 @@
 package passwordStore
 
-import kotlinx.datetime.*
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.bind
@@ -8,11 +11,16 @@ import org.kodein.di.instance
 import org.kodein.di.singleton
 import passwordStore.crypto.devCryptExtension
 import passwordStore.sql.Migration
-import passwordStore.sql.testDatasource
-import java.time.Duration
-import java.time.LocalDateTime
-import java.time.temporal.TemporalAmount
 import javax.sql.DataSource
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+
+
+fun testDatasource(): DataSource {
+    val hikariConfig = HikariConfig("/db_test.properties")
+    return HikariDataSource(hikariConfig)
+}
+
 
 object DiInjection {
     private val LOGGER = KotlinLogging.logger { }
@@ -35,10 +43,11 @@ object DiInjection {
 
 }
 
-class TestClock(private var time: java.time.LocalDateTime = LocalDateTime.now()) : Clock {
-    override fun now(): Instant = time.toKotlinLocalDateTime().toInstant(TimeZone.currentSystemDefault())
+class TestClock(private var time: Instant = Clock.System.now()) : Clock {
+    override fun now(): Instant = time
 
-    fun tick(amount: TemporalAmount = Duration.ofMinutes(1)) {
-        time = time.plus(amount)
+    fun tick(amount: Duration = 1.minutes) {
+        time += amount
     }
+
 }

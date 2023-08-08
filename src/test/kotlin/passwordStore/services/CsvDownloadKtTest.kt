@@ -11,6 +11,7 @@ import org.awaitility.kotlin.await
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.testUser
+import passwordStore.users.UserVM
 import java.io.StringWriter
 import java.time.Duration
 import java.time.LocalDateTime
@@ -28,9 +29,10 @@ class CsvDownloadKtTest {
 
     @BeforeTest
     fun setup() {
-        val serviceVM by di.instance<ServiceVM>()
-        serviceVM.user.value = user
+        val userVM by di.instance<UserVM>()
+        userVM.loggedUser.value = user
     }
+
     @AfterTest
     fun tearDown() {
         runBlocking {

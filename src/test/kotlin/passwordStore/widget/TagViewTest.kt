@@ -1,9 +1,12 @@
 package passwordStore.widget
 
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import mu.KotlinLogging
@@ -18,6 +21,7 @@ import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import passwordStore.testService
 import passwordStore.testUser
+import passwordStore.users.UserVM
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -35,8 +39,8 @@ class TagViewTest {
 
     @BeforeTest
     fun setup() {
-        val serviceModel by di.instance<ServiceVM>()
-        serviceModel.user.value = user
+        val userVM by di.instance<UserVM>()
+        userVM.loggedUser.value = user
         runBlocking {
             servicesRepository.search(user).forEach {
                 servicesRepository.delete(it.service, it.userid)
@@ -60,7 +64,10 @@ class TagViewTest {
         rule.setContent {
             withDI(di) {
                 val serviceModel by localDI().instance<ServiceVM>()
-                serviceModel.fetchAll()
+                val cs = rememberCoroutineScope()
+                cs.launch {
+                    serviceModel.fetchAll()
+                }
                 tagView()
             }
         }

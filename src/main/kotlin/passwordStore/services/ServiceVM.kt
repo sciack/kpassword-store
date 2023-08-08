@@ -1,18 +1,19 @@
 package passwordStore.services
 
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
-import passwordStore.users.User
+import passwordStore.users.UserVM
 import java.sql.SQLException
 
 class ServiceVM(
     private val servicesRepository: ServicesRepository,
     private val tagRepository: TagRepository,
-    private val scope: CoroutineScope
+    private val userVM: UserVM
 ) {
 
     val services = mutableStateOf(listOf<Service>())
@@ -23,24 +24,23 @@ class ServiceVM(
 
     val selectedService = mutableStateOf(Service())
 
-    var user = mutableStateOf(NONE)
-
     private var pattern: String = ""
 
     private var tag: String = ""
 
     val saveError = mutableStateOf("")
 
-    fun fetchAll() {
-        scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user.value, pattern, tag)
-            val currentTags = tagRepository.tags(user.value)
-
-            launch(Dispatchers.Main, CoroutineStart.UNDISPATCHED) {
+    suspend fun fetchAll() {
+        val user = userVM.loggedUser.value
+        withContext(Dispatchers.IO) {
+            val result = servicesRepository.search(user, pattern, tag)
+            val currentTags = tagRepository.tags(user)
+            withContext(Dispatchers.Main) {
                 services.value = result
                 tags.value = currentTags
                 resetHistory()
             }
+
         }
     }
 
@@ -70,20 +70,22 @@ class ServiceVM(
     }
 
     suspend fun history(pattern: String, exactMatch: Boolean) {
-        val result = servicesRepository.history(pattern, exactMatch, user.value)
+        val user = userVM.loggedUser.value
+        val result = servicesRepository.history(pattern, exactMatch, user)
         withContext(Dispatchers.Main) {
             historyEvents.value = result
         }
     }
 
-    fun searchWithTags(tag: String) {
+    suspend fun searchWithTags(tag: String) {
         this.tag = tag
         search()
     }
 
-    private fun search() {
-        scope.launch(Dispatchers.IO) {
-            val result = servicesRepository.search(user.value, pattern = pattern, tag = tag)
+    private suspend fun search() {
+        val user = userVM.loggedUser.value
+        withContext(Dispatchers.IO) {
+            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
             withContext(Dispatchers.Main) {
                 services.value = result
                 saveError.value = ""
@@ -91,24 +93,27 @@ class ServiceVM(
         }
     }
 
-    fun searchPattern(pattern: String) {
+    suspend fun searchPattern(pattern: String) {
         this.pattern = pattern
         search()
     }
 
     fun selectService(service: Service) {
-        LOGGER.warn {"Set service $service"}
+        LOGGER.warn { "Set service $service" }
         selectedService.value = service
     }
 
-    fun resetService() {
-        selectedService.value = Service()
-        saveError.value = ""
+    suspend fun resetService() {
+        withContext(Dispatchers.Main) {
+            selectedService.value = Service()
+            saveError.value = ""
+        }
     }
 
-    fun delete(service: Service) {
-        scope.launch(Dispatchers.IO) {
-            servicesRepository.delete(serviceName = service.service, userId = user.value.userid)
+    suspend fun delete(service: Service) {
+        val user = userVM.loggedUser.value
+        withContext(Dispatchers.IO) {
+            servicesRepository.delete(serviceName = service.service, userId = user.userid)
             fetchAll()
         }
     }
@@ -120,7 +125,6 @@ class ServiceVM(
     fun shouldLoadHistory() = historyEvents.value.isEmpty()
 
     companion object {
-        val NONE =
-            User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
+
     }
 }

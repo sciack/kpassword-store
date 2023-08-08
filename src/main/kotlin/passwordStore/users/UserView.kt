@@ -60,7 +60,6 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
     }
 
     val userVM by rememberInstance<UserVM>()
-    val serviceVM by rememberInstance<ServiceVM>()
 
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
@@ -68,7 +67,7 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
     }
 
     Column(Modifier.padding(32.dp)) {
-        userFields(user, dirty, passwordConfirmation, serviceVM)
+        userFields(user, dirty, passwordConfirmation)
         if (errorMsg.value.isNotEmpty()) {
             Text(
                 errorMsg.value,
@@ -84,9 +83,9 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
                 onClick = {
                     if (dirty.value) {
                         coroutineScope.launch {
-                            userVM.updateUser(user.value, serviceVM.user.value.asPrincipal()).onSuccess { newUser ->
-                                if (serviceVM.user.value.userid == newUser.userid) {
-                                    serviceVM.user.value = newUser
+                            userVM.updateUser(user.value, userVM.loggedUser.value.asPrincipal()).onSuccess { newUser ->
+                                if (userVM.loggedUser.value.userid == newUser.userid) {
+                                    userVM.loggedUser.value = newUser
                                 }
                                 back()
                             }
@@ -117,9 +116,10 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
 private fun ColumnScope.userFields(
     user: MutableState<EditableUser>,
     dirty: MutableState<Boolean>,
-    passwordConfirmation: MutableState<TextFieldValue>,
-    serviceVM: ServiceVM,
+    passwordConfirmation: MutableState<TextFieldValue>
+
 ) {
+    val userVM by rememberInstance<UserVM>()
     val showPasswordDialog = remember {
         mutableStateOf(false)
     }
@@ -193,7 +193,7 @@ private fun ColumnScope.userFields(
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("password-confirmation")
     )
     Spacer(Modifier.height(16.dp))
-    if (serviceVM.user.value.isAdmin()) {
+    if (userVM.loggedUser.value.isAdmin()) {
         Row(modifier = Modifier.Companion.align(Alignment.CenterHorizontally)) {
             Column {
                 Text("Roles:")
@@ -255,7 +255,6 @@ fun createUser() {
     }
 
     val userVM by rememberInstance<UserVM>()
-    val serviceVM by rememberInstance<ServiceVM>()
     val navController by rememberInstance<NavController>()
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
@@ -272,7 +271,7 @@ fun createUser() {
             singleLine = true
         )
         Spacer(Modifier.height(16.dp))
-        userFields(user, dirty, passwordConfirmation, serviceVM)
+        userFields(user, dirty, passwordConfirmation)
         Spacer(Modifier.height(16.dp))
         if (errorMsg.value.isNotEmpty()) {
             Text(
@@ -318,8 +317,6 @@ fun createUser() {
 @Composable
 fun users() {
     val userVM by rememberInstance<UserVM>()
-    val serviceVM by rememberInstance<ServiceVM>()
-    val navController by rememberInstance<NavController>()
     val coroutineScope = rememberCoroutineScope()
     val users = remember {
         userVM.users
@@ -340,7 +337,7 @@ fun users() {
                     cell(user, columnIndex)
                 },
                 beforeRow = { user ->
-                    if (serviceVM.user.value.isAdmin()) {
+                    if (userVM.loggedUser.value.isAdmin()) {
                         Row(modifier = Modifier.align(Alignment.CenterVertically)) {
                             IconButton(
                                 onClick = {
@@ -368,7 +365,7 @@ fun users() {
                                 Icon(
                                     Icons.Default.Delete,
                                     "Delete",
-                                    )
+                                )
                             }
 
                             showOkCancel(

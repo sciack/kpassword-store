@@ -2,19 +2,16 @@ package passwordStore.services
 
 import org.apache.commons.csv.CSVFormat
 import org.kodein.di.DI
+import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
+import passwordStore.users.UserVM
 import java.io.Writer
 import java.nio.file.Path
 
 suspend fun Writer.performDownload(di: DI) {
     val serviceRepository by di.instance<ServicesRepository>()
-    val serviceVM by di.instance<ServiceVM>()
-
-    val user = serviceVM.user.value
-    check(user.id > 0) {
-        "User must be authenticated"
-    }
-    val services = serviceRepository.search(user)
+    val userVM by di.instance<UserVM>()
+    val services = serviceRepository.search(userVM.loggedUser.value)
 
     CSVFormat.EXCEL.print(this@performDownload).apply {
         printRecord("Service", "Username", "Password", "Notes", "Tags", "Last Update")

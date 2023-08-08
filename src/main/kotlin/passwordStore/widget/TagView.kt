@@ -12,9 +12,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.services.ServiceVM
@@ -23,6 +26,7 @@ import passwordStore.services.ServiceVM
 @Composable
 fun tagView() {
     val serviceModel by localDI().instance<ServiceVM>()
+    val coroutineScope = rememberCoroutineScope()
     val tags = remember {
         serviceModel.tags
     }
@@ -44,7 +48,9 @@ fun tagView() {
                     } else {
                         selected.value = ""
                     }
-                    serviceModel.searchWithTags(selected.value)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        serviceModel.searchWithTags(selected.value)
+                    }
                 },
                 colors = if (selected.value != tag) {
                     ChipDefaults.outlinedChipColors()
