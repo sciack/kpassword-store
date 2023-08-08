@@ -37,14 +37,18 @@ import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
+import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
+import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentTime
 import passwordStore.widget.*
 import javax.swing.JFileChooser
+import javax.swing.UIManager
 import javax.swing.filechooser.FileNameExtensionFilter
+import kotlin.io.path.writer
 import kotlin.random.Random
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -393,10 +397,31 @@ suspend fun upload(di:DI) {
             if (result == JFileChooser.APPROVE_OPTION) {
                 val path = fileChooser.selectedFile.toPath()
                 withContext(Dispatchers.IO) {
-                    serviceVM.readFile(path)
+                    withContext(Dispatchers.Main) {
+                        StatusHolder.scaffoldState.drawerState.close()
+                    }
+                    serviceVM.readFile(path).onSuccess {
+                        StatusHolder.sendMessage("CSV imported")
+                    }.onFailure {
+                        StatusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")
+
+                    }
                 }
             }
         }
     }
 
+}
+
+fun CoroutineScope.download(di: DI) {
+    val exportPath = exportPath()
+    LOGGER.warn { "Writing in directory: $exportPath" }
+
+    launch(Dispatchers.IO) {
+        StatusHolder.scaffoldState.drawerState.close()
+        exportPath.writer().use {
+            it.performDownload(di)
+        }
+        StatusHolder.sendMessage("Download completed")
+    }
 }

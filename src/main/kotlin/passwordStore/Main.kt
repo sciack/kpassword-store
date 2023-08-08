@@ -41,6 +41,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler
 import passwordStore.config.SetupEnv
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
+import passwordStore.services.download
 import passwordStore.services.exportPath
 import passwordStore.services.performDownload
 import passwordStore.services.upload
@@ -51,6 +52,7 @@ import passwordStore.utils.StatusHolder
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.sql.DataSource
+import javax.swing.UIManager
 import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 import kotlin.io.path.writer
@@ -249,12 +251,12 @@ fun drawer(navController: NavController) {
         ) {
 
             Icon(
-                painterResource("/icons/file_csv.svg"),
+                painterResource("/icons/upload.svg"),
                 contentDescription = "Import CSV"
             )
         }
         Text(
-            text = "IMport CSV",
+            text = "Import CSV",
             style = MaterialTheme.typography.body1,
             modifier = Modifier.clickable {
                 coroutineScope.launch {
@@ -311,18 +313,7 @@ fun drawer(navController: NavController) {
     }
 }
 
-private fun CoroutineScope.download(di: DI) {
-    val exportPath = exportPath()
-    LOGGER.warn { "Writing in directory: $exportPath" }
 
-    launch(Dispatchers.IO) {
-        StatusHolder.scaffoldState.drawerState.close()
-        exportPath.writer().use {
-            it.performDownload(di)
-        }
-        StatusHolder.sendMessage("Download completed")
-    }
-}
 
 
 private fun configureLog(): KLogger {
@@ -348,7 +339,6 @@ fun main() {
             state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
             LOGGER.info { "Building the app" }
-
             app(di)
         }
     }
@@ -360,7 +350,7 @@ fun configureEnvironment() {
     val configFile = if (mode == "PROD") {
         val dir = configDir()
         dir.createDirectories()
-        dir.resolve("db.properties").also { path ->
+        dir.resolve("config.properties").also { path ->
             if (path.notExists()) {
                 val template =
                     Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText()

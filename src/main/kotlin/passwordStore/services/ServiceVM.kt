@@ -133,14 +133,14 @@ class ServiceVM(
     }
 
     fun shouldLoadHistory() = historyEvents.value.isEmpty()
-    suspend fun readFile(path: Path) {
+    suspend fun readFile(path: Path):Result<Unit> {
         fun convert(tagString: String): List<String> {
             val tag = tagString.substringAfter('[').substringBeforeLast(']').split(',')
             return tag.map { it.trim() }.toList()
         }
 
-        withContext(Dispatchers.IO) {
-            val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder()
+        return withContext(Dispatchers.IO) {
+            val csvFormat: CSVFormat = CSVFormat.EXCEL.builder()
                 .setHeader(*HEADERS)
                 .setSkipHeaderRecord(true)
                 .build()
