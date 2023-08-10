@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
@@ -17,9 +18,8 @@ import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.testUser
 import passwordStore.users.UserVM
-import passwordStore.utils.currentTime
+import passwordStore.utils.currentDateTime
 import java.nio.file.Path
-import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -73,7 +73,7 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = true,
                 score = 0.0,
-                updateTime = clock.currentTime()
+                updateTime = clock.currentDateTime()
             )
             rule.onNodeWithTag("service").performTextInput(expectedService.service)
             rule.onNodeWithTag("username").performTextInput(expectedService.username)
@@ -100,7 +100,7 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.currentTime()
+                updateTime = clock.currentDateTime()
             )
             serviceModel.selectService(service)
             rule.setContent {
@@ -136,7 +136,7 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.currentTime()
+                updateTime = clock.currentDateTime()
             )
             serviceModel.selectService(service)
             rule.setContent {
@@ -174,7 +174,7 @@ class ServiceViewTest {
                 userid = user.userid,
                 dirty = false,
                 score = 0.0,
-                updateTime = clock.currentTime()
+                updateTime = clock.currentDateTime()
             )
             val expectedService = service.copy()
             rule.setContent {

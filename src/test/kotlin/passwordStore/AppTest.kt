@@ -18,7 +18,7 @@ import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UserVM
 import passwordStore.users.UserVM.Companion.NONE
-import passwordStore.utils.currentTime
+import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -96,7 +96,7 @@ class AppTest {
             userid = user.userid,
             dirty = true,
             score = 0.0,
-            updateTime = clock.currentTime()
+            updateTime = clock.currentDateTime()
         )
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
@@ -127,7 +127,7 @@ class AppTest {
             userid = user.userid,
             dirty = true,
             score = 0.0,
-            updateTime = clock.currentTime()
+            updateTime = clock.currentDateTime()
         )
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
@@ -170,7 +170,7 @@ class AppTest {
                 userid = user.userid,
                 dirty = true,
                 score = 0.0,
-                updateTime = clock.currentTime()
+                updateTime = clock.currentDateTime()
             )
             rule.onNodeWithTag("Search field").assertExists()
 

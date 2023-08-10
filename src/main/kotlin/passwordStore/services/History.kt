@@ -21,6 +21,7 @@ import passwordStore.Screen
 import passwordStore.audit.Action
 import passwordStore.audit.Event
 import passwordStore.navigation.NavController
+import passwordStore.utils.short
 import passwordStore.utils.titlecase
 import passwordStore.widget.Table
 import passwordStore.widget.bottomBorder
@@ -86,7 +87,7 @@ fun displayHistService(event: Event, columnIndex: Int) {
     val service = event.service
     when (columnIndex) {
         0 -> Text(event.action.toString().titlecase())
-        1 -> Text(event.actionDate.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)))
+        1 -> Text(event.actionDate.short())
         2 -> Text(service.service)
         3 -> Text(service.username)
         4 -> Text(service.password)

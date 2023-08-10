@@ -103,6 +103,7 @@ compose.desktop {
             windows {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
                 menuGroup = "Password Store"
+                vendor = "Mirko Sciachero"
                 console = true
                 iconFile.set(File("lockoverlay.ico"))
             }

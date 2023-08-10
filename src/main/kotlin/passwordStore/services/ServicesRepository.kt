@@ -27,6 +27,9 @@
 package passwordStore.services
 
 import kotlinx.coroutines.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import mu.KotlinLogging
 import passwordStore.audit.Action
 import passwordStore.audit.AuditMessage
@@ -38,21 +41,14 @@ import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
 import passwordStore.users.User
-import passwordStore.utils.distance
-import passwordStore.utils.titlecase
+import passwordStore.utils.*
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
-import java.sql.Timestamp
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 import javax.sql.DataSource
 import kotlin.math.max
 
-fun LocalDateTime.toTimestamp(timezone: ZoneId): Timestamp = Timestamp.from(Instant.from(this.atZone(timezone)))
-val timezone: ZoneId = ZoneId.systemDefault()
 
 class ServicesRepository(
     private val datasource: DataSource,
@@ -75,7 +71,7 @@ class ServicesRepository(
             rs.getString("password").decrypt(),
             rs.getString("note").decrypt(),
             false,
-            LocalDateTime.from(rs.getTimestamp("lastUpdate").toInstant().atZone(timezone)),
+            rs.getTimestamp("lastUpdate").toLocalDateTime().toKotlinLocalDateTime(),
             rs.getString("userid"), 1.0, tags
         )
     }
@@ -280,7 +276,7 @@ class ServicesRepository(
             Event(
                 asService(rs, Mode.SPLIT),
                 Action.valueOf(rs.getString("operation")),
-                rs.getTimestamp("operation_date").toLocalDateTime()
+                rs.getTimestamp("operation_date").toKotlinDateTime()
             )
         }.map { ev ->
             val rate = if (servPattern.isNotBlank()) {
@@ -315,7 +311,7 @@ class ServicesRepository(
             Event(
                 asService(rs, Mode.SPLIT),
                 Action.valueOf(rs.getString("operation")),
-                rs.getTimestamp("operation_date").toLocalDateTime()
+                rs.getTimestamp("operation_date").toKotlinDateTime()
             )
         }
     }
@@ -328,13 +324,14 @@ class ServicesRepository(
     }
 }
 
+
 data class Service(
     var service: String = "",
     var username: String = "",
     var password: String = "",
     var note: String = "",
     var dirty: Boolean = false,
-    var updateTime: LocalDateTime = LocalDateTime.now(),
+    var updateTime: LocalDateTime = Clock.System.currentDateTime(),
     var userid: String = "",
     var score: Double = 0.0,
     var tags: List<String> = listOf()

@@ -43,10 +43,9 @@ import passwordStore.navigation.NavController
 import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
-import passwordStore.utils.currentTime
+import passwordStore.utils.currentDateTime
 import passwordStore.widget.*
 import javax.swing.JFileChooser
-import javax.swing.UIManager
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.writer
 import kotlin.random.Random
@@ -336,7 +335,7 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
                             val user = userVM.loggedUser
                             val newService = service.value.copy(
                                 userid = user.value.userid, dirty = dirty.value,
-                                updateTime = clock.currentTime()
+                                updateTime = clock.currentDateTime()
                             ).trim()
                             newService.validate().onSuccess {
                                 onSubmit(newService)
