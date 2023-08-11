@@ -16,4 +16,24 @@ object StatusHolder {
             }
         }
     }
+
+    suspend fun openDrawer() {
+        if (::scaffoldState.isInitialized) {
+            withContext(Dispatchers.Default) {
+                if (scaffoldState.drawerState.isClosed) {
+                    scaffoldState.drawerState.open()
+                }
+            }
+        }
+    }
+
+    suspend fun closeDrawer() {
+        if (::scaffoldState.isInitialized) {
+            withContext(Dispatchers.Default) {
+                if (scaffoldState.drawerState.isOpen) {
+                    scaffoldState.drawerState.close()
+                }
+            }
+        }
+    }
 }

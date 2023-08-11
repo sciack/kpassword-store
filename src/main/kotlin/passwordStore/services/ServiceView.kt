@@ -397,7 +397,7 @@ suspend fun upload(di:DI) {
                 val path = fileChooser.selectedFile.toPath()
                 withContext(Dispatchers.IO) {
                     withContext(Dispatchers.Main) {
-                        StatusHolder.scaffoldState.drawerState.close()
+                        StatusHolder.closeDrawer()
                     }
                     serviceVM.readFile(path).onSuccess {
                         StatusHolder.sendMessage("CSV imported")
@@ -417,7 +417,7 @@ fun CoroutineScope.download(di: DI) {
     LOGGER.warn { "Writing in directory: $exportPath" }
 
     launch(Dispatchers.IO) {
-        StatusHolder.scaffoldState.drawerState.close()
+        StatusHolder.closeDrawer()
         exportPath.writer().use {
             it.performDownload(di)
         }
