@@ -31,7 +31,7 @@ koverReport {
     defaults {
         xml {
             onCheck = true
-
+            this.setReportFile(layout.buildDirectory.file("reports/jacoco/report.xml"))
         }
     }
 }
