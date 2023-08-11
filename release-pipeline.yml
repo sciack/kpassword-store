@@ -6,7 +6,7 @@
 trigger:
   branches:
     include:
-      - ref/tags/*
+      - 'ref/tags/*'
 
 variables:
   VERSION: $(Build.SourceBranchName)
@@ -36,8 +36,7 @@ stages:
               #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
               testResultsFiles: '**/TEST-*.xml'
               #codeCoverageToolOption: 'None' # 'None' | 'Cobertura' | 'JaCoCo'. Alias: codeCoverageTool. Code coverage tool. Default: None.
-              codeCoverageToolOption: 'JaCoCo'
-              codeCoverageClassFilesDirectories: 'build/classes/kotlin/main/' # string. Alias: classFilesDirectories. Required when codeCoverageTool != None. Class files directories. Default: build/classes/main/.
+              codeCoverageToolOption: 'None'
               javaHomeOption: 'JDKVersion' # 'JDKVersion' | 'Path'. Alias: javaHomeSelection. Required. Set JAVA_HOME by. Default: JDKVersion.
               jdkVersionOption: '1.17'
             #gradleOptions: '-Xmx1024m' # string. Alias: gradleOpts. Set GRADLE_OPTS. Default: -Xmx1024m.
@@ -70,8 +69,7 @@ stages:
               #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
               testResultsFiles: '**/TEST-*.xml'
               #codeCoverageToolOption: 'None' # 'None' | 'Cobertura' | 'JaCoCo'. Alias: codeCoverageTool. Code coverage tool. Default: None.
-              codeCoverageToolOption: 'JaCoCo'
-              codeCoverageClassFilesDirectories: 'build/classes/kotlin/main/' # string. Alias: classFilesDirectories. Required when codeCoverageTool != None. Class files directories. Default: build/classes/main/.
+              codeCoverageToolOption: 'None'
               javaHomeOption: 'JDKVersion' # 'JDKVersion' | 'Path'. Alias: javaHomeSelection. Required. Set JAVA_HOME by. Default: JDKVersion.
               jdkVersionOption: '1.17'
             #gradleOptions: '-Xmx1024m' # string. Alias: gradleOpts. Set GRADLE_OPTS. Default: -Xmx1024m.
