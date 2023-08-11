@@ -31,7 +31,7 @@ stages:
               gradleWrapperFile: 'gradlew' # string. Alias: wrapperScript. Required. Gradle wrapper. Default: gradlew.
               #workingDirectory: # string. Alias: cwd. Working directory.
               #options: # string. Options.
-              tasks: 'check packageReleaseRpm' # string. Required. Tasks. Default: build.
+              tasks: 'check packageRpm' # string. Required. Tasks. Default: build.
               # JUnit Test Results
               #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
               testResultsFiles: '**/TEST-*.xml'
@@ -53,7 +53,7 @@ stages:
               packagePublishDescription: 'KPassword store linux version'
 
       - job: release_windows
-        displayName: Release linux version
+        displayName: Release windows version
         pool:
           vmImage: windows-latest
         steps:
@@ -65,7 +65,7 @@ stages:
               gradleWrapperFile: 'gradlew' # string. Alias: wrapperScript. Required. Gradle wrapper. Default: gradlew.
               #workingDirectory: # string. Alias: cwd. Working directory.
               #options: # string. Options.
-              tasks: 'packageReleaseMsi' # string. Required. Tasks. Default: build.
+              tasks: 'packageMsi' # string. Required. Tasks. Default: build.
               # JUnit Test Results
               #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
               testResultsFiles: '**/TEST-*.xml'
