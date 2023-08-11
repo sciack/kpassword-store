@@ -8,20 +8,21 @@ trigger:
     include:
       - ref/tags/*
 
+variables:
+  VERSION: $(Build.SourceBranchName)
+
+
 stages:
   - stage: Release
-    env:
-      VERSION: $(Build.SourceBranchName)
     jobs:
       - job: release_linux
         displayName: Release linux version
         pool:
           vmImage: ubuntu-latest
         steps:
-          - task: install rpm
+          - script: sudo apt-get install -qq -y rpm
             displayName: "Install RPM"
-            script: |
-                sudo apt-get install -qq -y rpm
+            continueOnError: false
           # Gradle v3
           # Build using a Gradle wrapper script.
           - task: Gradle@3
