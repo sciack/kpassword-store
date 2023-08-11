@@ -19,12 +19,13 @@ steps:
     gradleWrapperFile: 'gradlew' # string. Alias: wrapperScript. Required. Gradle wrapper. Default: gradlew.
     #workingDirectory: # string. Alias: cwd. Working directory.
     #options: # string. Options.
-    tasks: 'check' # string. Required. Tasks. Default: build.
+    tasks: 'check koverXmlReport' # string. Required. Tasks. Default: build.
     # JUnit Test Results
     #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
     testResultsFiles: '**/TEST-*.xml'
     #codeCoverageToolOption: 'None' # 'None' | 'Cobertura' | 'JaCoCo'. Alias: codeCoverageTool. Code coverage tool. Default: None.
-    codeCoverageClassFilesDirectories: 'build/classes/main/' # string. Alias: classFilesDirectories. Required when codeCoverageTool != None. Class files directories. Default: build/classes/main/.
+    codeCoverageToolOption: 'JaCoCo'
+    codeCoverageClassFilesDirectories: 'build/classes/kotlin/main/' # string. Alias: classFilesDirectories. Required when codeCoverageTool != None. Class files directories. Default: build/classes/main/.
     javaHomeOption: 'JDKVersion' # 'JDKVersion' | 'Path'. Alias: javaHomeSelection. Required. Set JAVA_HOME by. Default: JDKVersion.
     jdkVersionOption: '1.17'
     #gradleOptions: '-Xmx1024m' # string. Alias: gradleOpts. Set GRADLE_OPTS. Default: -Xmx1024m.

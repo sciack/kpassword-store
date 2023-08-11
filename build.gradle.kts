@@ -27,6 +27,14 @@ testlogger {
 }
 
 
+koverReport {
+    defaults {
+        xml {
+            onCheck = true
+
+        }
+    }
+}
 
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
