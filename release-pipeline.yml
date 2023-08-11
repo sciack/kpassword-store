@@ -5,8 +5,11 @@
 
 trigger:
   branches:
+    exclude:
+      - '*'
+  tags:
     include:
-      - 'ref/tags/*'
+      - '*'
 
 variables:
   VERSION: $(Build.SourceBranchName)
