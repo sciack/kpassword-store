@@ -36,6 +36,13 @@ koverReport {
     }
 }
 
+tasks {
+    val jacocoTestReport = register("jacocoTestReport") {
+
+    }
+    jacocoTestReport.get().dependsOn(koverXmlReport)
+}
+
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
@@ -72,6 +79,7 @@ dependencies {
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }
+
 
 tasks.test {
     //useJUnitPlatform()
