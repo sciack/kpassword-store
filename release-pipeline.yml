@@ -4,9 +4,9 @@
 # https://aka.ms/yaml
 
 trigger:
-- ref/tags/*
-
-
+  branches:
+    include:
+      - ref/tags/*
 
 stages:
   - stage: Release
