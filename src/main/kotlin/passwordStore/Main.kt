@@ -77,7 +77,7 @@ fun app(di: DI) = withDI(di) {
 
     navController.onSelection {
         coroutineScope.launch(Dispatchers.Main) {
-            StatusHolder.scaffoldState.drawerState.close()
+            StatusHolder.closeDrawer()
         }
     }
 
@@ -91,9 +91,9 @@ fun app(di: DI) = withDI(di) {
                             onClick = {
                                 coroutineScope.launch {
                                     if (StatusHolder.scaffoldState.drawerState.isClosed) {
-                                        StatusHolder.scaffoldState.drawerState.open()
+                                        StatusHolder.openDrawer()
                                     } else {
-                                        StatusHolder.scaffoldState.drawerState.close()
+                                        StatusHolder.closeDrawer()
                                     }
                                 }
                             },

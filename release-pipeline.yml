@@ -1,0 +1,88 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    exclude:
+      - '*'
+  tags:
+    include:
+      - '*'
+
+variables:
+  VERSION: $(Build.SourceBranchName)
+
+
+stages:
+  - stage: Release
+    jobs:
+      - job: release_linux
+        displayName: Release linux version
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: sudo apt-get install -qq -y rpm
+            displayName: "Install RPM"
+            continueOnError: false
+          # Gradle v3
+          # Build using a Gradle wrapper script.
+          - task: Gradle@3
+            displayName: "Gradle build"
+            inputs:
+              gradleWrapperFile: 'gradlew' # string. Alias: wrapperScript. Required. Gradle wrapper. Default: gradlew.
+              #workingDirectory: # string. Alias: cwd. Working directory.
+              #options: # string. Options.
+              tasks: 'check packageRpm' # string. Required. Tasks. Default: build.
+              # JUnit Test Results
+              #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
+              testResultsFiles: '**/TEST-*.xml'
+              #codeCoverageToolOption: 'None' # 'None' | 'Cobertura' | 'JaCoCo'. Alias: codeCoverageTool. Code coverage tool. Default: None.
+              codeCoverageToolOption: 'None'
+              javaHomeOption: 'JDKVersion' # 'JDKVersion' | 'Path'. Alias: javaHomeSelection. Required. Set JAVA_HOME by. Default: JDKVersion.
+              jdkVersionOption: '1.17'
+            #gradleOptions: '-Xmx1024m' # string. Alias: gradleOpts. Set GRADLE_OPTS. Default: -Xmx1024m.
+          - task: UniversalPackages@0
+            displayName: Publish the release
+            inputs:
+              command: publish
+              publishDirectory: 'build/compose/binaries/main/rpm'
+              vstsFeedPublish: 'KPasswordStore/new_package_repo'
+              vstsFeedPackagePublish: 'kpasswordstore-$(version).rpm'
+              versionOption: custom
+              versionPublish: $(VERSION)
+              packagePublishDescription: 'KPassword store linux version'
+
+      - job: release_windows
+        displayName: Release windows version
+        pool:
+          vmImage: windows-latest
+        steps:
+          # Gradle v3
+          # Build using a Gradle wrapper script.
+          - task: Gradle@3
+            displayName: "Gradle build"
+            inputs:
+              gradleWrapperFile: 'gradlew' # string. Alias: wrapperScript. Required. Gradle wrapper. Default: gradlew.
+              #workingDirectory: # string. Alias: cwd. Working directory.
+              #options: # string. Options.
+              tasks: 'packageMsi' # string. Required. Tasks. Default: build.
+              # JUnit Test Results
+              #publishJUnitResults: true # boolean. Publish to Azure Pipelines. Default: true.
+              testResultsFiles: '**/TEST-*.xml'
+              #codeCoverageToolOption: 'None' # 'None' | 'Cobertura' | 'JaCoCo'. Alias: codeCoverageTool. Code coverage tool. Default: None.
+              codeCoverageToolOption: 'None'
+              javaHomeOption: 'JDKVersion' # 'JDKVersion' | 'Path'. Alias: javaHomeSelection. Required. Set JAVA_HOME by. Default: JDKVersion.
+              jdkVersionOption: '1.17'
+            #gradleOptions: '-Xmx1024m' # string. Alias: gradleOpts. Set GRADLE_OPTS. Default: -Xmx1024m.
+          - task: UniversalPackages@0
+            displayName: Publish the release
+            inputs:
+              command: publish
+              publishDirectory: 'build/compose/binaries/main/msi'
+              vstsFeedPublish: 'KPasswordStore/new_package_repo'
+              vstsFeedPackagePublish: 'kpasswordstore-$(version).msi'
+              versionOption: custom
+              versionPublish: $(VERSION)
+              packagePublishDescription: 'KPassword store linux version'

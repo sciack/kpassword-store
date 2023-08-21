@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.containsSubstring
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.toKotlinLocalDateTime
 import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.kodein.di.instance
@@ -52,7 +53,7 @@ class CsvDownloadKtTest {
             password = faker.internet().password(),
             note = faker.lebowski().quote(),
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS).toKotlinLocalDateTime(),
             userid = user.userid,
             tags = listOf("Some tag"),
             score = 1.0

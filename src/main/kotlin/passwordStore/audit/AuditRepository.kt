@@ -32,10 +32,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension
-import passwordStore.services.timezone
-import passwordStore.services.toTimestamp
 import passwordStore.sql.saveOrUpdate
+import passwordStore.utils.timezone
 import passwordStore.utils.titlecase
+import passwordStore.utils.toTimestamp
 import javax.sql.DataSource
 
 class AuditRepository(

@@ -154,7 +154,7 @@ class ServiceVM(
                             password = record[HEADERS[2]],
                             note = record[HEADERS[3]],
                             tags = convert(record[HEADERS[4]]),
-                            updateTime = LocalDateTime.parse(record[HEADERS[5]]).toJavaLocalDateTime(),
+                            updateTime = LocalDateTime.parse(record[HEADERS[5]]),
                             userid = userVM.loggedUser.value.userid
                         )
                     }.forEach { service ->

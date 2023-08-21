@@ -27,6 +27,21 @@ testlogger {
 }
 
 
+koverReport {
+    defaults {
+        xml {
+            onCheck = true
+            this.setReportFile(layout.buildDirectory.file("reports/jacoco/report.xml"))
+        }
+    }
+}
+
+tasks {
+    val jacocoTestReport = register("jacocoTestReport") {
+
+    }
+    jacocoTestReport.get().dependsOn(koverXmlReport)
+}
 
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
@@ -64,6 +79,7 @@ dependencies {
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }
+
 
 tasks.test {
     //useJUnitPlatform()
@@ -103,6 +119,7 @@ compose.desktop {
             windows {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
                 menuGroup = "Password Store"
+                vendor = "Mirko Sciachero"
                 console = true
                 iconFile.set(File("lockoverlay.ico"))
             }

@@ -7,17 +7,18 @@ import com.natpryce.hamkrest.isEmpty
 import com.natpryce.hamkrest.throws
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDateTime
 import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.kodein.di.instance
 import passwordStore.DiInjection
+import passwordStore.nowWithMicro
 import passwordStore.testUser
 import java.sql.SQLException
-import java.time.Duration
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class ServicesRepositoryTest() {
     private val di = DiInjection.testDi
@@ -43,7 +44,7 @@ class ServicesRepositoryTest() {
             password = "a password",
             note = "Some very long notes",
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
             score = 1.0
@@ -60,7 +61,7 @@ class ServicesRepositoryTest() {
             password = "a password",
             note = "Some very long notes",
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
             score = 1.0
@@ -83,13 +84,13 @@ class ServicesRepositoryTest() {
             password = "a password",
             note = "Some very long notes",
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
             score = 1.0
         )
         val result = servicesRepository.store(service)
-        await.atMost(Duration.ofSeconds(5)).untilAsserted {
+        await.atMost(5.seconds.toJavaDuration()).untilAsserted {
             runBlocking {
                 val list = servicesRepository.history("", false, user)
                 assertThat(list, isEmpty.not())
@@ -107,12 +108,12 @@ class ServicesRepositoryTest() {
             password = "a password",
             note = "Some very long notes",
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
             score = 1.0
         )
-        val storedService = servicesRepository.store(service)
+        servicesRepository.store(service)
         val result = servicesRepository.search(user, "", "Tag")
         assertThat(result, isEmpty.not())
         assertThat(result[0].service, equalTo("Test service"))
@@ -126,7 +127,7 @@ class ServicesRepositoryTest() {
             password = "a password",
             note = "Some very long notes",
             dirty = true,
-            updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
             score = 1.0
