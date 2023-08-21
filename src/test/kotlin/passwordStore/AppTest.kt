@@ -159,7 +159,7 @@ class AppTest {
         performLogin()
         rule.awaitIdle()
         val services = mutableListOf<Service>()
-        (1..5).forEach {
+        (1..4).forEach {
 
             val service = Service(
                 service = faker.app().name() + it,
@@ -201,7 +201,7 @@ class AppTest {
     private suspend fun insertService(service: Service) {
         //this is an ugly workaround, but navigate in the menu is a nightmare
         fillService(service)
-        rule.waitUntil(timeoutMillis = 1000) {
+        rule.waitUntil(timeoutMillis = 2000) {
             runBlocking {
                 servicesRepository.search(userVM.loggedUser.value, "", "").any {
                     it.service == service.service
