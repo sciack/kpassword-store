@@ -33,6 +33,9 @@ fun ConfigView() {
     val dbPassword = remember {
         mutableStateOf(TextFieldValue(configVM.dbPassword))
     }
+    val ivSpec = remember {
+        mutableStateOf(TextFieldValue(configVM.ivSpec))
+    }
     val navController by rememberInstance<NavController>()
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -68,6 +71,31 @@ fun ConfigView() {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
                 "Changing the secret could make the database not usable anymore and require a reload of all the data, should be done with an empty database",
+                fontWeight = FontWeight.Light,
+                fontStyle = FontStyle.Italic,
+                style = MaterialTheme.typography.body2
+            )
+        }
+        Spacer(Modifier.height(24.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = ivSpec.value,
+                onValueChange = { value: TextFieldValue ->
+                    val text = if(value.text.length > 16) {
+                        value.text.substring(0 until 16)
+                    } else {
+                        value.text
+                    }
+                    configVM.ivSpec = text
+                    ivSpec.value = value.copy(text)
+                },
+                isError = ivSpec.value.text.toByteArray().size != 16,
+                label = { Text("IV spec string") }
+            )
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "Must be 16 byte string",
                 fontWeight = FontWeight.Light,
                 fontStyle = FontStyle.Italic,
                 style = MaterialTheme.typography.body2
