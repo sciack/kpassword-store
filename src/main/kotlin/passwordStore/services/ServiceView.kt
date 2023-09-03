@@ -44,6 +44,7 @@ import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
+import passwordStore.utils.obfuscate
 import passwordStore.widget.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -207,10 +208,7 @@ fun cell(service: Service, columnIndex: Int) {
     }
 }
 
-private fun String.obfuscate(): String {
-    val numStar = Random.nextInt(this.length / 2, this.length * 2)
-    return "*".repeat(numStar)
-}
+
 
 
 @Composable

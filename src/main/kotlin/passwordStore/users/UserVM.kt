@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import org.kodein.di.DI
+import passwordStore.utils.obfuscate
 import java.security.Principal
 
 class UserVM(private val userRepository: UserRepository, private val coroutineScope: CoroutineScope) {
@@ -60,16 +60,6 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
             }
         }
 
-    suspend fun findUser(userid: String): Result<User> = withContext(Dispatchers.IO) {
-        runCatching {
-            userRepository.findUser(userid)
-        }.onFailure {
-            LOGGER.warn(it) {
-                "Error finding user"
-            }
-        }
-    }
-
     suspend fun updateUser(newUser: EditableUser, principal: Principal): Result<User> = withContext(Dispatchers.Main) {
         runCatching {
             errorMsg.value = ""
@@ -84,10 +74,10 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
         }
     }
 
-    fun submit(di: DI, username: TextFieldValue, password: TextFieldValue): Result<User> {
-        passwordStore.LOGGER.info {
+    fun login(username: TextFieldValue, password: TextFieldValue): Result<User> {
+        LOGGER.info {
             """Username: ${username.text}
-        |Password: ${password.text}
+        |Password: ${password.text.obfuscate()}
     """.trimMargin()
         }
 

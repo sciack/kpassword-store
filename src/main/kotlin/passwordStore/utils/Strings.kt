@@ -1,6 +1,7 @@
 package passwordStore.utils
 
 import java.util.*
+import kotlin.random.Random
 
 
 /** @return lexical similarity value in the range [0,1]
@@ -23,3 +24,7 @@ fun String.distance(to: String): Double {
 fun String.titlecase() =
     this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
+fun String.obfuscate(): String {
+    val numStar = Random.nextInt(this.length / 2, this.length * 2)
+    return "*".repeat(numStar)
+}
