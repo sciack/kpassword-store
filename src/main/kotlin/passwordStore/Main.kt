@@ -282,6 +282,25 @@ fun drawer(navController: NavController) {
                 }
             )
         }
+        Spacer(Modifier.height(12.dp))
+        Divider(color = Color.LightGray, thickness = 1.dp)
+        Spacer(Modifier.height(12.dp))
+        Row {
+            MenuItem(
+                onClick = {
+                    navController.navigate(Screen.ConfigureApp)
+                },
+                title = "Configure",
+                testTag = "Configure App",
+                icon = {
+                    Icon(
+                        Icons.Default.Settings,
+                        "Configure App"
+                    )
+                }
+            )
+        }
+        Spacer(Modifier.height(12.dp))
     }
     Divider(color = Color.LightGray, thickness = 1.dp)
     Spacer(Modifier.height(12.dp))
@@ -310,8 +329,8 @@ private fun configureLog(): KLogger {
 }
 
 fun main() {
-    configureEnvironment()
-    val di = di()
+    val configFile = configureEnvironment()
+    val di = di(configFile)
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
 

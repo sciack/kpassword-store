@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
+import passwordStore.config.ConfigView
 import passwordStore.navigation.NavController
 import passwordStore.navigation.NavigationHost
 import passwordStore.navigation.authenticatedComposable
@@ -69,6 +70,14 @@ sealed interface Screen {
     object CreateUser : Screen {
         override val name: String
             get() = "Create User"
+
+        override val allowBack: Boolean
+            get() = true
+    }
+
+    object ConfigureApp : Screen {
+        override val name: String
+            get() = "Configure"
 
         override val allowBack: Boolean
             get() = true
@@ -145,6 +154,8 @@ fun route(navController: NavController) {
         authenticatedComposable(Screen.CreateUser) {
             createUser()
         }
-
+        authenticatedComposable(Screen.ConfigureApp) {
+            ConfigView()
+        }
     }.build()
 }

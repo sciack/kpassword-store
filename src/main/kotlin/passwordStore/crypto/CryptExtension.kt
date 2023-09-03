@@ -29,9 +29,7 @@ package passwordStore.crypto
 import mu.KotlinLogging
 import org.apache.commons.codec.binary.Hex
 import org.jasypt.util.password.StrongPasswordEncryptor
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.singleton
+import org.kodein.di.*
 import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
@@ -79,17 +77,27 @@ class CryptExtension(private var secrets: Secrets) {
 
 
 val prodCryptExtension = DI.Module("prodCryptoExtension") {
+    bind<Secrets> {
+        provider {
+            SecretsFactory("prod").secrets()
+        }
+    }
     bind<CryptExtension> {
         singleton {
-            CryptExtension(SecretsFactory("prod").secrets())
+            CryptExtension(instance())
         }
     }
 }
 
 val devCryptExtension = DI.Module("devCryptoExtension") {
+    bind<Secrets> {
+        provider {
+            SecretsFactory("dev").secrets()
+        }
+    }
     bind<CryptExtension> {
         singleton {
-            CryptExtension(SecretsFactory("dev").secrets())
+            CryptExtension(instance())
         }
     }
 }
