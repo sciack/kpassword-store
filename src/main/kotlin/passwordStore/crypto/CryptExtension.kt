@@ -31,7 +31,9 @@ import org.apache.commons.codec.binary.Hex
 import org.jasypt.util.password.StrongPasswordEncryptor
 import org.kodein.di.*
 import java.security.MessageDigest
+import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 
@@ -39,7 +41,8 @@ class CryptExtension(private var secrets: Secrets) {
     companion object {
         private val LOGGER = KotlinLogging.logger { }
         private val encryptor = StrongPasswordEncryptor()
-        private const val algorithm = "AES/ECB/PKCS5Padding"
+
+        private const val algorithm = "AES/CBC/PKCS5Padding"
         fun String.hash(): String = encryptor.encryptPassword(this)
         fun String.verify(password: String): Boolean = encryptor.checkPassword(password, this)
 
@@ -58,10 +61,14 @@ class CryptExtension(private var secrets: Secrets) {
         SecretKeySpec(digest.digest(), 0, 16, "AES")
     }
 
+    private val paramSpec: AlgorithmParameterSpec by lazy {
+        IvParameterSpec(secrets.ivString())
+    }
+
     fun decrypt(string: String) =
         try {
             val cipher = Cipher.getInstance(algorithm)
-            cipher.init(Cipher.DECRYPT_MODE, key)
+            cipher.init(Cipher.DECRYPT_MODE, key, paramSpec)
             String(cipher.doFinal(Hex.decodeHex(string.toCharArray())))
         } catch (e: Exception) {
             LOGGER.warn("Unable to decrypt instance: $e", e)
@@ -70,7 +77,7 @@ class CryptExtension(private var secrets: Secrets) {
 
     fun crypt(string: String): String {
         val cipher = Cipher.getInstance(algorithm)
-        cipher.init(Cipher.ENCRYPT_MODE, key)
+        cipher.init(Cipher.ENCRYPT_MODE, key, paramSpec)
         return Hex.encodeHexString(cipher.doFinal(string.toByteArray()))
     }
 }
