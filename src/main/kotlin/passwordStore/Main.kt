@@ -36,6 +36,7 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import org.slf4j.bridge.SLF4JBridgeHandler
+import passwordStore.config.MODE
 import passwordStore.config.getMode
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
@@ -100,7 +101,10 @@ fun app() {
                     }
                 }, title = {
                     Spacer(modifier = Modifier.width(24.dp))
-                    Text("Password Store - ${getMode()}")
+                    Text("Password Store")
+                    if (getMode() == MODE.TEST) {
+                        Text(" - ${getMode()}")
+                    }
                     Spacer(modifier = Modifier.width(24.dp))
                     if (currentUser.value.id > 0) {
                         Text(currentUser.value.fullName)
@@ -329,7 +333,7 @@ private fun configureLog(): KLogger {
 fun main() {
     LOGGER.warn {
         """
-            Starting KPassword Store
+            Starting KPassword Store - ${getMode()}
             Using JVM: ${System.getProperty("java.version")} - ${System.getProperty("java.vendor")}
         """.trimIndent()
     }
@@ -346,7 +350,13 @@ fun main() {
             onCloseRequest = {
                 exitApplication()
             },
-            title = "Password Store - ${getMode()}",
+            title = buildString {
+                append("Password Store")
+                if (getMode() == MODE.TEST) {
+                    append(" - ")
+                    append(getMode())
+                }
+            },
             state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
             LOGGER.info { "Building the app" }

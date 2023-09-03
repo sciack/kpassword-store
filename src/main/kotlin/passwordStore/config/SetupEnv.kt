@@ -34,7 +34,7 @@ object SetupEnv {
 fun configureEnvironment(): Path {
     val mode = getMode()
 
-    val configFile = if (mode == "PROD") {
+    val configFile = if (mode == MODE.PROD) {
         val dir = configDir()
         dir.createDirectories()
         dir.resolve("config.properties").also { path ->
@@ -53,7 +53,14 @@ fun configureEnvironment(): Path {
     return configFile
 }
 
-fun getMode(): String = System.getProperty("kpassword-store.mode", "TEST")
+fun getMode(): MODE {
+    val mode = System.getProperty("kpassword-store.mode", "TEST")
+    return MODE.valueOf(mode)
+}
+
+enum class MODE {
+    PROD, TEST
+}
 
 fun configDir(): Path {
     val os = Platform.os()
