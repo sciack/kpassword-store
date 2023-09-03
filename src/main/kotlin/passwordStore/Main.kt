@@ -329,10 +329,15 @@ private fun configureLog(): KLogger {
 }
 
 fun main() {
+
+
     val configFile = configureEnvironment()
     val di = di(configFile)
     val datasource by di.instance<DataSource>()
     Migration(datasource).migrate()
+    LOGGER.warn {
+        "Using JVM: ${System.getProperty("java.version")} - ${System.getProperty("java.vendor")}"
+    }
 
     application(exitProcessOnExit = true) {
         val coroutineScope = rememberCoroutineScope()

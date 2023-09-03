@@ -61,7 +61,7 @@ dependencies {
     implementation("org.jasypt:jasypt:1.9.3")
     implementation("commons-codec:commons-codec:1.15")
     implementation("com.h2database:h2:2.2.222")
-    implementation("org.flywaydb:flyway-core:9.21.0")
+    implementation("org.flywaydb:flyway-core:9.22.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")
     implementation("org.apache.commons:commons-csv:1.10.0")
@@ -72,10 +72,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.7.0-Beta")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.7.3")
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }
