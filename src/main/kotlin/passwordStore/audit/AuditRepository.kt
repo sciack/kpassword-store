@@ -43,7 +43,6 @@ class AuditRepository(
     private val cryptExtension: CryptExtension
 ) {
 
-
     internal fun track(event: Event) {
         ds.saveOrUpdate(""" insert into services_hist
               (service, username, password, note, lastUpdate, userid, operation, operation_date, tags)

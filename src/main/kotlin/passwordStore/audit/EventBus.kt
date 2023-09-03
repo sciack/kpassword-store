@@ -5,7 +5,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import java.util.concurrent.CopyOnWriteArrayList
 
-class EventBus(private val coroutineScope: CoroutineScope) {
+class EventBus(coroutineScope: CoroutineScope) {
 
     private val channel = Channel<AuditMessage>(capacity = 100)
 

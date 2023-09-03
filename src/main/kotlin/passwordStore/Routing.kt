@@ -89,7 +89,6 @@ fun route(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val serviceModel by rememberInstance<ServiceVM>()
     val userVM by rememberInstance<UserVM>()
-    val di = localDI()
     val user = remember {
         mutableStateOf<User?>(null)
     }
@@ -98,7 +97,7 @@ fun route(navController: NavController) {
         composable(Screen.Login) {
 
             loginPane(loginFunction = { currentUsername, pwd ->
-                userVM.submit(di, currentUsername, pwd).onSuccess {
+                userVM.login(currentUsername, pwd).onSuccess {
                     user.value = it
                     userVM.loggedUser.value = it
                     navController.navigate(Screen.List)

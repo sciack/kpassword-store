@@ -56,9 +56,9 @@ class ServicesRepository(
     private val cryptExtension: CryptExtension
 ) {
 
-    fun String.decrypt() = cryptExtension.decrypt(this)
+    private fun String.decrypt() = cryptExtension.decrypt(this)
 
-    fun String.crypt() = cryptExtension.crypt(this)
+    private fun String.crypt() = cryptExtension.crypt(this)
 
     private fun asService(rs: ResultSet, mode: Mode = Mode.FETCH): Service {
         val tags = when (mode) {
@@ -284,10 +284,10 @@ class ServicesRepository(
             } else {
                 1.0
             }
-            LOGGER.debug("Service $ev has score $rate")
+            LOGGER.debug { "Service $ev has score $rate" }
             ev.copy(service = ev.service.copy(score = rate))
         }.filter { ev ->
-            LOGGER.debug("Filtering event $ev")
+            LOGGER.debug { "Filtering event $ev" }
             ev.service.score >= 0.5
         }.sortedWith { ev1, ev2 ->
             val result = ev2.service.score.compareTo(ev1.service.score)
@@ -300,7 +300,7 @@ class ServicesRepository(
     }
 
     private fun exactMatchResult(user: User, servPattern: String): List<Event> {
-        LOGGER.info("Querying exact service $servPattern for $user")
+        LOGGER.info { "Querying exact service $servPattern for $user" }
         return datasource.query(
             """ select * from services_hist h
                 where service = :service

@@ -197,7 +197,7 @@ private fun ColumnScope.userFields(
             Column {
                 Text("Roles:")
 
-                Roles.values().forEach { role ->
+                Roles.entries.forEach { role ->
                     Row {
                         Checkbox(checked = user.value.roles.contains(role),
                             onCheckedChange = { value ->
