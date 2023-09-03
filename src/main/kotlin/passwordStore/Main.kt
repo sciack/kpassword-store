@@ -27,7 +27,6 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import mu.KLogger
 import mu.KotlinLogging
@@ -37,21 +36,18 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import org.slf4j.bridge.SLF4JBridgeHandler
-import passwordStore.config.configureEnvironment
 import passwordStore.config.getMode
 import passwordStore.navigation.NavController
 import passwordStore.navigation.rememberNavController
 import passwordStore.services.download
 import passwordStore.services.upload
-import passwordStore.sql.Migration
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
-import javax.sql.DataSource
 import kotlin.system.exitProcess
 
 @Composable
 @Preview
-fun app(di: DI) = withDI(di) {
+fun app() {
 
     val navController by rememberNavController()
 
@@ -69,7 +65,9 @@ fun app(di: DI) = withDI(di) {
         }
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        typography = Typography()
+    ) {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             scaffoldState = StatusHolder.scaffoldState,
             topBar = {
@@ -329,24 +327,20 @@ private fun configureLog(): KLogger {
 }
 
 fun main() {
-
-
-    val configFile = configureEnvironment()
-    val di = di(configFile)
-    val datasource by di.instance<DataSource>()
-    Migration(datasource).migrate()
     LOGGER.warn {
-        "Using JVM: ${System.getProperty("java.version")} - ${System.getProperty("java.vendor")}"
+        """
+            Starting KPassword Store
+            Using JVM: ${System.getProperty("java.version")} - ${System.getProperty("java.vendor")}
+        """.trimIndent()
     }
-
+    val di = di()
+    val datasource by di.instance<HikariDataSource>()
+    Runtime.getRuntime().addShutdownHook(object : Thread() {
+        override fun run() {
+            datasource.close()
+        }
+    })
     application(exitProcessOnExit = true) {
-        val coroutineScope = rememberCoroutineScope()
-        Runtime.getRuntime().addShutdownHook(object : Thread() {
-            override fun run() {
-                (datasource as HikariDataSource).close()
-                coroutineScope.cancel("Shutdown")
-            }
-        })
         Window(
             icon = painterResource("/icons/lockoverlay.png"),
             onCloseRequest = {
@@ -356,7 +350,9 @@ fun main() {
             state = rememberWindowState(width = 1024.dp, height = 768.dp)
         ) {
             LOGGER.info { "Building the app" }
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
     }
 }

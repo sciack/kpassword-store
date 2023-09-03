@@ -11,14 +11,14 @@ import org.kodein.di.instance
 import org.kodein.di.singleton
 import passwordStore.audit.auditModule
 import passwordStore.config.ConfigVM
+import passwordStore.config.configureEnvironment
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.navigation.navigation
 import passwordStore.services.services
+import passwordStore.sql.Migration
 import passwordStore.sql.prodDatasource
 import passwordStore.tags.tagModule
 import passwordStore.users.userModule
-import java.nio.file.Path
-import javax.sql.DataSource
 
 fun diCore(): DI.Module = DI.Module("core") {
 
@@ -35,7 +35,8 @@ fun diCore(): DI.Module = DI.Module("core") {
 }
 
 
-fun di(configFile: Path) = DI {
+fun di() = DI {
+    val configFile = configureEnvironment()
     import(diCore())
     import(prodCryptExtension)
     bind<Clock> {
@@ -45,7 +46,9 @@ fun di(configFile: Path) = DI {
     }
     bind<HikariDataSource> {
         singleton {
-            prodDatasource()
+            val ds = prodDatasource()
+            Migration(ds).migrate()
+            ds
         }
     }
     bind<ConfigVM> {
