@@ -3,8 +3,8 @@ import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.5.0-beta02"
+    kotlin("jvm") version "1.9.0"
+    id("org.jetbrains.compose") version "1.5.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
     id("com.github.jmongard.git-semver-plugin") version "0.4.2"
@@ -67,8 +67,8 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.slf4j:jul-to-slf4j:2.0.5")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.8.20-RC")
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.20-RC")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.8.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")

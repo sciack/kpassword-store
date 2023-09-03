@@ -8,12 +8,12 @@ interface Secrets {
 }
 
 private class PropsSecret : Secrets {
-    private val passfrase by lazy {
-        System.getProperty("secret")
+    private val passphrase by lazy {
+        System.getProperty(SECRET_KEY)
     }
 
     override fun passphrase(): ByteArray {
-        return Base64.decodeBase64(passfrase)
+        return Base64.decodeBase64(passphrase)
     }
 }
 
@@ -33,3 +33,5 @@ class SecretsFactory(private val runtime: String = "") {
         }
     }
 }
+
+const val SECRET_KEY="secret"

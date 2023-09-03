@@ -16,7 +16,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 
-fun testDatasource(): DataSource {
+fun testDatasource(): HikariDataSource {
     val hikariConfig = HikariConfig("/db_test.properties")
     return HikariDataSource(hikariConfig)
 }

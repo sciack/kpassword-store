@@ -31,7 +31,7 @@ object SetupEnv {
 
 }
 
-fun configureEnvironment() {
+fun configureEnvironment(): Path {
     val mode = getMode()
 
     val configFile = if (mode == "PROD") {
@@ -50,6 +50,7 @@ fun configureEnvironment() {
     }
     LOGGER.info { "Reading configuration for file ${configFile.toAbsolutePath()}" }
     SetupEnv.configure(configFile)
+    return configFile
 }
 
 fun getMode(): String = System.getProperty("kpassword-store.mode", "TEST")
