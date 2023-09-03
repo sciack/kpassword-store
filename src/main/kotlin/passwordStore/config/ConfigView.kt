@@ -39,6 +39,7 @@ fun ConfigView() {
             OutlinedTextField(
                 value = jdbc.value,
                 onValueChange = { value: TextFieldValue ->
+                    configVM.jdbcUrl = value.text
                     jdbc.value = value
                 },
                 label = { Text("Jdbc Url") }
@@ -48,6 +49,7 @@ fun ConfigView() {
             OutlinedTextField(
                 value = dbPassword.value,
                 onValueChange = { value: TextFieldValue ->
+                    configVM.dbPassword = value.text
                     dbPassword.value = value
                 },
                 label = { Text("Database Password") }
@@ -57,6 +59,7 @@ fun ConfigView() {
             OutlinedTextField(
                 value = secret.value,
                 onValueChange = { value: TextFieldValue ->
+                    configVM.secret = value.text
                     secret.value = value
                 },
                 label = { Text("Secret") }
@@ -83,6 +86,14 @@ fun ConfigView() {
                 }
             ) {
                 Text("Save")
+            }
+            Spacer(Modifier.width(16.dp))
+            Button(
+                onClick = {
+                    navController.navigateBack()
+                }
+            ) {
+                Text("Cancel")
             }
         }
 
