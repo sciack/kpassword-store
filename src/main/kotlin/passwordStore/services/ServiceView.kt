@@ -49,7 +49,6 @@ import passwordStore.widget.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.writer
-import kotlin.random.Random
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -207,8 +206,6 @@ fun cell(service: Service, columnIndex: Int) {
         }
     }
 }
-
-
 
 
 @Composable
@@ -384,7 +381,7 @@ fun searchField() {
     )
 }
 
-suspend fun upload(di:DI) {
+suspend fun upload(di: DI) {
     withContext(Dispatchers.Main) {
         val serviceVM by di.instance<ServiceVM>()
         val home = System.getProperty("user.home")
@@ -392,7 +389,7 @@ suspend fun upload(di:DI) {
         fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
         fileChooser.showOpenDialog(null).let { result ->
             if (result == JFileChooser.APPROVE_OPTION) {
-                val path = fileChooser.selectedFile.toPath()
+                val path = fileChooser.selectedPath()
                 withContext(Dispatchers.IO) {
                     withContext(Dispatchers.Main) {
                         StatusHolder.closeDrawer()
@@ -412,13 +409,22 @@ suspend fun upload(di:DI) {
 
 fun CoroutineScope.download(di: DI) {
     val exportPath = exportPath()
-    LOGGER.warn { "Writing in directory: $exportPath" }
-
-    launch(Dispatchers.IO) {
-        StatusHolder.closeDrawer()
-        exportPath.writer().use {
-            it.performDownload(di)
+    val fileChooser = JFileChooser(exportPath.toFile())
+    fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
+    fileChooser.showSaveDialog(null).let { result ->
+        if (result == JFileChooser.APPROVE_OPTION) {
+            val path = fileChooser.selectedPath()
+            launch(Dispatchers.IO) {
+                LOGGER.info { "Writing in directory: $path" }
+                StatusHolder.closeDrawer()
+                path.writer().use {
+                    it.performDownload(di)
+                }
+                StatusHolder.sendMessage("Download completed: ${path}")
+            }
         }
-        StatusHolder.sendMessage("Download completed")
+
     }
 }
+
+private fun JFileChooser.selectedPath() = selectedFile.toPath()

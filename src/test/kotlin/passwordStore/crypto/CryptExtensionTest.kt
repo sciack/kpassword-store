@@ -16,6 +16,7 @@ internal class CryptExtensionTest {
         val secrets = mockk<Secrets>()
         crypto = CryptExtension(secrets)
         every { secrets.passphrase() } returns "TestPassphrase".toByteArray()
+        every { secrets.ivString() } returns "IV String if 16B".toByteArray().slice(0 until 16).toByteArray()
 
     }
 
