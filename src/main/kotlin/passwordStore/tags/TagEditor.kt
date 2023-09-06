@@ -1,5 +1,6 @@
 package passwordStore.tags
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -12,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -39,10 +41,12 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                         "Delete",
                     )
                 },
-                    colors = ChipDefaults.outlinedChipColors()
+                    colors = ChipDefaults.outlinedChipColors(),
+                    border = BorderStroke(1.dp, Color.Blue)
                 ) {
                     Text(value)
                 }
+                Spacer(Modifier.width(4.dp))
             }
         }
         Spacer(Modifier.height(10.dp))
@@ -68,6 +72,32 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
         )
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun TagViewer(tags: MutableState<Set<String>>) {
+
+    Column(Modifier.fillMaxWidth()) {
+        FlowRow(
+            maxItemsInEachRow = 10,
+            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).focusable(false),
+
+            ) {
+            tags.value.forEach { value ->
+                Chip(
+                    onClick = {},
+                    colors = ChipDefaults.outlinedChipColors(),
+                    border = BorderStroke(1.dp, Color.Blue)
+                ) {
+                    Text(value)
+                }
+                Spacer(Modifier.width(4.dp))
+            }
+        }
+
+    }
+}
+
 
 private fun assignTag(
     tags: MutableState<Set<String>>,

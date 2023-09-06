@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
+import passwordStore.tags.TagViewer
 import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
@@ -59,6 +61,10 @@ fun servicesTable() {
 
     val services = remember {
         serviceModel.services
+    }
+
+    val editService = remember {
+        mutableStateOf(false)
     }
 
     val selectedService = remember {
@@ -102,6 +108,20 @@ fun servicesTable() {
                         }
                         IconButton(
                             onClick = {
+                                editService.value = false
+                                serviceModel.selectService(service)
+                            },
+                            modifier = Modifier.testTag("Edit ${service.service}")
+                        ) {
+                            Icon(
+                                Icons.Default.Info,
+                                "Show",
+
+                                )
+                        }
+                        IconButton(
+                            onClick = {
+                                editService.value = true
                                 serviceModel.selectService(service)
                             },
                             modifier = Modifier.testTag("Edit ${service.service}")
@@ -154,14 +174,22 @@ fun servicesTable() {
                 placeable.place(x, 10)
             }
         }) {
-            newService(onCancel = {
-                coroutineScope.launch {
-                    serviceModel.resetService()
+            if(editService.value) {
+                newService(onCancel = {
+                    coroutineScope.launch {
+                        serviceModel.resetService()
+                    }
+                }) { service ->
+                    coroutineScope.launch {
+                        if (service.dirty) {
+                            serviceModel.update(service)
+                        }
+                    }
                 }
-            }) { service ->
-                coroutineScope.launch {
-                    if (service.dirty) {
-                        serviceModel.update(service)
+            } else {
+                showService {
+                    coroutineScope.launch {
+                        serviceModel.resetService()
                     }
                 }
             }
@@ -353,6 +381,83 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     }
 }
 
+
+@Composable
+fun showService(onClose: () -> Unit) {
+    val serviceModel by rememberInstance<ServiceVM>()
+    val userVM by rememberInstance<UserVM>()
+    val service = remember {
+        serviceModel.selectedService
+    }
+    val tags = remember {
+        mutableStateOf(serviceModel.selectedService.value.tags.toSet())
+    }
+
+    val clock: Clock by localDI().instance()
+
+    tags.value = serviceModel.selectedService.value.tags.toSet()
+    Row(Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.width(600.dp)) {
+            OutlinedTextField(
+                label = { Text("Service") },
+                onValueChange = { },
+                readOnly = true,
+                value = service.value.service,
+                modifier = Modifier.fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .testTag("service"),
+                singleLine = true,
+            )
+
+            TagViewer(tags)
+
+            OutlinedTextField(
+                label = { Text("Username") },
+                value = service.value.username,
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .testTag("username"),
+                singleLine = true,
+                readOnly = true
+            )
+
+            OutlinedTextField(
+                label = { Text("Password") },
+                value = service.value.password,
+                onValueChange = {
+                },
+                trailingIcon = {
+                },
+                modifier = Modifier.fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+                    .testTag("password"),
+                singleLine = true,
+                readOnly = true
+            )
+
+            OutlinedTextField(
+                label = { Text("Note") },
+                value = service.value.note,
+                minLines = 5,
+                maxLines = 10,
+                onValueChange = {
+                },
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
+                    .testTag("note"),
+                readOnly = true
+            )
+
+            Row(Modifier.align(Alignment.CenterHorizontally)) {
+                Button(onClick = {
+                    onClose()
+                }) {
+                    Text("Close")
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun searchField() {

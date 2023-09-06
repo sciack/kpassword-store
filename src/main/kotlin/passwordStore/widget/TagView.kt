@@ -2,9 +2,7 @@ package passwordStore.widget
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
@@ -61,6 +59,7 @@ fun tagView() {
             ) {
                 Text(tag)
             }
+            Spacer(Modifier.width(4.dp))
         }
     }
 }
