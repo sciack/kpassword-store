@@ -11,6 +11,7 @@ import kotlinx.datetime.Clock
 import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.junit.Rule
+import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.navigation.NavController
 import passwordStore.services.Service
@@ -60,7 +61,9 @@ class AppTest {
     @Test
     fun shouldShowLogin() = runTest {
         rule.setContent {
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
 
         performLogin()
@@ -71,7 +74,9 @@ class AppTest {
     @Test
     fun shouldShowAnErrorIfLoginFail() = runTest {
         rule.setContent {
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
 
         performLogin("wrong user")
@@ -83,7 +88,9 @@ class AppTest {
     @Test
     fun `should be able to add a service`() = runTest {
         rule.setContent {
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
         rule.awaitIdle()
         performLogin()
@@ -114,7 +121,9 @@ class AppTest {
     @Test
     fun `should throw an error if service is add two times`() = runTest {
         rule.setContent {
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
         rule.awaitIdle()
         performLogin()
@@ -153,7 +162,9 @@ class AppTest {
     @Test
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
         rule.setContent {
-            app(di)
+            withDI(di) {
+                app()
+            }
         }
         rule.awaitIdle()
         performLogin()

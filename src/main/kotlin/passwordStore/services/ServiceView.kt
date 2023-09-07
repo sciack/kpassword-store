@@ -111,7 +111,7 @@ fun servicesTable() {
                                 editService.value = false
                                 serviceModel.selectService(service)
                             },
-                            modifier = Modifier.testTag("Edit ${service.service}")
+                            modifier = Modifier.testTag("Show ${service.service}")
                         ) {
                             Icon(
                                 Icons.Default.Info,
