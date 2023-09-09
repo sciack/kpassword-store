@@ -97,7 +97,7 @@ fun servicesTable() {
                                 editService.value = false
                                 serviceModel.selectService(service)
                             },
-                            modifier = Modifier.testTag("Show ${service.service}")
+                            modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
                         ) {
                             Icon(
                                 Icons.Default.KeyboardArrowRight,
@@ -106,6 +106,7 @@ fun servicesTable() {
 
                             )
                         }
+                        Spacer(Modifier.width(4.dp))
                         IconButton(
                             onClick = {
                                 coroutineScope.launch(Dispatchers.IO) {
@@ -115,7 +116,7 @@ fun servicesTable() {
                                     }
                                 }
                             },
-                            modifier = Modifier.testTag("History ${service.service}")
+                            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
                         ) {
                             Icon(
                                 painterResource("/icons/history.svg"),
@@ -123,13 +124,13 @@ fun servicesTable() {
                                 tint = MaterialTheme.colors.secondary
                             )
                         }
-
+                        Spacer(Modifier.width(4.dp))
                         IconButton(
                             onClick = {
                                 editService.value = true
                                 serviceModel.selectService(service)
                             },
-                            modifier = Modifier.testTag("Edit ${service.service}")
+                            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
                         ) {
                             Icon(
                                 Icons.Default.Edit,
@@ -140,9 +141,10 @@ fun servicesTable() {
                         val showAlert = remember {
                             mutableStateOf(false)
                         }
+                        Spacer(Modifier.width(4.dp))
                         IconButton(
                             onClick = { showAlert.value = true },
-                            modifier = Modifier.testTag("Delete ${service.service}")
+                            modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
                         ) {
                             Icon(
                                 Icons.Default.Delete,

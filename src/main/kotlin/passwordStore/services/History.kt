@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -66,7 +67,7 @@ fun historyTable(historyEvents: List<Event>) {
                                         .onSuccess { navController.navigate(Screen.List) }
                                         .onFailure { showAlert.value = true }
                                 }
-                            }) {
+                            }, modifier = Modifier.align(Alignment.CenterVertically)) {
                                 Icon(painterResource("/icons/undo.svg"), "Restore")
                             }
                             showOk(

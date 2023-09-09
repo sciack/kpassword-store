@@ -1,10 +1,9 @@
 package ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 
 
 private val LightColors = lightColors(
@@ -38,6 +37,7 @@ private val DarkColors = darkColors(
     onSurface = md_theme_dark_onSurface
 )
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AppTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -51,6 +51,9 @@ fun AppTheme(
 
     MaterialTheme(
         colors = colors,
-        content = content
-    )
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+            content()
+        }
+    }
 }
