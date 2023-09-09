@@ -50,21 +50,24 @@ fun configView() {
                     configVM.darkMode.value = DarkModes.LIGHT
                     darkMode.value = DarkModes.LIGHT
                 })
-            Text("Light")
-            Spacer(Modifier.width(16.dp))
+            Text("Light",
+                modifier = Modifier.padding(start = 8.dp, end=16.dp))
+
             RadioButton(darkMode.value == DarkModes.DARK,
                 onClick = {
                     configVM.darkMode.value = DarkModes.DARK
                     darkMode.value = DarkModes.DARK
                 })
-            Text("Dark")
+            Text("Dark",
+                modifier = Modifier.padding(start = 8.dp, end=16.dp))
             Spacer(Modifier.width(16.dp))
             RadioButton(darkMode.value == DarkModes.SYSTEM_DEFAULT,
                 onClick = {
                     configVM.darkMode.value = DarkModes.SYSTEM_DEFAULT
                     darkMode.value = DarkModes.SYSTEM_DEFAULT
                 })
-            Text("System Default")
+            Text("System Default",
+                modifier = Modifier.padding(start = 8.dp, end=16.dp))
         }
         Divider()
         Row(modifier = Modifier.fillMaxWidth()) {

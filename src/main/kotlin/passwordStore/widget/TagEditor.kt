@@ -77,11 +77,11 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun tagViewer(tags: MutableState<Set<String>>) {
+fun tagViewer(tags: MutableState<Set<String>>, tagsPerRow: Int = 10) {
 
     Column(Modifier.fillMaxWidth()) {
         FlowRow(
-            maxItemsInEachRow = 10,
+            maxItemsInEachRow = tagsPerRow,
             modifier = Modifier.fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 .focusable(false)

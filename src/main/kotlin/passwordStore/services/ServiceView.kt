@@ -78,7 +78,7 @@ fun servicesTable() {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(
                 modifier = Modifier.fillMaxSize(),
-                headers = listOf("Service", "Username", "Password", "Note"),
+                headers = listOf("Tags", "Service", "Username", "Password", "Note"),
                 values = services.toList(),
                 cellContent = { columnIndex, service ->
                     cell(service, columnIndex)
@@ -157,8 +157,6 @@ fun servicesTable() {
                                 }
                             }
                         )
-
-
                     }
                 }
             )
@@ -220,10 +218,21 @@ fun cell(service: Service, columnIndex: Int) {
     ) {
         SelectionContainer {
             when (columnIndex) {
-                0 -> Text(service.service)
-                1 -> Text(service.username)
-                2 -> Text(text = service.password.obfuscate())
-                3 -> Text(
+                0 -> {
+                    val tags = service.tags.filterNot(String::isEmpty).toSet()
+                    if(tags.isNotEmpty()) {
+                        tagViewer(
+                            mutableStateOf(tags),
+                            tagsPerRow = 8
+                        )
+                    } else {
+                        Text("")
+                    }
+                }
+                1 -> Text(service.service)
+                2 -> Text(service.username)
+                3 -> Text(text = service.password.obfuscate())
+                4 -> Text(
                     text = service.note,
                     softWrap = true,
                     overflow = TextOverflow.Clip,

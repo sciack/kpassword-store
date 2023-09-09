@@ -26,7 +26,7 @@ fun <T> Table(
     values: List<T>,
     cellContent: @Composable (col: Int, row: T) -> Unit,
     beforeRow: @Composable (row: T) -> Unit = {},
-    columnCount: Int = headers.size
+    columnCount: Int = headers.size,
 ) {
 
     PaginatedDataTable(
