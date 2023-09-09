@@ -1,4 +1,4 @@
-[![KPassword Store](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml/badge.svg)](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml)
+[![KPassword Store - build](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml/badge.svg)](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml)
 
 # Introduction
 
