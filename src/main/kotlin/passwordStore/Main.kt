@@ -126,6 +126,7 @@ fun main() {
                         mutableStateOf(prefix)
                     }
                     AppWindowTitleBar(title = title,
+                        state = state,
                         onMinimize = { state.isMinimized = state.isMinimized.not() },
                         onMaximize = {
                             state.placement =

@@ -15,8 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
+import androidx.compose.ui.window.WindowState
+import passwordStore.utils.logger
 
 
 val MENU_WIDTH = 96.dp
@@ -25,6 +29,7 @@ val APP_BAR_HEIGHT = 24.dp
 @Composable
 fun WindowScope.AppWindowTitleBar(
     title: MutableState<String>,
+    state: WindowState,
     onMinimize: () -> Unit,
     onMaximize: () -> Unit,
     onClose: () -> Unit,
@@ -38,13 +43,25 @@ fun WindowScope.AppWindowTitleBar(
     AppDraggableArea(title)
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.align(Alignment.TopEnd).padding(horizontal = 8.dp)) {
-            IconButton(onClick = onMinimize) {
+            IconButton(onClick = onMinimize,
+                modifier = Modifier.padding(end=8.dp)) {
                 Icon(Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colors.onPrimary)
             }
-            IconButton(onClick = onMaximize) {
-                Icon(Icons.Default.Maximize, "Maximize", tint = MaterialTheme.colors.onPrimary)
+            IconButton(onClick = onMaximize,
+                modifier = Modifier.padding(end=8.dp)) {
+                if (state.placement == WindowPlacement.Maximized) {
+                    Icon(
+                        painterResource("/icons/window-restore.svg"),
+                        "Restore",
+                        tint = MaterialTheme.colors.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(Icons.Default.Maximize, "Windows", tint = MaterialTheme.colors.onPrimary)
+                }
             }
-            IconButton(onClick = onClose) {
+            IconButton(onClick = onClose,
+                modifier = Modifier.padding(end=8.dp)) {
                 Icon(Icons.Default.Close, "Close", tint = MaterialTheme.colors.onPrimary)
             }
         }
