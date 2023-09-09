@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
@@ -21,9 +20,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import passwordStore.navigation.NavController
+import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.XS
+import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XXL
 import passwordStore.utils.StatusHolder
 import passwordStore.widget.Table
-import passwordStore.widget.bottomBorder
 import passwordStore.widget.passwordDialog
 import passwordStore.widget.showOkCancel
 
@@ -65,7 +67,7 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
         userVM.errorMsg
     }
 
-    Column(Modifier.padding(32.dp)) {
+    Column(Modifier.padding(XXL)) {
         userFields(user, dirty, passwordConfirmation)
         if (errorMsg.value.isNotEmpty()) {
             Text(
@@ -76,7 +78,7 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(LARGE))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Button(
                 onClick = {
@@ -95,9 +97,8 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
                 modifier = Modifier.testTag("submit")
             ) {
                 Text("Submit")
-
             }
-            Spacer(Modifier.width(24.dp))
+            Spacer(Modifier.width(XL))
             Button(
                 onClick = {
                     errorMsg.value = ""
@@ -134,7 +135,7 @@ private fun ColumnScope.userFields(
         singleLine = true,
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("fullName")
     )
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(LARGE))
     OutlinedTextField(
         label = {
             Text("Email")
@@ -148,7 +149,7 @@ private fun ColumnScope.userFields(
         singleLine = true,
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("email")
     )
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(LARGE))
     OutlinedTextField(
         label = {
             Text("Password")
@@ -168,8 +169,8 @@ private fun ColumnScope.userFields(
         isError = passwordConfirmation.value.text != user.value.password,
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("password")
     )
-    Spacer(Modifier.height(12.dp))
-    Card(Modifier.Companion.align(Alignment.CenterHorizontally).padding(4.dp)) {
+    Spacer(Modifier.height(LARGE))
+    Card(Modifier.Companion.align(Alignment.CenterHorizontally).padding(XS)) {
         passwordDialog(showPasswordDialog) {
             user.value = user.value.copy(password = it)
             passwordConfirmation.value = TextFieldValue(it)
@@ -191,7 +192,7 @@ private fun ColumnScope.userFields(
         isError = passwordConfirmation.value.text != user.value.password,
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("password-confirmation")
     )
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(LARGE))
     if (userVM.isAdmin()) {
         Row(modifier = Modifier.Companion.align(Alignment.CenterHorizontally)) {
             Column {
@@ -216,7 +217,7 @@ private fun ColumnScope.userFields(
                             fontStyle = FontStyle.Italic,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
-                        Spacer(Modifier.width(16.dp))
+                        Spacer(Modifier.width(LARGE))
                     }
                 }
             }
@@ -230,7 +231,7 @@ private fun ColumnScope.userFields(
                     text = it.name,
                     fontStyle = FontStyle.Italic,
                 )
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(LARGE))
             }
 
         }
@@ -260,7 +261,7 @@ fun createUser() {
         userVM.errorMsg
     }
 
-    Column(Modifier.padding(32.dp)) {
+    Column(Modifier.padding(XXL)) {
         OutlinedTextField(
             value = user.value.userid,
             onValueChange = { value ->
@@ -269,9 +270,9 @@ fun createUser() {
             },
             singleLine = true
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(LARGE))
         userFields(user, dirty, passwordConfirmation)
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(LARGE))
         if (errorMsg.value.isNotEmpty()) {
             Text(
                 errorMsg.value,
@@ -298,7 +299,7 @@ fun createUser() {
                 Text("Submit")
 
             }
-            Spacer(Modifier.width(24.dp))
+            Spacer(Modifier.width(XL))
             Button(
                 onClick = {
                     errorMsg.value = ""
@@ -324,7 +325,7 @@ fun users() {
         mutableStateOf(EditableUser())
     }
 
-    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(LARGE)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(
                 modifier = Modifier.fillMaxSize(),

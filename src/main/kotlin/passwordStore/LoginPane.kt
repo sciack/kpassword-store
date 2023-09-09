@@ -1,9 +1,7 @@
 package passwordStore
 
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
@@ -22,6 +20,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import passwordStore.ui.theme.MEDIUM
 import passwordStore.users.User
 
 typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
@@ -66,6 +65,7 @@ fun loginPane(loginFunction: LoginFunction) {
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )
         }
+        Spacer(Modifier.width(MEDIUM))
         Button(
             onClick = {
                 coroutineScope.launch {

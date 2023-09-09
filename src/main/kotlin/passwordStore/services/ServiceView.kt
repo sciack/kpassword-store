@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
@@ -40,6 +39,10 @@ import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
+import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XS
+import passwordStore.ui.theme.XL
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -68,13 +71,13 @@ fun servicesTable() {
     }
 
 
-    Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+    Column(modifier = Modifier.padding(LARGE).fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField()
-            Spacer(Modifier.width(20.dp))
+            Spacer(Modifier.width(XL))
             tagView()
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(LARGE))
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(
                 modifier = Modifier.fillMaxSize(),
@@ -97,103 +100,103 @@ fun servicesTable() {
                                 "Show",
                                 tint = MaterialTheme.colors.secondary
 
-                            )
-                        }
-                        Spacer(Modifier.width(4.dp))
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch(Dispatchers.IO) {
-                                    serviceModel.history(service.service, true)
-                                    withContext(Dispatchers.Main) {
-                                        navController.navigate(Screen.History)
-                                    }
-                                }
-                            },
-                            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                painterResource("/icons/history.svg"),
-                                "History",
-                                tint = MaterialTheme.colors.secondary
-                            )
-                        }
-                        Spacer(Modifier.width(4.dp))
-                        IconButton(
-                            onClick = {
-                                editService.value = true
-                                serviceModel.selectService(service)
-                            },
-                            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.Edit,
-                                "Edit",
-                                tint = MaterialTheme.colors.secondary
-                            )
-                        }
-                        val showAlert = remember {
-                            mutableStateOf(false)
-                        }
-                        Spacer(Modifier.width(4.dp))
-                        IconButton(
-                            onClick = { showAlert.value = true },
-                            modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.Delete,
-                                "Delete",
-                                tint = MaterialTheme.colors.error
-
-                            )
-                        }
-
-                        showOkCancel(
-                            title = "Delete confirmation",
-                            message = "Do you want to delete service ${service.service}?",
-                            showAlert,
-                            onConfirm = {
-                                coroutineScope.launch(Dispatchers.IO) {
-                                    serviceModel.delete(service)
-                                }
+                    )
+                }
+                Spacer(Modifier.width(XS))
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            serviceModel.history(service.service, true)
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(Screen.History)
                             }
-                        )
-                    }
+                        }
+                    },
+                    modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        painterResource("/icons/history.svg"),
+                        "History",
+                        tint = MaterialTheme.colors.secondary
+                    )
                 }
-            )
-        }
-    }
+                Spacer(Modifier.width(XS))
+                IconButton(
+                    onClick = {
+                        editService.value = true
+                        serviceModel.selectService(service)
+                    },
+                    modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        "Edit",
+                        tint = MaterialTheme.colors.secondary
+                    )
+                }
+                val showAlert = remember {
+                    mutableStateOf(false)
+                }
+                Spacer(Modifier.width(XS))
+                IconButton(
+                    onClick = { showAlert.value = true },
+                    modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        "Delete",
+                        tint = MaterialTheme.colors.error
 
+                    )
+                }
 
-    if (selectedService.value.service.isNotEmpty()) {
-        Card(modifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            val maxWidth = constraints.maxWidth
-            val x = (maxWidth - placeable.width).coerceAtLeast(0)
-            layout(width = placeable.width, height = placeable.height) {
-                placeable.place(x, 10)
-            }
-        }) {
-            if (editService.value) {
-                newService(onCancel = {
-                    coroutineScope.launch {
-                        serviceModel.resetService()
-                    }
-                }) { service ->
-                    coroutineScope.launch {
-                        if (service.dirty) {
-                            serviceModel.update(service)
+                showOkCancel(
+                    title = "Delete confirmation",
+                    message = "Do you want to delete service ${service.service}?",
+                    showAlert,
+                    onConfirm = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            serviceModel.delete(service)
                         }
                     }
+                )
+            }
+        }
+        )
+    }
+}
+
+
+if (selectedService.value .service.isNotEmpty()) {
+    Card(modifier = Modifier.layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        val maxWidth = constraints.maxWidth
+        val x = (maxWidth - placeable.width).coerceAtLeast(0)
+        layout(width = placeable.width, height = placeable.height) {
+            placeable.place(x, 10)
+        }
+    }) {
+        if (editService.value) {
+            newService(onCancel = {
+                coroutineScope.launch {
+                    serviceModel.resetService()
                 }
-            } else {
-                showService {
-                    coroutineScope.launch {
-                        serviceModel.resetService()
+            }) { service ->
+                coroutineScope.launch {
+                    if (service.dirty) {
+                        serviceModel.update(service)
                     }
+                }
+            }
+        } else {
+            showService {
+                coroutineScope.launch {
+                    serviceModel.resetService()
                 }
             }
         }
     }
+}
 
 }
 
@@ -220,7 +223,7 @@ fun cell(service: Service, columnIndex: Int) {
             when (columnIndex) {
                 0 -> {
                     val tags = service.tags.filterNot(String::isEmpty).toSet()
-                    if(tags.isNotEmpty()) {
+                    if (tags.isNotEmpty()) {
                         tagViewer(
                             mutableStateOf(tags),
                             tagsPerRow = 8
@@ -229,6 +232,7 @@ fun cell(service: Service, columnIndex: Int) {
                         Text("")
                     }
                 }
+
                 1 -> Text(service.service)
                 2 -> Text(service.username)
                 3 -> Text(text = service.password.obfuscate())
@@ -271,7 +275,7 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val clock: Clock by localDI().instance()
 
     tags.value = serviceModel.selectedService.value.tags.toSet()
-    Row(Modifier.padding(16.dp)) {
+    Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
                 label = { Text("Service") },
@@ -358,7 +362,7 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
                     )
                 }
             }
-            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)) {
+            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = SMALL)) {
                 Button(
                     modifier = Modifier.testTag("submit"),
                     enabled = dirty.value,
@@ -379,7 +383,7 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
                 ) {
                     Text("Submit")
                 }
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(SMALL))
                 Button(onClick = {
                     onCancel()
                 }) {
@@ -405,7 +409,7 @@ fun showService(onClose: () -> Unit) {
     val clock: Clock by localDI().instance()
 
     tags.value = serviceModel.selectedService.value.tags.toSet()
-    Row(Modifier.padding(16.dp)) {
+    Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
                 label = { Text("Service") },
@@ -457,7 +461,7 @@ fun showService(onClose: () -> Unit) {
                 readOnly = true
             )
 
-            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)) {
+            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = SMALL)) {
                 Button(onClick = {
                     onClose()
                 }) {

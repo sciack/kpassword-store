@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import passwordStore.ui.theme.XS
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -30,7 +31,7 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
             modifier = Modifier.fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 .focusable(false)
-                .padding(top = 4.dp, bottom = 4.dp),
+                .padding(top = XS, bottom = XS),
 
             ) {
             tags.value.forEach { value ->
@@ -45,7 +46,7 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                 },
                     colors = ChipDefaults.outlinedChipColors(),
                     border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                    modifier = Modifier.padding(top = 4.dp, start = 0.dp, end = 4.dp)
+                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS)
                 ) {
                     Text(value)
                 }
@@ -85,7 +86,7 @@ fun tagViewer(tags: MutableState<Set<String>>, tagsPerRow: Int = 10) {
             modifier = Modifier.fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 .focusable(false)
-                .padding(top = 4.dp, bottom = 4.dp),
+                .padding(top = XS, bottom = XS),
 
             ) {
             tags.value.forEach { value ->
@@ -93,11 +94,11 @@ fun tagViewer(tags: MutableState<Set<String>>, tagsPerRow: Int = 10) {
                     onClick = {},
                     colors = ChipDefaults.outlinedChipColors(),
                     border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                    modifier = Modifier.padding(top = 4.dp, start = 0.dp, end = 4.dp)
+                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS)
                 ) {
                     Text(value)
                 }
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(XS))
             }
         }
 

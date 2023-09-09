@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
 
 
 private val LightColors = lightColors(
@@ -60,3 +61,10 @@ fun appTheme(
         )
     }
 }
+
+val XS = 4.dp
+val SMALL = 8.dp
+val MEDIUM = 12.dp
+val LARGE = 16.dp
+val XL = 24.dp
+val XXL = 32.dp

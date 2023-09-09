@@ -20,10 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
+import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
 
 
 val MENU_WIDTH = 96.dp
-val APP_BAR_HEIGHT = 24.dp
+val APP_BAR_HEIGHT = XL
 
 @Composable
 fun WindowScope.AppWindowTitleBar(
@@ -41,23 +43,23 @@ fun WindowScope.AppWindowTitleBar(
     }
     AppDraggableArea(title)
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.align(Alignment.TopEnd).padding(horizontal = 8.dp)) {
+        Row(Modifier.align(Alignment.TopEnd).padding(horizontal = SMALL)) {
             IconButton(
                 onClick = onMinimize,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = SMALL)
             ) {
                 Icon(Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colors.onPrimary)
             }
             IconButton(
                 onClick = onMaximize,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = SMALL)
             ) {
                 if (state.placement == WindowPlacement.Maximized) {
                     Icon(
                         painterResource("/icons/window-restore.svg"),
                         "Restore",
                         tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(XL)
                     )
                 } else {
                     Icon(Icons.Default.Maximize, "Windows", tint = MaterialTheme.colors.onPrimary)
@@ -65,7 +67,7 @@ fun WindowScope.AppWindowTitleBar(
             }
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = SMALL)
             ) {
                 Icon(Icons.Default.Close, "Close", tint = MaterialTheme.colors.onPrimary)
             }

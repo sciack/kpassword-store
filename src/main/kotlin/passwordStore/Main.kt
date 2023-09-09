@@ -34,6 +34,8 @@ import passwordStore.config.MODE
 import passwordStore.config.getMode
 import passwordStore.navigation.menu
 import passwordStore.navigation.rememberNavController
+import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
@@ -153,10 +155,10 @@ fun menuDrawer() {
     }
     val coroutineScope = rememberCoroutineScope()
     Row {
-        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(24.dp))
+        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XL))
         if (navController.currentScreen.value.allowBack) {
             IconButton(
-                onClick = { navController.navigateBack() }, modifier = Modifier.padding(start = 8.dp)
+                onClick = { navController.navigateBack() }, modifier = Modifier.padding(start = SMALL)
             ) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
@@ -175,7 +177,7 @@ fun menuDrawer() {
                             StatusHolder.closeDrawer()
                         }
                     }
-                }, modifier = Modifier.testTag("Drawer").padding(start = 8.dp)
+                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL)
             ) {
                 Icon(
                     Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary

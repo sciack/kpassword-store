@@ -10,12 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.navigation.NavController
+import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.MEDIUM
+import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
 import passwordStore.users.UserVM
 
 @Composable
@@ -39,35 +42,40 @@ fun configView() {
         configVM.darkMode
     }
     val navController by rememberInstance<NavController>()
-    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(0.9f).padding(LARGE)) {
         Row {
             Text(
                 "Dark mode",
-                Modifier.padding(end = 16.dp)
+                Modifier.padding(end = SMALL)
             )
             RadioButton(darkMode.value == DarkModes.LIGHT,
                 onClick = {
                     configVM.darkMode.value = DarkModes.LIGHT
                     darkMode.value = DarkModes.LIGHT
                 })
-            Text("Light",
-                modifier = Modifier.padding(start = 8.dp, end=16.dp))
+            Text(
+                "Light",
+                modifier = Modifier.padding(start = SMALL, end = LARGE)
+            )
 
             RadioButton(darkMode.value == DarkModes.DARK,
                 onClick = {
                     configVM.darkMode.value = DarkModes.DARK
                     darkMode.value = DarkModes.DARK
                 })
-            Text("Dark",
-                modifier = Modifier.padding(start = 8.dp, end=16.dp))
-            Spacer(Modifier.width(16.dp))
+            Text(
+                "Dark",
+                modifier = Modifier.padding(start = SMALL, end = LARGE)
+            )
             RadioButton(darkMode.value == DarkModes.SYSTEM_DEFAULT,
                 onClick = {
                     configVM.darkMode.value = DarkModes.SYSTEM_DEFAULT
                     darkMode.value = DarkModes.SYSTEM_DEFAULT
                 })
-            Text("System Default",
-                modifier = Modifier.padding(start = 8.dp, end=16.dp))
+            Text(
+                "System Default",
+                modifier = Modifier.padding(start = SMALL, end = LARGE)
+            )
         }
         Divider()
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -111,7 +119,7 @@ fun configView() {
                 style = MaterialTheme.typography.body2
             )
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(XL))
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = ivSpec.value,
@@ -137,7 +145,7 @@ fun configView() {
                 style = MaterialTheme.typography.body2
             )
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(XL))
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
@@ -151,7 +159,7 @@ fun configView() {
             ) {
                 Text("Save")
             }
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(MEDIUM))
             Button(
                 onClick = {
                     configVM.reset()

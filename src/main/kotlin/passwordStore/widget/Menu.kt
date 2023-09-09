@@ -12,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
+import passwordStore.ui.theme.XS
+import passwordStore.ui.theme.XL
 
 @Composable
 fun menuItem(
@@ -24,7 +25,7 @@ fun menuItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(top = 4.dp, bottom = 4.dp)
+            .padding(top = XS, bottom = XS)
             .fillMaxWidth()
             .then(modifier)
     ) {
@@ -32,7 +33,7 @@ fun menuItem(
             onClick = onClick,
             modifier = Modifier.testTag(testTag)
                 .align(Alignment.CenterVertically)
-                .size(24.dp)
+                .size(XL)
         ) {
             icon()
         }

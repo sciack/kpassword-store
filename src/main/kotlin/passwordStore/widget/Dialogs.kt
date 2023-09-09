@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import passwordStore.ui.theme.LARGE
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -103,7 +104,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(LARGE))
             OutlinedTextField(
                 value = length.value,
                 onValueChange = { value ->
@@ -146,7 +147,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     },
                     modifier = Modifier.testTag("number")
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(LARGE))
                 Text(
                     "Use number",
                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -167,7 +168,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     },
                     modifier = Modifier.testTag("symbols")
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(LARGE))
                 Text(
                     "Use symbols",
                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -188,7 +189,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     },
                     modifier = Modifier.testTag("case")
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(LARGE))
                 Text(
                     "Use upper/lower case",
                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -202,7 +203,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                 }) {
                     Text("Confirm")
                 }
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(LARGE))
                 Button(onClick = {
                     showDialog.value = false
                 }) {

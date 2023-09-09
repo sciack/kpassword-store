@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.services.ServiceVM
+import passwordStore.ui.theme.XS
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -35,7 +36,7 @@ fun tagView() {
         maxItemsInEachRow = 8,
         modifier = Modifier
             .focusable(false)
-            .padding(top = 4.dp, bottom = 4.dp)
+            .padding(top = XS, bottom = XS)
             .border(width = 1.dp, color = MaterialTheme.colors.primary),
 
         ) {
@@ -58,7 +59,7 @@ fun tagView() {
                     ChipDefaults.chipColors()
                 },
                 border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
+                modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS)
             ) {
                 Text(tag)
             }
