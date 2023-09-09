@@ -30,6 +30,7 @@ import mu.KotlinLogging
 import org.apache.commons.codec.binary.Hex
 import org.jasypt.util.password.StrongPasswordEncryptor
 import org.kodein.di.*
+import passwordStore.LOGGER
 import java.security.MessageDigest
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
@@ -39,7 +40,6 @@ import javax.crypto.spec.SecretKeySpec
 
 class CryptExtension(private var secrets: Secrets) {
     companion object {
-        private val LOGGER = KotlinLogging.logger { }
         private val encryptor = StrongPasswordEncryptor()
 
         private const val ALGORITHM = "AES/GCM/NoPadding"

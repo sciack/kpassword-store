@@ -1,7 +1,7 @@
 package passwordStore.sql
 
 import org.flywaydb.core.Flyway
-import passwordStore.utils.logger
+import passwordStore.LOGGER
 import javax.sql.DataSource
 
 class Migration(private val dataSource: DataSource) {
@@ -31,7 +31,6 @@ class Migration(private val dataSource: DataSource) {
     }
 
     companion object {
-        private val LOGGER = logger()
     }
 
 }

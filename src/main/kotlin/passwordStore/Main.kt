@@ -2,7 +2,6 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -117,8 +116,9 @@ fun main() {
             withDI(di) {
                 val configVM by rememberInstance<ConfigVM>()
                 val darkMode = remember { configVM.darkMode }
+
                 appTheme(
-                    darkMode.value.darkMode()
+                    darkMode.value.isDarkMode()
                 ) {
                     LOGGER.info { "Building the app" }
 

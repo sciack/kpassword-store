@@ -45,24 +45,24 @@ fun configView() {
                 "Dark mode",
                 Modifier.padding(end = 16.dp)
             )
-            RadioButton(darkMode.value == DARK_MODES.LIGHT,
+            RadioButton(darkMode.value == DarkModes.LIGHT,
                 onClick = {
-                    configVM.darkMode.value = DARK_MODES.LIGHT
-                    darkMode.value = DARK_MODES.LIGHT
+                    configVM.darkMode.value = DarkModes.LIGHT
+                    darkMode.value = DarkModes.LIGHT
                 })
             Text("Light")
             Spacer(Modifier.width(16.dp))
-            RadioButton(darkMode.value == DARK_MODES.DARK,
+            RadioButton(darkMode.value == DarkModes.DARK,
                 onClick = {
-                    configVM.darkMode.value = DARK_MODES.DARK
-                    darkMode.value = DARK_MODES.DARK
+                    configVM.darkMode.value = DarkModes.DARK
+                    darkMode.value = DarkModes.DARK
                 })
             Text("Dark")
             Spacer(Modifier.width(16.dp))
-            RadioButton(darkMode.value == DARK_MODES.SYSTEM_DEFAULT,
+            RadioButton(darkMode.value == DarkModes.SYSTEM_DEFAULT,
                 onClick = {
-                    configVM.darkMode.value = DARK_MODES.SYSTEM_DEFAULT
-                    darkMode.value = DARK_MODES.SYSTEM_DEFAULT
+                    configVM.darkMode.value = DarkModes.SYSTEM_DEFAULT
+                    darkMode.value = DarkModes.SYSTEM_DEFAULT
                 })
             Text("System Default")
         }

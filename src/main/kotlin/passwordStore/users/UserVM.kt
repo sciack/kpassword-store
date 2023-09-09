@@ -6,6 +6,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import passwordStore.LOGGER
 import passwordStore.utils.logger
 import passwordStore.utils.obfuscate
 
@@ -94,7 +95,6 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
     }
 
     companion object {
-        val LOGGER = logger()
         val NONE =
             User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
     }

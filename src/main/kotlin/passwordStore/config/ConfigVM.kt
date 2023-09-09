@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.apache.commons.codec.binary.Base64
+import passwordStore.LOGGER
 import passwordStore.crypto.IV_STRING
 import passwordStore.crypto.SECRET_KEY
 import passwordStore.crypto.Secrets
@@ -26,7 +26,7 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
     lateinit var dbPassword: String
     lateinit var secret: String
     lateinit var ivSpec: String
-    val darkMode = mutableStateOf(DARK_MODES.SYSTEM_DEFAULT)
+    val darkMode = mutableStateOf(DarkModes.SYSTEM_DEFAULT)
 
     private val properties: Properties = Properties()
 
@@ -59,9 +59,9 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
         )
         val mode = properties.getProperty(DARK_MODE)?.let {
             runCatching {
-                DARK_MODES.valueOf(it)
+                DarkModes.valueOf(it)
             }.getOrNull()
-        } ?: DARK_MODES.SYSTEM_DEFAULT
+        } ?: DarkModes.SYSTEM_DEFAULT
         darkMode.value = mode
     }
 
@@ -78,21 +78,17 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
             }
         }
     }
-
-    companion object {
-        val LOGGER = KotlinLogging.logger { }
-    }
 }
 
 const val DARK_MODE = "DARK_MODE"
 
-enum class DARK_MODES {
+enum class DarkModes {
     DARK,
     LIGHT,
     SYSTEM_DEFAULT;
 
     @Composable
-    fun darkMode(): Boolean = when (this) {
+    fun isDarkMode(): Boolean = when (this) {
         DARK -> true
         LIGHT -> false
         SYSTEM_DEFAULT -> isSystemInDarkTheme()

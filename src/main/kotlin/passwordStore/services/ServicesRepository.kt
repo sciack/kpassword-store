@@ -31,6 +31,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import mu.KotlinLogging
+import passwordStore.LOGGER
 import passwordStore.audit.Action
 import passwordStore.audit.AuditMessage
 import passwordStore.audit.Event
@@ -319,8 +320,6 @@ class ServicesRepository(
 
     companion object {
         enum class Mode { FETCH, SPLIT }
-
-        private val LOGGER = KotlinLogging.logger { }
     }
 }
 

@@ -26,6 +26,7 @@
 
 package passwordStore.users
 
+import passwordStore.LOGGER
 import passwordStore.crypto.CryptExtension.Companion.hash
 import passwordStore.crypto.CryptExtension.Companion.verify
 import passwordStore.services.ServicesRepository
@@ -112,7 +113,7 @@ class UserRepository(
                 email = rs.getString("email"),
                 userid = rs.getString("userid"),
                 roles = rs.getString("role").asSetOfRoles()
-            ).also { LOGGER.debug("User: $it") }
+            ).also { LOGGER.debug { "User: $it" } }
         }
     }
 
@@ -164,7 +165,5 @@ class UserRepository(
     }
 
     companion object {
-        private val LOGGER = logger()
-
     }
 }
