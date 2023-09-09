@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
@@ -21,6 +22,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.seanproctor.datatable.material3.DataTable
+import com.seanproctor.datatable.DataColumn
+import com.seanproctor.datatable.material3.PaginatedDataTable
+import com.seanproctor.datatable.paging.rememberPaginatedDataTableState
 
 @Composable
 fun <T> Table(
@@ -36,86 +41,32 @@ fun <T> Table(
     columnCount: Int = headers.size,
     contentRowModifier: @Composable (T) -> Modifier = { Modifier }
 ) {
-    val columnWidths = remember { mutableStateMapOf<Int, Int>() }
 
-    Box(modifier = modifier.then(Modifier.horizontalScroll(horizontalScrollState))) {
-        Column(modifier = modifier.fillMaxWidth()) {
-
-            Row(modifier = rowModifier) {
-                (0..columnCount).forEach { columnIndex ->
-                    Box(modifier = Modifier.layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-
-                        val existingWidth = columnWidths[columnIndex] ?: 0
-                        val maxWidth = maxOf(existingWidth, placeable.width)
-
-                        if (maxWidth > existingWidth) {
-                            columnWidths[columnIndex] = maxWidth
-                        }
-
-                        layout(width = maxWidth, height = placeable.height) {
-                            val x = (maxWidth - placeable.width) / 2
-                            placeable.placeRelative(x = x, y = 0)
-                        }
-                    }) {
-                        if (columnIndex == 0) {
-                            Text("")
-                        } else {
-                            Text(
-                                fontWeight = FontWeight.Bold,
-                                text = headers[columnIndex - 1]
-                            )
-                        }
-                    }
-                }
-            }
-
-            Box(modifier = modifier) {
-                LazyColumn(
-                    state = verticalLazyListState,
-                    modifier = Modifier.fillMaxWidth().testTag("TableBody")
-                ) {
-                    items(rowCount) { row ->
-                        if (row >= values.size) return@items
-                        val currentRow = values[row]
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = rowModifier.then(contentRowModifier(currentRow))) {
-
-                                (0..columnCount).forEach { col ->
-                                    Box(modifier = Modifier.layout { measurable, constraints ->
-                                        val placeable = measurable.measure(constraints)
-
-                                        val existingWidth = columnWidths[col] ?: 0
-                                        val maxWidth = maxOf(existingWidth, placeable.width)
-
-                                        if (maxWidth > existingWidth) {
-                                            columnWidths[col] = maxWidth
-                                        }
-
-                                        layout(width = maxWidth, height = placeable.height) {
-                                            placeable.placeRelative(0, 0)
-                                        }
-                                    }.padding(8.dp)) {
-
-                                        if (col == 0) {
-
-                                            beforeRow.invoke(currentRow)
-                                        } else {
-                                            cellContent(col - 1, currentRow)
-                                        }
-                                    }
-                                }
-                            }
-
-
-                        }
-                    }
-                }
-                VerticalScrollbar(
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                        .fillMaxHeight(),
-                    adapter = rememberScrollbarAdapter(verticalLazyListState)
+    PaginatedDataTable(
+        columns = listOf(DataColumn{
+            Text("")
+        }) + headers.map {
+            DataColumn {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.h6
                 )
+            }
+        },
+        modifier = Modifier.fillMaxSize().then(modifier),
+        state = rememberPaginatedDataTableState(10)
+    ) {
+        values.forEach { currentRow ->
+            row {
+                (0..columnCount).forEach { col ->
+                    cell {
+                        if (col == 0) {
+                            beforeRow.invoke(currentRow)
+                        } else {
+                            cellContent(col - 1, currentRow)
+                        }
+                    }
+                }
             }
         }
     }

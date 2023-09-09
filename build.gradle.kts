@@ -1,10 +1,9 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    kotlin("jvm") version "1.9.0"
-    id("org.jetbrains.compose") version "1.5.0"
+    kotlin("jvm") version "1.9.10"
+    id("org.jetbrains.compose") version "1.5.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
     id("com.github.jmongard.git-semver-plugin") version "0.4.2"
@@ -66,6 +65,7 @@ dependencies {
     implementation("org.kodein.di:kodein-di-framework-compose:7.19.0")
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.slf4j:jul-to-slf4j:2.0.5")
+    implementation("com.seanproctor:data-table-material3:0.5.1")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
@@ -97,13 +97,13 @@ compose.desktop {
         jvmArgs += listOf("-Dkpassword-store.mode=PROD")
 
         nativeDistributions {
-            targetFormats( TargetFormat.Rpm, TargetFormat.Msi)
+            targetFormats(TargetFormat.Rpm, TargetFormat.Msi)
             packageName = "kpassword-store"
             modules("java.sql", "java.desktop", "java.naming")
             packageVersion = semver.version.substringBefore('-')
             licenseFile.set(File("LICENSE"))
             vendor = "Mirko Sciachero <m.sciachero@gmail.com>"
-            this.description= """
+            this.description = """
                 Program to manage and store credentials, similar to keepass but simpler \
                 Implemented in Kotlin and JCompose
             """.trimIndent()
@@ -120,7 +120,7 @@ compose.desktop {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
                 menuGroup = "Password Store"
                 vendor = "Mirko Sciachero"
-                console = true
+                console = false
                 iconFile.set(File("lockoverlay.ico"))
             }
         }

@@ -1,9 +1,9 @@
 package passwordStore.services
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -35,10 +35,10 @@ fun historyTable(historyEvents: List<Event>) {
     val coroutineScope = rememberCoroutineScope()
     val navController by localDI().instance<NavController>()
     val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Note")
+
     Column(Modifier.fillMaxSize(.9f)) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            Table(
-                modifier = Modifier.fillMaxSize(),
+            Table(modifier = Modifier.fillMaxSize(),
                 rowModifier = Modifier.fillMaxWidth().bottomBorder(2.dp, color = Color.LightGray),
                 rowCount = historyEvents.size,
                 headers = headers,
@@ -46,27 +46,20 @@ fun historyTable(historyEvents: List<Event>) {
                 cellContent = { columnIndex, event ->
                     displayHistService(event, columnIndex)
                 },
-                contentRowModifier = { event ->
-                    when (event.action) {
-                        Action.delete -> Modifier.background(Color(0xffcc7f7f))
-                        Action.insert -> Modifier
-                        Action.update -> Modifier.background(Color.LightGray)
-                    }
-                },
                 beforeRow = { event ->
                     Row {
+                        val color = contentRowModifier(event)
                         if (event.action == Action.delete) {
                             val showAlert = remember {
                                 mutableStateOf(false)
                             }
                             IconButton(onClick = {
                                 coroutineScope.launch {
-                                    serviceModel.store(event.service)
-                                        .onSuccess { navController.navigate(Screen.List) }
+                                    serviceModel.store(event.service).onSuccess { navController.navigate(Screen.List) }
                                         .onFailure { showAlert.value = true }
                                 }
                             }, modifier = Modifier.align(Alignment.CenterVertically)) {
-                                Icon(painterResource("/icons/undo.svg"), "Restore")
+                                Icon(painterResource("/icons/undo.svg"), "Restore", tint = color)
                             }
                             showOk(
                                 "Error on restore",
@@ -75,31 +68,37 @@ fun historyTable(historyEvents: List<Event>) {
                             )
                         }
                     }
-                }
-            )
+                })
         }
     }
 }
 
 @Composable
+private fun contentRowModifier(event: Event) = when (event.action) {
+    Action.delete -> MaterialTheme.colors.error
+    Action.insert -> MaterialTheme.colors.primary
+    Action.update -> MaterialTheme.colors.primary
+}
+
+@Composable
 fun displayHistService(event: Event, columnIndex: Int) {
     val service = event.service
+    val colors = contentRowModifier(event)
     when (columnIndex) {
-        0 -> Text(event.action.toString().asTitle())
-        1 -> Text(event.actionDate.short())
-        2 -> Text(service.service)
-        3 -> Text(service.username)
-        4 -> Text(service.password)
+        0 -> Text(event.action.toString().asTitle(), color = colors)
+        1 -> Text(event.actionDate.short(), color = colors)
+        2 -> Text(service.service, color = colors)
+        3 -> Text(service.username, color = colors)
+        4 -> Text(service.password, color = colors)
         5 -> Text(
             text = service.note,
             softWrap = true,
             overflow = TextOverflow.Clip,
             minLines = 1,
             maxLines = 5,
-            modifier = Modifier.widthIn(max = 350.dp)
+            modifier = Modifier.widthIn(max = 350.dp),
+            color = colors
         )
-
-
     }
 
 }
