@@ -53,6 +53,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.5.1")
+    implementation(compose.materialIconsExtended)
+    implementation(compose.material3)
 
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")

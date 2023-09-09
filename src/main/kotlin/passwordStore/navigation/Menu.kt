@@ -99,7 +99,7 @@ fun menu(navController: NavController) {
         testTag = "Users",
         icon = {
             Icon(
-                painterResource("/icons/file_csv.svg"),
+                Icons.Default.People,
                 contentDescription = "Users"
             )
         }
@@ -113,7 +113,7 @@ fun menu(navController: NavController) {
             testTag = "CreateUser",
             icon = {
                 Icon(
-                    Icons.Default.AccountBox,
+                    Icons.Default.PersonAdd,
                     "CreateUsers"
                 )
             }
@@ -130,6 +130,18 @@ fun menu(navController: NavController) {
                     Icons.Default.Settings,
                     "Configure App"
                 )
+            }
+        )
+    }
+    if (userVM.loggedUser.value.id > 0) {
+        menuItem(
+            onClick = {
+                navController.navigate(Screen.Settings)
+            },
+            title = "User Settings",
+            testTag = "User Settings App",
+            icon = {
+                Icon(Icons.Default.Person, "Settings")
             }
         )
     }
