@@ -2,8 +2,6 @@ package passwordStore.services
 
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
@@ -51,7 +49,6 @@ import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.writer
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun servicesTable() {
     val serviceModel by localDI().instance<ServiceVM>()
@@ -86,12 +83,6 @@ fun servicesTable() {
                 values = services.toList(),
                 cellContent = { columnIndex, service ->
                     cell(service, columnIndex)
-                },
-                contentRowModifier = { service ->
-                    Modifier.clickable {
-                        editService.value = false
-                        serviceModel.selectService(service)
-                    }
                 },
                 beforeRow = { service ->
                     Row(modifier = Modifier.align(Alignment.CenterVertically)) {
@@ -535,7 +526,7 @@ fun CoroutineScope.download(di: DI) {
                 path.writer().use {
                     it.performDownload(di)
                 }
-                StatusHolder.sendMessage("Download completed: ${path}")
+                StatusHolder.sendMessage("Download completed: $path")
             }
         }
 

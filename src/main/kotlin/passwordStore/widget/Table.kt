@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.seanproctor.datatable.material3.DataTable
 import com.seanproctor.datatable.DataColumn
@@ -49,7 +50,7 @@ fun <T> Table(
             DataColumn {
                 Text(
                     it,
-                    style = MaterialTheme.typography.h6
+                    fontWeight = FontWeight.Bold
                 )
             }
         },
