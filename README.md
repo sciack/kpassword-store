@@ -1,3 +1,5 @@
+[![KPassword Store](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml/badge.svg)](https://github.com/sciack/kpassword-store/actions/workflows/gradle.yml)
+
 # Introduction
 
 Simple and naive implementation of a system storing password
