@@ -22,16 +22,11 @@ import com.seanproctor.datatable.paging.rememberPaginatedDataTableState
 @Composable
 fun <T> Table(
     modifier: Modifier = Modifier,
-    rowModifier: Modifier = Modifier,
-    verticalLazyListState: LazyListState = rememberLazyListState(),
-    horizontalScrollState: ScrollState = rememberScrollState(),
     headers: List<String>,
     values: List<T>,
     cellContent: @Composable (col: Int, row: T) -> Unit,
     beforeRow: @Composable (row: T) -> Unit = {},
-    rowCount: Int = values.size,
-    columnCount: Int = headers.size,
-    contentRowModifier: @Composable (T) -> Modifier = { Modifier }
+    columnCount: Int = headers.size
 ) {
 
     PaginatedDataTable(

@@ -39,8 +39,6 @@ fun historyTable(historyEvents: List<Event>) {
     Column(Modifier.fillMaxSize(.9f)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(modifier = Modifier.fillMaxSize(),
-                rowModifier = Modifier.fillMaxWidth().bottomBorder(2.dp, color = Color.LightGray),
-                rowCount = historyEvents.size,
                 headers = headers,
                 values = historyEvents,
                 cellContent = { columnIndex, event ->

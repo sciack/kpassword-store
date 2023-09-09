@@ -328,8 +328,6 @@ fun users() {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(
                 modifier = Modifier.fillMaxSize(),
-                rowModifier = Modifier.fillMaxWidth().bottomBorder(1.dp, color = Color.LightGray),
-                rowCount = users.size,
                 headers = listOf("Username", "Full Name", "Email", "Roles", "Services"),
                 values = users.toList(),
                 cellContent = { columnIndex, user ->

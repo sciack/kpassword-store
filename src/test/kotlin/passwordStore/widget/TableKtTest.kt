@@ -24,7 +24,6 @@ class TableKtTest {
         rule.setContent {
             Table(
                 columnCount = 2,
-                rowCount = elements.size,
                 headers = headers,
                 values = elements,
                 cellContent = { columnIndex, element ->

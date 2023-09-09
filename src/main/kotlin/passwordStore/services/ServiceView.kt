@@ -78,7 +78,6 @@ fun servicesTable() {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(
                 modifier = Modifier.fillMaxSize(),
-                rowModifier = Modifier.fillMaxWidth().bottomBorder(1.dp, color = Color.LightGray),
                 headers = listOf("Service", "Username", "Password", "Note"),
                 values = services.toList(),
                 cellContent = { columnIndex, service ->
