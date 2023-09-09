@@ -1,10 +1,10 @@
 package passwordStore.widget
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -32,10 +32,11 @@ fun tagView() {
     }
 
     FlowRow(
-        maxItemsInEachRow = 15,
-        modifier = Modifier.fillMaxWidth()
+        maxItemsInEachRow = 8,
+        modifier = Modifier
             .focusable(false)
-            .padding(top = 4.dp, bottom = 4.dp),
+            .padding(top = 4.dp, bottom = 4.dp)
+            .border(width = 1.dp, color = MaterialTheme.colors.primary),
 
         ) {
         tags.value.forEach { (tag, _) ->
@@ -57,7 +58,7 @@ fun tagView() {
                     ChipDefaults.chipColors()
                 },
                 border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                modifier = Modifier.padding(top = 4.dp, start = 0.dp, end = 4.dp)
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)
             ) {
                 Text(tag)
             }
