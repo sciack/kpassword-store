@@ -81,7 +81,7 @@ fun ConfigView() {
             OutlinedTextField(
                 value = ivSpec.value,
                 onValueChange = { value: TextFieldValue ->
-                    val text = if(value.text.length > 16) {
+                    val text = if (value.text.length > 16) {
                         value.text.substring(0 until 16)
                     } else {
                         value.text

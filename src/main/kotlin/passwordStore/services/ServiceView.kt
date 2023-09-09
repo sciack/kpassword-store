@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -356,12 +359,11 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
                     )
                 }
             }
-            Row(Modifier.align(Alignment.CenterHorizontally)) {
+            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)) {
                 Button(
                     modifier = Modifier.testTag("submit"),
                     enabled = dirty.value,
                     onClick = {
-
                         if (dirty.value) {
                             val user = userVM.loggedUser
                             val newService = service.value.copy(
@@ -456,7 +458,7 @@ fun showService(onClose: () -> Unit) {
                 readOnly = true
             )
 
-            Row(Modifier.align(Alignment.CenterHorizontally)) {
+            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)) {
                 Button(onClick = {
                     onClose()
                 }) {

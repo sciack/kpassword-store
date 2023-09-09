@@ -43,7 +43,7 @@ class SettingsTest {
             fullName = "dummy",
             password = "secret"
         )
-        userRepository.updateUser(resetUser, user.asPrincipal())
+        userRepository.updateUser(resetUser)
     }
 
     @Test

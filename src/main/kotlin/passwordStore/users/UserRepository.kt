@@ -26,14 +26,13 @@
 
 package passwordStore.users
 
-import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension.Companion.hash
 import passwordStore.crypto.CryptExtension.Companion.verify
 import passwordStore.services.ServicesRepository
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
-import java.security.Principal
+import passwordStore.utils.logger
 import java.sql.SQLException
 import javax.sql.DataSource
 
@@ -117,7 +116,7 @@ class UserRepository(
         }
     }
 
-    fun updateUser(user: EditableUser, principal: Principal): User {
+    fun updateUser(user: EditableUser): User {
         val params = mutableListOf(user.fullName)
         val statement = buildString {
             append(
@@ -165,7 +164,7 @@ class UserRepository(
     }
 
     companion object {
-        private val LOGGER = KotlinLogging.logger {}
+        private val LOGGER = logger()
 
     }
 }

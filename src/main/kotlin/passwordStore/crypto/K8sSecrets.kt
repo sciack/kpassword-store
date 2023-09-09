@@ -23,7 +23,7 @@ private class PropsSecret : Secrets {
     }
 
     override fun ivString(): ByteArray {
-        return  Base64.decodeBase64(ivString).slice(0 until 16).toByteArray()
+        return Base64.decodeBase64(ivString).slice(0 until 16).toByteArray()
     }
 }
 
@@ -48,5 +48,5 @@ class SecretsFactory(private val runtime: String = "") {
     }
 }
 
-const val SECRET_KEY="secret"
-const val IV_STRING ="IV_STRING"
+const val SECRET_KEY = "secret"
+const val IV_STRING = "IV_STRING"

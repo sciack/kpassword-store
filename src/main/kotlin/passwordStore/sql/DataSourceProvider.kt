@@ -2,7 +2,6 @@ package passwordStore.sql
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import javax.sql.DataSource
 
 fun prodDatasource(): HikariDataSource {
     val hikariConfig = HikariConfig("/db.properties")

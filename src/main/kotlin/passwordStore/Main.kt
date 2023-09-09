@@ -28,14 +28,11 @@ import androidx.compose.ui.window.rememberWindowState
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import mu.KLogger
-import mu.KotlinLogging
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import org.slf4j.bridge.SLF4JBridgeHandler
 import passwordStore.config.MODE
 import passwordStore.config.getMode
 import passwordStore.navigation.NavController
@@ -44,7 +41,8 @@ import passwordStore.services.download
 import passwordStore.services.upload
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
-import ui.theme.AppTheme
+import passwordStore.utils.configureLog
+import ui.theme.appTheme
 import kotlin.system.exitProcess
 
 @Composable
@@ -67,7 +65,7 @@ fun app() {
         }
     }
 
-    AppTheme {
+    appTheme {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             scaffoldState = StatusHolder.scaffoldState,
             topBar = {
@@ -320,13 +318,6 @@ fun drawer(navController: NavController) {
             }
         )
     }
-}
-
-
-private fun configureLog(): KLogger {
-    SLF4JBridgeHandler.removeHandlersForRootLogger()
-    SLF4JBridgeHandler.install()
-    return KotlinLogging.logger {}
 }
 
 fun main() {

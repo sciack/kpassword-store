@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import kotlinx.coroutines.test.runTest
-import mu.KotlinLogging
 import org.junit.Rule
 import passwordStore.DiInjection
+import passwordStore.LOGGER
 import kotlin.test.Test
 
 
@@ -37,7 +37,7 @@ class TableKtTest {
             rule.onNodeWithText(it).assertExists()
         }
         var counter = 1
-        (0 until 2).forEach { row ->
+        (0 until 2).forEach { _ ->
             (0 until 2).forEach { col ->
                 rule.onNodeWithText("Row: ${counter}, Column: $col").assertExists()
                 counter = counter.inc()
@@ -48,7 +48,7 @@ class TableKtTest {
     @Composable
     private fun content(ele: List<String>, columnIndex: Int) {
         val text = "Row: ${ele[columnIndex]}, Column: $columnIndex"
-        KotlinLogging.logger {}.warn { text }
+        LOGGER.warn { text }
         Text(text)
     }
 }

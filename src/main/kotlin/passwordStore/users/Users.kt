@@ -1,7 +1,5 @@
 package passwordStore.users
 
-import java.security.Principal
-
 
 data class ListUser(
     val userid: String,
@@ -20,12 +18,7 @@ data class User(
     val email: String,
     val roles: Set<Roles> = setOf()
 ) {
-    fun asPrincipal(): Principal {
-        return Principal { userid }
-    }
-
     fun isAdmin(): Boolean = roles.contains(Roles.Administrator)
-
 }
 
 data class EditableUser(

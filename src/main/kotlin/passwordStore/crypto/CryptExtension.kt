@@ -34,7 +34,6 @@ import java.security.MessageDigest
 import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 
@@ -70,7 +69,7 @@ class CryptExtension(private var secrets: Secrets) {
         try {
             val cipher = Cipher.getInstance(ALGORITHM)
             cipher.init(Cipher.DECRYPT_MODE, key, paramSpec)
-            LOGGER.debug {"Using algorithm: ${cipher} - ${cipher.algorithm}"}
+            LOGGER.debug { "Using algorithm: ${cipher} - ${cipher.algorithm}" }
             String(cipher.doFinal(Hex.decodeHex(string.toCharArray())))
         } catch (e: Exception) {
             LOGGER.warn("Unable to decrypt instance: $e", e)

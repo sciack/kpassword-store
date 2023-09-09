@@ -58,11 +58,9 @@ fun <T> DataSource.query(sql: String, vararg params: Any, mapper: Mapper<T>): Li
 }
 
 
-fun <T> DataSource.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T =
-    this.connection.use { c ->
-        c.singleRow(sql, params, mapper)
-    }
-
+fun <T> DataSource.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T = this.connection.use { c ->
+    c.singleRow(sql, params, mapper)
+}
 
 fun <T> Connection.singleRow(sql: String, params: Map<String, Any?>, mapper: Mapper<T>): T {
 
@@ -73,16 +71,14 @@ fun <T> Connection.singleRow(sql: String, params: Map<String, Any?>, mapper: Map
     }
 }
 
-
-fun <T> DataSource.singleRow(sql: String, vararg params: Any, mapper: Mapper<T>): T =
-    connection.use { c ->
-        c.prepareStatement(sql).use { ps ->
-            for ((index, param) in params.withIndex()) {
-                ps.setObject(index + 1, param)
-            }
-            ps.singleRowExecution(mapper)
+fun <T> DataSource.singleRow(sql: String, vararg params: Any, mapper: Mapper<T>): T = connection.use { c ->
+    c.prepareStatement(sql).use { ps ->
+        for ((index, param) in params.withIndex()) {
+            ps.setObject(index + 1, param)
         }
+        ps.singleRowExecution(mapper)
     }
+}
 
 
 /**

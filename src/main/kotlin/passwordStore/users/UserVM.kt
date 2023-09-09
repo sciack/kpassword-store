@@ -6,9 +6,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
+import passwordStore.utils.logger
 import passwordStore.utils.obfuscate
-import java.security.Principal
 
 class UserVM(private val userRepository: UserRepository, private val coroutineScope: CoroutineScope) {
 
@@ -60,11 +59,11 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
             }
         }
 
-    suspend fun updateUser(newUser: EditableUser, principal: Principal): Result<User> = withContext(Dispatchers.Main) {
+    suspend fun updateUser(newUser: EditableUser): Result<User> = withContext(Dispatchers.Main) {
         runCatching {
             errorMsg.value = ""
             withContext(Dispatchers.IO) {
-                userRepository.updateUser(newUser, principal)
+                userRepository.updateUser(newUser)
             }
         }.onFailure {
             LOGGER.warn(it) {
@@ -92,7 +91,7 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
 
 
     companion object {
-        val LOGGER = KotlinLogging.logger {}
+        val LOGGER = logger()
         val NONE =
             User(id = -1, userid = "", roles = setOf(), fullName = "Not logged in", email = "notLogged@example.com")
     }

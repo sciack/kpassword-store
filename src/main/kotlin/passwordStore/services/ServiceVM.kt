@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 import org.apache.commons.csv.CSVFormat
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
@@ -133,7 +132,7 @@ class ServiceVM(
     }
 
     fun shouldLoadHistory() = historyEvents.value.isEmpty()
-    suspend fun readFile(path: Path):Result<Unit> {
+    suspend fun readFile(path: Path): Result<Unit> {
         fun convert(tagString: String): List<String> {
             val tag = tagString.substringAfter('[').substringBeforeLast(']').split(',')
             return tag.map { it.trim() }.toList()

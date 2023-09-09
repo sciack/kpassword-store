@@ -8,7 +8,6 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.throws
 import org.kodein.di.instance
 import passwordStore.DiInjection
-import java.security.Principal
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -27,7 +26,7 @@ class UserRepositoryTest() {
             fullName = "dummpy",
             password = "secret"
         )
-        userRepository.updateUser(resetUser, user.asPrincipal())
+        userRepository.updateUser(resetUser)
     }
 
     @Test
@@ -63,7 +62,7 @@ class UserRepositoryTest() {
                 userid = it.userid
             )
         }
-        userRepository.updateUser(user, Principal { user.userid })
+        userRepository.updateUser(user)
         userRepository.login("dummy", "secret")
 
     }
@@ -78,7 +77,7 @@ class UserRepositoryTest() {
             roles = setOf(Roles.NormalUser),
             userid = userRepository.login("dummy", "secret").userid
         )
-        userRepository.updateUser(user) { user.userid }
+        userRepository.updateUser(user)
         val userRead = userRepository.login(user.userid, user.password)
         assertThat(userRead.fullName, equalTo(user.fullName))
         assertThat(userRead.email, equalTo(user.email))

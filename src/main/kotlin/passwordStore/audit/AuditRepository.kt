@@ -33,8 +33,8 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension
 import passwordStore.sql.saveOrUpdate
+import passwordStore.utils.asTitle
 import passwordStore.utils.timezone
-import passwordStore.utils.titlecase
 import passwordStore.utils.toTimestamp
 import javax.sql.DataSource
 
@@ -57,7 +57,7 @@ class AuditRepository(
             event.service.userid,
             event.action.name,
             event.actionDate.toTimestamp(timezone),
-            event.service.tags.joinToString(",") { it.titlecase().trim() })
+            event.service.tags.joinToString(",") { it.asTitle().trim() })
     }
 
     private fun String.crypt() = cryptExtension.crypt(this)

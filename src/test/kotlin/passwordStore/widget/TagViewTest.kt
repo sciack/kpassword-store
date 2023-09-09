@@ -74,8 +74,6 @@ class TagViewTest {
             }
         }
         rule.awaitIdle()
-        val services = servicesRepository.search(user)
-        val tags = tagRepository.tags(user)
         rule.onNodeWithText("Tags").assertExists()
     }
 

@@ -1,7 +1,7 @@
 package passwordStore.sql
 
-import mu.KotlinLogging
 import org.flywaydb.core.Flyway
+import passwordStore.utils.logger
 import javax.sql.DataSource
 
 class Migration(private val dataSource: DataSource) {
@@ -31,7 +31,7 @@ class Migration(private val dataSource: DataSource) {
     }
 
     companion object {
-        private val LOGGER = KotlinLogging.logger { }
+        private val LOGGER = logger()
     }
 
 }

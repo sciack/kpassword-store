@@ -39,7 +39,7 @@ private val DarkColors = darkColors(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AppTheme(
+fun appTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -52,8 +52,9 @@ fun AppTheme(
     MaterialTheme(
         colors = colors,
     ) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
-            content()
-        }
+        CompositionLocalProvider(
+            LocalMinimumInteractiveComponentEnforcement provides false,
+            content = content
+        )
     }
 }

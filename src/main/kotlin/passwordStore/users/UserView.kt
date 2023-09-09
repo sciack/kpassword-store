@@ -82,7 +82,7 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
                 onClick = {
                     if (dirty.value) {
                         coroutineScope.launch {
-                            userVM.updateUser(user.value, userVM.loggedUser.value.asPrincipal()).onSuccess { newUser ->
+                            userVM.updateUser(user.value).onSuccess { newUser ->
                                 if (userVM.loggedUser.value.userid == newUser.userid) {
                                     userVM.loggedUser.value = newUser
                                 }

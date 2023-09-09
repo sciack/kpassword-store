@@ -7,10 +7,10 @@ import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.toKotlinLocalDateTime
-import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.kodein.di.instance
 import passwordStore.DiInjection
+import passwordStore.LOGGER
 import passwordStore.testUser
 import passwordStore.users.UserVM
 import java.io.StringWriter
@@ -24,7 +24,6 @@ import kotlin.test.Test
 class CsvDownloadKtTest {
     private val di = DiInjection.testDi
     private val servicesRepository by di.instance<ServicesRepository>()
-    private val logger = KotlinLogging.logger {}
     private val user = testUser()
     private val faker = Faker()
 
@@ -38,7 +37,7 @@ class CsvDownloadKtTest {
     fun tearDown() {
         runBlocking {
             servicesRepository.search(user).forEach {
-                logger.info { "Delete service $it" }
+                LOGGER.info { "Delete service $it" }
                 servicesRepository.delete(it.service, it.userid)
             }
         }

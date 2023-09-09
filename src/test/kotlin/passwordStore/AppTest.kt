@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import mu.KotlinLogging
 import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
@@ -249,5 +248,3 @@ class AppTest {
         rule.onNodeWithTag("login").assertExists().performClick()
     }
 }
-
-val LOGGER = KotlinLogging.logger {}

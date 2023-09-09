@@ -216,12 +216,12 @@ class ServicesRepository(
     suspend fun update(service: Service): Service {
         val userId = service.userid
         val oldService = findByName(service.service, userId)
-        val tagsToAdd = service.tags.map(String::titlecase).toMutableSet().apply {
-            removeAll(oldService.tags.map(String::titlecase).toSet())
+        val tagsToAdd = service.tags.map(String::asTitle).toMutableSet().apply {
+            removeAll(oldService.tags.map(String::asTitle).toSet())
         }
 
-        val tagsToDelete = oldService.tags.map(String::titlecase).toMutableSet().apply {
-            removeAll(service.tags.map(String::titlecase).toSet())
+        val tagsToDelete = oldService.tags.map(String::asTitle).toMutableSet().apply {
+            removeAll(service.tags.map(String::asTitle).toSet())
         }
         datasource.performTransaction {
             this.saveOrUpdate(

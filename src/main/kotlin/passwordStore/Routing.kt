@@ -7,7 +7,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import passwordStore.config.ConfigView
 import passwordStore.navigation.NavController
