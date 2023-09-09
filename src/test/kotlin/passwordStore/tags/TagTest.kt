@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.skia.Surface
 import org.junit.Rule
 import passwordStore.DiInjection
+import passwordStore.widget.tagEditor
 import kotlin.test.Test
 import kotlin.test.assertContains
 

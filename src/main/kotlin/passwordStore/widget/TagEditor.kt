@@ -1,4 +1,4 @@
-package passwordStore.tags
+package passwordStore.widget
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
@@ -42,7 +42,7 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                     )
                 },
                     colors = ChipDefaults.outlinedChipColors(),
-                    border = BorderStroke(1.dp, Color.Blue)
+                    border = BorderStroke(1.dp, MaterialTheme.colors.primary)
                 ) {
                     Text(value)
                 }
@@ -87,7 +87,7 @@ fun TagViewer(tags: MutableState<Set<String>>) {
                 Chip(
                     onClick = {},
                     colors = ChipDefaults.outlinedChipColors(),
-                    border = BorderStroke(1.dp, Color.Blue)
+                    border = BorderStroke(1.dp, MaterialTheme.colors.primary)
                 ) {
                     Text(value)
                 }

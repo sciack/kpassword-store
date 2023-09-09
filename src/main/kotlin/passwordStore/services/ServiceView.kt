@@ -3,14 +3,12 @@ package passwordStore.services
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,8 +39,6 @@ import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.Screen
 import passwordStore.navigation.NavController
-import passwordStore.tags.TagViewer
-import passwordStore.tags.tagEditor
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -88,8 +84,28 @@ fun servicesTable() {
                 cellContent = { columnIndex, service ->
                     cell(service, columnIndex)
                 },
+                contentRowModifier = { service ->
+                    Modifier.clickable {
+                        editService.value = false
+                        serviceModel.selectService(service)
+                    }
+                },
                 beforeRow = { service ->
                     Row(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        IconButton(
+                            onClick = {
+                                editService.value = false
+                                serviceModel.selectService(service)
+                            },
+                            modifier = Modifier.testTag("Show ${service.service}")
+                        ) {
+                            Icon(
+                                Icons.Default.KeyboardArrowRight,
+                                "Show",
+                                tint = MaterialTheme.colors.secondary
+
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 coroutineScope.launch(Dispatchers.IO) {
@@ -104,21 +120,10 @@ fun servicesTable() {
                             Icon(
                                 painterResource("/icons/history.svg"),
                                 "History",
+                                tint = MaterialTheme.colors.secondary
                             )
                         }
-                        IconButton(
-                            onClick = {
-                                editService.value = false
-                                serviceModel.selectService(service)
-                            },
-                            modifier = Modifier.testTag("Show ${service.service}")
-                        ) {
-                            Icon(
-                                Icons.Default.Info,
-                                "Show",
 
-                                )
-                        }
                         IconButton(
                             onClick = {
                                 editService.value = true
@@ -129,8 +134,8 @@ fun servicesTable() {
                             Icon(
                                 Icons.Default.Edit,
                                 "Edit",
-
-                                )
+                                tint = MaterialTheme.colors.secondary
+                            )
                         }
                         val showAlert = remember {
                             mutableStateOf(false)
@@ -142,8 +147,9 @@ fun servicesTable() {
                             Icon(
                                 Icons.Default.Delete,
                                 "Delete",
+                                tint = MaterialTheme.colors.error
 
-                                )
+                            )
                         }
 
                         showOkCancel(
@@ -174,7 +180,7 @@ fun servicesTable() {
                 placeable.place(x, 10)
             }
         }) {
-            if(editService.value) {
+            if (editService.value) {
                 newService(onCancel = {
                     coroutineScope.launch {
                         serviceModel.resetService()

@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import passwordStore.users.User
 
 typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
@@ -36,6 +38,7 @@ fun loginPane(loginFunction: LoginFunction) {
     val failed = remember {
         mutableStateOf(false)
     }
+    val coroutineScope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
         OutlinedTextField(
             label = { Text("Username") },
@@ -65,10 +68,12 @@ fun loginPane(loginFunction: LoginFunction) {
         }
         Button(
             onClick = {
-                loginFunction(username.value, password.value).onFailure {
-                    failed.value = true
-                }.onSuccess {
-                    failed.value = false
+                coroutineScope.launch {
+                    loginFunction(username.value, password.value).onFailure {
+                        failed.value = true
+                    }.onSuccess {
+                        failed.value = false
+                    }
                 }
             },
             modifier = Modifier.focusable(true).align(Alignment.CenterHorizontally).testTag("login")

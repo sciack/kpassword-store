@@ -44,6 +44,7 @@ import passwordStore.services.download
 import passwordStore.services.upload
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
+import ui.theme.AppTheme
 import kotlin.system.exitProcess
 
 @Composable
@@ -66,9 +67,7 @@ fun app() {
         }
     }
 
-    MaterialTheme(
-        typography = Typography()
-    ) {
+    AppTheme {
         Scaffold(Modifier.then(Modifier.fillMaxSize()),
             scaffoldState = StatusHolder.scaffoldState,
             topBar = {
@@ -94,7 +93,7 @@ fun app() {
                             onClick = { navController.navigateBack() }
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ArrowBack,
+                                imageVector = Icons.Default.KeyboardArrowLeft,
                                 contentDescription = "Back"
                             )
                         }

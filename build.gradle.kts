@@ -69,12 +69,12 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
+    testImplementation(compose.desktop.uiTestJUnit4)
+    testImplementation(compose.desktop.currentOs)
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
-    testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.7.3")
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 

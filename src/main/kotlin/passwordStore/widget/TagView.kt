@@ -3,10 +3,7 @@ package passwordStore.widget
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Chip
-import androidx.compose.material.ChipDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +52,7 @@ fun tagView() {
                 } else {
                     ChipDefaults.chipColors()
                 },
-                border = BorderStroke(1.dp, Color.Blue)
+                border = BorderStroke(1.dp, MaterialTheme.colors.primary)
             ) {
                 Text(tag)
             }
