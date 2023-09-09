@@ -31,7 +31,9 @@ fun tagView() {
 
     FlowRow(
         maxItemsInEachRow = 15,
-        modifier = Modifier.fillMaxWidth().focusable(false),
+        modifier = Modifier.fillMaxWidth()
+            .focusable(false)
+            .padding(top = 4.dp, bottom = 4.dp),
 
         ) {
         tags.value.forEach { (tag, _) ->
@@ -52,11 +54,11 @@ fun tagView() {
                 } else {
                     ChipDefaults.chipColors()
                 },
-                border = BorderStroke(1.dp, MaterialTheme.colors.primary)
+                border = BorderStroke(1.dp, MaterialTheme.colors.primary),
+                modifier = Modifier.padding(top = 4.dp, start = 0.dp, end = 4.dp)
             ) {
                 Text(tag)
             }
-            Spacer(Modifier.width(4.dp))
         }
     }
 }

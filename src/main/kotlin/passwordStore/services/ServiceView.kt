@@ -417,7 +417,7 @@ fun showService(onClose: () -> Unit) {
                 singleLine = true,
             )
 
-            TagViewer(tags)
+            tagViewer(tags)
 
             OutlinedTextField(
                 label = { Text("Username") },
