@@ -40,7 +40,7 @@ import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
-import ui.theme.appTheme
+import passwordStore.ui.theme.appTheme
 
 @Composable
 @Preview
