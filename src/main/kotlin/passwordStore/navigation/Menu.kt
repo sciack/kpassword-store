@@ -104,7 +104,7 @@ fun menu(navController: NavController) {
             )
         }
     )
-    if (userVM.loggedUser.value.isAdmin()) {
+    if (userVM.isAdmin()) {
         menuItem(
             onClick = {
                 navController.navigate(Screen.CreateUser)
@@ -118,21 +118,22 @@ fun menu(navController: NavController) {
                 )
             }
         )
-        Divider(color = Color.LightGray, thickness = 1.dp)
-        menuItem(
-            onClick = {
-                navController.navigate(Screen.ConfigureApp)
-            },
-            title = "Configure",
-            testTag = "Configure App",
-            icon = {
-                Icon(
-                    Icons.Default.Settings,
-                    "Configure App"
-                )
-            }
-        )
+
     }
+    Divider(color = Color.LightGray, thickness = 1.dp)
+    menuItem(
+        onClick = {
+            navController.navigate(Screen.ConfigureApp)
+        },
+        title = "Configure",
+        testTag = "Configure App",
+        icon = {
+            Icon(
+                Icons.Default.Settings,
+                "Configure App"
+            )
+        }
+    )
     if (userVM.loggedUser.value.id > 0) {
         menuItem(
             onClick = {

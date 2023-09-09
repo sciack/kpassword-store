@@ -1,10 +1,8 @@
 package passwordStore.config
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,11 +17,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.navigation.NavController
+import passwordStore.users.UserVM
 
 @Composable
 fun ConfigView() {
     val configVM by rememberInstance<ConfigVM>()
     val coroutineScope = rememberCoroutineScope()
+    val userVM by rememberInstance<UserVM>()
     val jdbc = remember {
         mutableStateOf(TextFieldValue(configVM.jdbcUrl))
     }
@@ -36,8 +36,23 @@ fun ConfigView() {
     val ivSpec = remember {
         mutableStateOf(TextFieldValue(configVM.ivSpec))
     }
+    val darkMode = isSystemInDarkTheme()
+    val isDarkMode = remember {
+        mutableStateOf(configVM.darkMode ?: darkMode)
+    }
     val navController by rememberInstance<NavController>()
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
+        Row {
+            Text("Dark mode",
+                Modifier.padding(end = 16.dp))
+            Switch(isDarkMode.value, onCheckedChange = { value ->
+                configVM.darkMode = value
+                isDarkMode.value = value
+            })
+
+
+        }
+        Divider()
         Row(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = jdbc.value,
@@ -45,7 +60,8 @@ fun ConfigView() {
                     configVM.jdbcUrl = value.text
                     jdbc.value = value
                 },
-                label = { Text("Jdbc Url") }
+                label = { Text("Jdbc Url") },
+                readOnly = !userVM.isAdmin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -55,7 +71,8 @@ fun ConfigView() {
                     configVM.dbPassword = value.text
                     dbPassword.value = value
                 },
-                label = { Text("Database Password") }
+                label = { Text("Database Password") },
+                readOnly = !userVM.isAdmin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -65,7 +82,8 @@ fun ConfigView() {
                     configVM.secret = value.text
                     secret.value = value
                 },
-                label = { Text("Secret") }
+                label = { Text("Secret") },
+                readOnly = !userVM.isAdmin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -90,7 +108,8 @@ fun ConfigView() {
                     ivSpec.value = value.copy(text)
                 },
                 isError = ivSpec.value.text.toByteArray().size != 16,
-                label = { Text("IV spec string") }
+                label = { Text("IV spec string") },
+                readOnly = !userVM.isAdmin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -118,6 +137,7 @@ fun ConfigView() {
             Spacer(Modifier.width(16.dp))
             Button(
                 onClick = {
+                    configVM.reset()
                     navController.navigateBack()
                 }
             ) {

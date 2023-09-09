@@ -16,13 +16,14 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.reader
 import kotlin.io.path.writer
 
-class ConfigVM(val configFile: Path, secrets: Secrets, dataSource: HikariDataSource) {
+class ConfigVM(private val configFile: Path, private val secrets: Secrets, private val dataSource: HikariDataSource) {
 
 
-    var jdbcUrl: String
-    var dbPassword: String
-    var secret: String
-    var ivSpec: String
+    lateinit var jdbcUrl: String
+    lateinit var dbPassword: String
+    lateinit var secret: String
+    lateinit var ivSpec: String
+    var darkMode: Boolean? = null
 
     private val properties: Properties = Properties()
 
@@ -30,6 +31,11 @@ class ConfigVM(val configFile: Path, secrets: Secrets, dataSource: HikariDataSou
         configFile.reader().use {
             properties.load(it)
         }
+        reset()
+    }
+
+
+    fun reset() {
         jdbcUrl = properties.getProperty(JDBC_URL, dataSource.jdbcUrl)
         dbPassword = properties.getProperty(DB_PASSWORD, "default")
         secret = String(
@@ -48,14 +54,17 @@ class ConfigVM(val configFile: Path, secrets: Secrets, dataSource: HikariDataSou
                 )
             )
         )
+        darkMode = properties.getProperty(DARK_MODE)?.toBoolean()
     }
-
 
     suspend fun save() {
         properties.setProperty(JDBC_URL, jdbcUrl)
         properties.setProperty(DB_PASSWORD, dbPassword)
         properties.setProperty(SECRET_KEY, Base64.encodeBase64String(secret.toByteArray()))
         properties.setProperty(IV_STRING, Base64.encodeBase64String(ivSpec.toByteArray()))
+        darkMode?.apply {
+            properties.setProperty(DARK_MODE, this.toString())
+        }
         withContext(Dispatchers.IO) {
             LOGGER.warn { "Saving properties in file ${configFile.absolutePathString()}" }
             configFile.writer().use {
@@ -68,3 +77,5 @@ class ConfigVM(val configFile: Path, secrets: Secrets, dataSource: HikariDataSou
         val LOGGER = KotlinLogging.logger { }
     }
 }
+
+const val DARK_MODE = "DARK_MODE"

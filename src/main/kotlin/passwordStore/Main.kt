@@ -2,6 +2,7 @@ package passwordStore
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
+import passwordStore.config.ConfigVM
 import passwordStore.config.MODE
 import passwordStore.config.getMode
 import passwordStore.navigation.menu
@@ -112,9 +114,13 @@ fun main() {
 
             state = state
         ) {
-            appTheme {
-                LOGGER.info { "Building the app" }
-                withDI(di) {
+            withDI(di) {
+                val configVM by rememberInstance<ConfigVM>()
+                appTheme(
+                    configVM.darkMode ?: isSystemInDarkTheme()
+                ) {
+                    LOGGER.info { "Building the app" }
+
                     app()
                     val title = remember {
                         mutableStateOf(prefix)

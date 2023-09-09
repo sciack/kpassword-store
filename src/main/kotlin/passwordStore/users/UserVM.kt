@@ -89,6 +89,9 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
         }
     }
 
+    fun isAdmin(): Boolean {
+        return loggedUser.value.isAdmin()
+    }
 
     companion object {
         val LOGGER = logger()

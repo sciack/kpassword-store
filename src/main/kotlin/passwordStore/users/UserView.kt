@@ -192,7 +192,7 @@ private fun ColumnScope.userFields(
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("password-confirmation")
     )
     Spacer(Modifier.height(16.dp))
-    if (userVM.loggedUser.value.isAdmin()) {
+    if (userVM.isAdmin()) {
         Row(modifier = Modifier.Companion.align(Alignment.CenterHorizontally)) {
             Column {
                 Text("Roles:")
@@ -336,7 +336,7 @@ fun users() {
                     cell(user, columnIndex)
                 },
                 beforeRow = { user ->
-                    if (userVM.loggedUser.value.isAdmin()) {
+                    if (userVM.isAdmin()) {
                         Row(modifier = Modifier.align(Alignment.CenterVertically)) {
                             IconButton(
                                 onClick = {
