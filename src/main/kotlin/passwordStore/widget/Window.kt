@@ -18,6 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowScope
 
+
+val MENU_WIDTH = 96.dp
+val APP_BAR_HEIGHT = 24.dp
+
 @Composable
 fun WindowScope.AppWindowTitleBar(
     title: MutableState<String>,
@@ -26,7 +30,7 @@ fun WindowScope.AppWindowTitleBar(
     onClose: () -> Unit,
     navigationIcon: @Composable () -> Unit
 ) {
-    Box {
+    Box(Modifier.background(MaterialTheme.colors.primary).width(MENU_WIDTH)) {
         Row {
             navigationIcon()
         }
@@ -49,10 +53,10 @@ fun WindowScope.AppWindowTitleBar(
 
 @Composable
 fun WindowScope.AppDraggableArea(title: MutableState<String>) =
-    WindowDraggableArea(Modifier.fillMaxWidth().padding(start = 96.dp)) {
+    WindowDraggableArea(Modifier.fillMaxWidth().padding(start = MENU_WIDTH)) {
 
         Box(
-            Modifier.fillMaxWidth().height(24.dp)
+            Modifier.fillMaxWidth().height(APP_BAR_HEIGHT)
                 //.shadow(4.dp, RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp), ambientColor = MaterialTheme.colors.background)
                 .background(MaterialTheme.colors.primary)
         ) {

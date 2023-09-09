@@ -21,12 +21,12 @@ sealed interface Screen {
     val allowBack: Boolean
         get() = false
 
-    object List : Screen {
+    data object List : Screen {
         override val name: String
-            get() = "List"
+            get() = "Home"
     }
 
-    object Login : Screen {
+    data object Login : Screen {
         override val name: String
             get() = "Login"
     }

@@ -36,6 +36,7 @@ import passwordStore.navigation.rememberNavController
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
+import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
 import ui.theme.appTheme
 
@@ -55,7 +56,7 @@ fun app() {
 
     Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = StatusHolder.scaffoldState, topBar = {
         TopAppBar(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(APP_BAR_HEIGHT)
         ) {}
     }) {
 
