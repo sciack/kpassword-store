@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
-import passwordStore.config.ConfigView
+import passwordStore.config.configView
 import passwordStore.navigation.NavController
 import passwordStore.navigation.NavigationHost
 import passwordStore.navigation.authenticatedComposable
@@ -153,7 +153,7 @@ fun route(navController: NavController) {
             createUser()
         }
         authenticatedComposable(Screen.ConfigureApp) {
-            ConfigView()
+            configView()
         }
     }.build()
 }

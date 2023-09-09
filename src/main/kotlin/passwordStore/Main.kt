@@ -117,7 +117,7 @@ fun main() {
             withDI(di) {
                 val configVM by rememberInstance<ConfigVM>()
                 appTheme(
-                    configVM.darkMode ?: isSystemInDarkTheme()
+                    configVM.darkMode.darkMode()
                 ) {
                     LOGGER.info { "Building the app" }
 

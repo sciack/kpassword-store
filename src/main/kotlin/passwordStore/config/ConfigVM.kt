@@ -1,5 +1,7 @@
 package passwordStore.config
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,7 +25,7 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
     lateinit var dbPassword: String
     lateinit var secret: String
     lateinit var ivSpec: String
-    var darkMode: Boolean? = null
+    var darkMode: DARK_MODES = DARK_MODES.SYSTEM_DEFAULT
 
     private val properties: Properties = Properties()
 
@@ -54,7 +56,11 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
                 )
             )
         )
-        darkMode = properties.getProperty(DARK_MODE)?.toBoolean()
+        darkMode = properties.getProperty(DARK_MODE)?.let {
+            runCatching {
+                DARK_MODES.valueOf(it)
+            }.getOrNull()
+        } ?: DARK_MODES.SYSTEM_DEFAULT
     }
 
     suspend fun save() {
@@ -62,9 +68,7 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
         properties.setProperty(DB_PASSWORD, dbPassword)
         properties.setProperty(SECRET_KEY, Base64.encodeBase64String(secret.toByteArray()))
         properties.setProperty(IV_STRING, Base64.encodeBase64String(ivSpec.toByteArray()))
-        darkMode?.apply {
-            properties.setProperty(DARK_MODE, this.toString())
-        }
+        properties.setProperty(DARK_MODE, darkMode.name)
         withContext(Dispatchers.IO) {
             LOGGER.warn { "Saving properties in file ${configFile.absolutePathString()}" }
             configFile.writer().use {
@@ -79,3 +83,16 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
 }
 
 const val DARK_MODE = "DARK_MODE"
+
+enum class DARK_MODES {
+    DARK,
+    LIGHT,
+    SYSTEM_DEFAULT;
+
+    @Composable
+    fun darkMode(): Boolean = when (this) {
+        DARK -> true
+        LIGHT -> false
+        SYSTEM_DEFAULT -> isSystemInDarkTheme()
+    }
+}

@@ -1,6 +1,5 @@
 package passwordStore.config
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -20,7 +19,7 @@ import passwordStore.navigation.NavController
 import passwordStore.users.UserVM
 
 @Composable
-fun ConfigView() {
+fun configView() {
     val configVM by rememberInstance<ConfigVM>()
     val coroutineScope = rememberCoroutineScope()
     val userVM by rememberInstance<UserVM>()
@@ -36,21 +35,36 @@ fun ConfigView() {
     val ivSpec = remember {
         mutableStateOf(TextFieldValue(configVM.ivSpec))
     }
-    val darkMode = isSystemInDarkTheme()
-    val isDarkMode = remember {
-        mutableStateOf(configVM.darkMode ?: darkMode)
+    val darkMode = remember {
+        mutableStateOf(configVM.darkMode)
     }
     val navController by rememberInstance<NavController>()
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
         Row {
-            Text("Dark mode",
-                Modifier.padding(end = 16.dp))
-            Switch(isDarkMode.value, onCheckedChange = { value ->
-                configVM.darkMode = value
-                isDarkMode.value = value
-            })
-
-
+            Text(
+                "Dark mode",
+                Modifier.padding(end = 16.dp)
+            )
+            RadioButton(darkMode.value == DARK_MODES.LIGHT,
+                onClick = {
+                    configVM.darkMode = DARK_MODES.LIGHT
+                    darkMode.value = DARK_MODES.LIGHT
+                })
+            Text("Light")
+            Spacer(Modifier.width(16.dp))
+            RadioButton(darkMode.value == DARK_MODES.DARK,
+                onClick = {
+                    configVM.darkMode = DARK_MODES.DARK
+                    darkMode.value = DARK_MODES.DARK
+                })
+            Text("Dark")
+            Spacer(Modifier.width(16.dp))
+            RadioButton(darkMode.value == DARK_MODES.SYSTEM_DEFAULT,
+                onClick = {
+                    configVM.darkMode = DARK_MODES.SYSTEM_DEFAULT
+                    darkMode.value = DARK_MODES.SYSTEM_DEFAULT
+                })
+            Text("System Default")
         }
         Divider()
         Row(modifier = Modifier.fillMaxWidth()) {
