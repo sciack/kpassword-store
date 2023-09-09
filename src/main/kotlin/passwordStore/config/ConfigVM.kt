@@ -2,6 +2,7 @@ package passwordStore.config
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,7 +26,7 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
     lateinit var dbPassword: String
     lateinit var secret: String
     lateinit var ivSpec: String
-    var darkMode: DARK_MODES = DARK_MODES.SYSTEM_DEFAULT
+    val darkMode = mutableStateOf(DARK_MODES.SYSTEM_DEFAULT)
 
     private val properties: Properties = Properties()
 
@@ -56,11 +57,12 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
                 )
             )
         )
-        darkMode = properties.getProperty(DARK_MODE)?.let {
+        val mode = properties.getProperty(DARK_MODE)?.let {
             runCatching {
                 DARK_MODES.valueOf(it)
             }.getOrNull()
         } ?: DARK_MODES.SYSTEM_DEFAULT
+        darkMode.value = mode
     }
 
     suspend fun save() {
@@ -68,7 +70,7 @@ class ConfigVM(private val configFile: Path, private val secrets: Secrets, priva
         properties.setProperty(DB_PASSWORD, dbPassword)
         properties.setProperty(SECRET_KEY, Base64.encodeBase64String(secret.toByteArray()))
         properties.setProperty(IV_STRING, Base64.encodeBase64String(ivSpec.toByteArray()))
-        properties.setProperty(DARK_MODE, darkMode.name)
+        properties.setProperty(DARK_MODE, darkMode.value.name)
         withContext(Dispatchers.IO) {
             LOGGER.warn { "Saving properties in file ${configFile.absolutePathString()}" }
             configFile.writer().use {

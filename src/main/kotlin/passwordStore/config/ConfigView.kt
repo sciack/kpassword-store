@@ -36,7 +36,7 @@ fun configView() {
         mutableStateOf(TextFieldValue(configVM.ivSpec))
     }
     val darkMode = remember {
-        mutableStateOf(configVM.darkMode)
+        configVM.darkMode
     }
     val navController by rememberInstance<NavController>()
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(16.dp)) {
@@ -47,21 +47,21 @@ fun configView() {
             )
             RadioButton(darkMode.value == DARK_MODES.LIGHT,
                 onClick = {
-                    configVM.darkMode = DARK_MODES.LIGHT
+                    configVM.darkMode.value = DARK_MODES.LIGHT
                     darkMode.value = DARK_MODES.LIGHT
                 })
             Text("Light")
             Spacer(Modifier.width(16.dp))
             RadioButton(darkMode.value == DARK_MODES.DARK,
                 onClick = {
-                    configVM.darkMode = DARK_MODES.DARK
+                    configVM.darkMode.value = DARK_MODES.DARK
                     darkMode.value = DARK_MODES.DARK
                 })
             Text("Dark")
             Spacer(Modifier.width(16.dp))
             RadioButton(darkMode.value == DARK_MODES.SYSTEM_DEFAULT,
                 onClick = {
-                    configVM.darkMode = DARK_MODES.SYSTEM_DEFAULT
+                    configVM.darkMode.value = DARK_MODES.SYSTEM_DEFAULT
                     darkMode.value = DARK_MODES.SYSTEM_DEFAULT
                 })
             Text("System Default")
