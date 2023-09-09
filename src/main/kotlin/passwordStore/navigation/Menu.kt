@@ -149,13 +149,27 @@ fun menu(navController: NavController) {
     Divider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
+            navController.navigate(Screen.Login)
+            userVM.loggedUser.value = UserVM.NONE
+        },
+        title = "Logout",
+        testTag = "Logout",
+        icon = {
+            Icon(
+                Icons.Default.Logout,
+                "Logout"
+            )
+        }
+    )
+    menuItem(
+        onClick = {
             exitProcess(0)
         },
         title = "Exit",
         testTag = "Exit",
         icon = {
             Icon(
-                Icons.Default.ExitToApp,
+                Icons.Default.PowerOff,
                 "Exit"
             )
         }
