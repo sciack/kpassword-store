@@ -106,7 +106,7 @@ fun main() {
     }
 
     application(exitProcessOnExit = true) {
-        val state = rememberWindowState(size = DpSize.Unspecified)
+        val state = rememberWindowState(size = DpSize(1600.dp, 900.dp))
         Window(
             icon = painterResource("/icons/lockoverlay.png"), onCloseRequest = {
                 exitApplication()
