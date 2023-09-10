@@ -47,7 +47,7 @@ fun menu() {
         testTag = "New Service",
         icon = {
             Icon(
-                Icons.Default.Create, contentDescription = KPasswordScreen.NewService.name,
+                Icons.Default.Add, contentDescription = KPasswordScreen.NewService.name,
             )
         }
     )

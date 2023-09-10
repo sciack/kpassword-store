@@ -2,20 +2,18 @@ package passwordStore.services
 
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
@@ -29,6 +27,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.seanproctor.datatable.TableCellScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,12 +39,8 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
-import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
-import passwordStore.ui.theme.XS
+import passwordStore.ui.theme.*
 import passwordStore.users.UserVM
-import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import passwordStore.utils.obfuscate
@@ -79,95 +74,37 @@ fun servicesTable() {
             Spacer(Modifier.width(XL))
             tagView()
         }
+
         Spacer(Modifier.height(LARGE))
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)) {
             Table(
                 modifier = Modifier.fillMaxSize(),
                 headers = listOf("Tags", "Service", "Username", "Password", "Note"),
                 values = services.toList(),
-                cellContent = { columnIndex, service ->
-                    cell(service, columnIndex)
-                },
                 beforeRow = { service ->
-                    Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                        IconButton(
-                            onClick = {
-                                editService.value = false
-                                serviceModel.selectService(service)
-                            },
-                            modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardArrowRight,
-                                "Show",
-                                tint = MaterialTheme.colors.secondary
-
-                            )
-                        }
-                        Spacer(Modifier.width(XS))
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch(Dispatchers.IO) {
-                                    serviceModel.history(service.service, true)
-                                    withContext(Dispatchers.Main) {
-                                        navController.push(KPasswordScreen.History)
-                                    }
-                                }
-                            },
-                            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                painterResource("/icons/history.svg"),
-                                "History",
-                                tint = MaterialTheme.colors.secondary
-                            )
-                        }
-                        Spacer(Modifier.width(XS))
-                        IconButton(
-                            onClick = {
-                                editService.value = true
-                                serviceModel.selectService(service)
-                            },
-                            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.Edit,
-                                "Edit",
-                                tint = MaterialTheme.colors.secondary
-                            )
-                        }
-                        val showAlert = remember {
-                            mutableStateOf(false)
-                        }
-                        Spacer(Modifier.width(XS))
-                        IconButton(
-                            onClick = { showAlert.value = true },
-                            modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.Delete,
-                                "Delete",
-                                tint = MaterialTheme.colors.error
-
-                            )
-                        }
-
-                        showOkCancel(
-                            title = "Delete confirmation",
-                            message = "Do you want to delete service ${service.service}?",
-                            showAlert,
-                            onConfirm = {
-                                coroutineScope.launch(Dispatchers.IO) {
-                                    serviceModel.delete(service)
-                                }
-                            }
-                        )
-                    }
+                    serviceButton(service, editService)
                 }
+            ) { columnIndex, service ->
+                cell(service, columnIndex)
+            }
+        }
+
+    }
+    Box(Modifier.fillMaxSize()) {
+        IconButton(
+            onClick = { navController.push(KPasswordScreen.NewService) },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(LARGE)
+        ) {
+            Icon(
+                Icons.Default.Add,
+                KPasswordScreen.NewService.name,
+                tint = MaterialTheme.colors.onSurface,
+                modifier = Modifier.size(XL * 2 ).clip(CircleShape)
+                    .background(color=MaterialTheme.colors.primary)
+                    .border(2.dp, color = MaterialTheme.colors.onPrimary, shape = CircleShape)
             )
         }
     }
-
 
     if (selectedService.value.service.isNotEmpty()) {
         Card(modifier = Modifier.layout { measurable, constraints ->
@@ -202,8 +139,91 @@ fun servicesTable() {
 
 }
 
+
 @Composable
-fun cell(service: Service, columnIndex: Int) {
+private fun TableCellScope.serviceButton(service: Service, editService: MutableState<Boolean>) {
+    val coroutineScope = rememberCoroutineScope()
+    val serviceModel by rememberInstance<ServiceVM>()
+    val navController = LocalNavigator.currentOrThrow
+
+    Row() {
+        IconButton(
+            onClick = {
+                editService.value = false
+                serviceModel.selectService(service)
+            },
+            modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.KeyboardArrowRight,
+                "Show",
+                tint = MaterialTheme.colors.secondary
+
+            )
+        }
+        Spacer(Modifier.width(XS))
+        IconButton(
+            onClick = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    serviceModel.history(service.service, true)
+                    withContext(Dispatchers.Main) {
+                        navController.push(KPasswordScreen.History)
+                    }
+                }
+            },
+            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                painterResource("/icons/history.svg"),
+                "History",
+                tint = MaterialTheme.colors.secondary
+            )
+        }
+        Spacer(Modifier.width(XS))
+        IconButton(
+            onClick = {
+                editService.value = true
+                serviceModel.selectService(service)
+            },
+            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.Edit,
+                "Edit",
+                tint = MaterialTheme.colors.secondary
+            )
+        }
+        val showAlert = remember {
+            mutableStateOf(false)
+        }
+        Spacer(Modifier.width(XS))
+        IconButton(
+            onClick = { showAlert.value = true },
+            modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
+        ) {
+            Icon(
+                Icons.Default.Delete,
+                "Delete",
+                tint = MaterialTheme.colors.error
+
+            )
+        }
+
+        showOkCancel(
+            title = "Delete confirmation",
+            message = "Do you want to delete service ${service.service}?",
+            showAlert,
+            onConfirm = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    serviceModel.delete(service)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun cell(service: Service, columnIndex: Int) {
     val clipboardManager = LocalClipboardManager.current
     ContextMenuDataProvider(
         items = {
@@ -475,7 +495,7 @@ fun showService(onClose: () -> Unit) {
 }
 
 @Composable
-fun searchField() {
+private fun RowScope.searchField() {
     val search = remember {
         mutableStateOf(TextFieldValue())
     }
@@ -497,7 +517,7 @@ fun searchField() {
                 serviceVM.searchPattern(it.text)
             }
         },
-        modifier = Modifier.testTag("Search field")
+        modifier = Modifier.testTag("Search field").align(Alignment.Bottom)
     )
 }
 

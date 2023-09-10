@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.seanproctor.datatable.DataColumn
+import com.seanproctor.datatable.TableCellScope
 import com.seanproctor.datatable.material3.PaginatedDataTable
 import com.seanproctor.datatable.paging.rememberPaginatedDataTableState
 
@@ -20,9 +21,9 @@ fun <T> Table(
     modifier: Modifier = Modifier,
     headers: List<String>,
     values: List<T>,
-    cellContent: @Composable (col: Int, row: T) -> Unit,
-    beforeRow: @Composable (row: T) -> Unit = {},
+    beforeRow: @Composable TableCellScope.(row: T) -> Unit = {},
     columnCount: Int = headers.size,
+    cellContent: @Composable TableCellScope.(col: Int, row: T) -> Unit,
 ) {
 
     PaginatedDataTable(
@@ -44,7 +45,7 @@ fun <T> Table(
                 (0..columnCount).forEach { col ->
                     cell {
                         if (col == 0) {
-                            beforeRow.invoke(currentRow)
+                            beforeRow(currentRow)
                         } else {
                             cellContent(col - 1, currentRow)
                         }

@@ -335,7 +335,7 @@ fun users() {
                 },
                 beforeRow = { user ->
                     if (userVM.isAdmin()) {
-                        Row(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        Row {
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
