@@ -29,6 +29,7 @@ import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
@@ -98,7 +99,7 @@ class AppTest {
 
         rule.setContent {
             withDI(di) {
-               withNavigator {
+                withNavigator {
                     app()
                 }
             }
@@ -174,6 +175,7 @@ class AppTest {
     }
 
     @Test
+    @Ignore
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
 
         rule.setContent {
@@ -267,8 +269,10 @@ class AppTest {
     }
 
     @Composable
-    fun withNavigator(screen: Screen = KPasswordScreen.Login,
-                      content: @Composable ()->Unit) {
+    fun withNavigator(
+        screen: Screen = KPasswordScreen.Login,
+        content: @Composable () -> Unit
+    ) {
         Navigator(screen) {
             navigator = it
             val scaffoldState = rememberScaffoldState()

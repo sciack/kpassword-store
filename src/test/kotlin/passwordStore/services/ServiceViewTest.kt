@@ -40,14 +40,11 @@ class ServiceViewTest {
     fun setUp() = runBlocking {
         val userVM by di.instance<UserVM>()
         userVM.loggedUser.value = user
-        serviceModel.resetService()
     }
 
     @AfterTest
     fun tearDown() {
-        coroutineScope.launch {
-            serviceModel.resetService()
-        }
+
     }
 
     @Test
@@ -55,10 +52,9 @@ class ServiceViewTest {
         runTest {
             var service = Service()
             val clock by di.instance<Clock>()
-            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService({}) {
+                    newService(service, {}) {
                         service = it
                     }
                 }
@@ -102,10 +98,9 @@ class ServiceViewTest {
                 score = 0.0,
                 updateTime = clock.currentDateTime()
             )
-            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService({}) {
+                    newService(service, {}) {
                         service = it
                     }
                 }
@@ -138,10 +133,9 @@ class ServiceViewTest {
                 score = 0.0,
                 updateTime = clock.currentDateTime()
             )
-            serviceModel.selectService(service)
             rule.setContent {
                 withDI(di) {
-                    newService({}) {
+                    newService(service, {}) {
                         service = it
                     }
                 }
@@ -179,7 +173,7 @@ class ServiceViewTest {
             val expectedService = service.copy()
             rule.setContent {
                 withDI(di) {
-                    newService({}) {
+                    newService(service, {}) {
                         service = it
                     }
                 }

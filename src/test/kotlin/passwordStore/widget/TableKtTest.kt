@@ -23,7 +23,6 @@ class TableKtTest {
         val elements = listOf(listOf("1", "2"), listOf("3", "4"))
         rule.setContent {
             Table(
-                columnCount = 2,
                 headers = headers,
                 values = elements,
                 cellContent = { columnIndex, element ->

@@ -40,6 +40,7 @@ class ServiceVM(
     }
     suspend fun fetchAll() {
         val user = userVM.loggedUser.value
+        resetSearch()
         withContext(Dispatchers.IO) {
             val result = servicesRepository.search(user, pattern, tag)
             val currentTags = tagRepository.tags(user)
