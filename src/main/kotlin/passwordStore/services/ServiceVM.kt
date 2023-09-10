@@ -28,8 +28,6 @@ class ServiceVM(
 
     val tags = mutableStateOf(mapOf<String, Int>())
 
-    val selectedService = mutableStateOf(Service())
-
     private var pattern: String = ""
 
     private var tag: String = ""
@@ -71,8 +69,6 @@ class ServiceVM(
     suspend fun update(service: Service) = runCatching {
         servicesRepository.update(service.trim())
         fetchAll()
-    }.onSuccess {
-        resetService()
     }.onFailure {
         saveError.value = processError(it, service)
     }
@@ -107,17 +103,6 @@ class ServiceVM(
         search()
     }
 
-    fun selectService(service: Service) {
-        LOGGER.warn { "Set service $service" }
-        selectedService.value = service
-    }
-
-    suspend fun resetService() {
-        withContext(Dispatchers.Main) {
-            selectedService.value = Service()
-            saveError.value = ""
-        }
-    }
 
     suspend fun delete(service: Service) {
         val user = userVM.loggedUser.value
@@ -127,7 +112,7 @@ class ServiceVM(
         }
     }
 
-    fun resetHistory() {
+    private fun resetHistory() {
         historyEvents.value = listOf()
     }
 

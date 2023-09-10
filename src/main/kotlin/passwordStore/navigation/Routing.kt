@@ -11,10 +11,7 @@ import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.config.configView
 import passwordStore.loginPane
-import passwordStore.services.ServiceVM
-import passwordStore.services.historyTable
-import passwordStore.services.newService
-import passwordStore.services.servicesTable
+import passwordStore.services.*
 import passwordStore.users.UserVM
 import passwordStore.users.createUser
 import passwordStore.users.userSettings
@@ -57,7 +54,6 @@ sealed interface KPasswordScreen {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()
                 coroutineScope.launch(Dispatchers.Main) {
-                    serviceModel.resetService()
                     serviceModel.fetchAll()
                 }
                 servicesTable()
@@ -101,13 +97,9 @@ sealed interface KPasswordScreen {
                 val serviceModel by rememberInstance<ServiceVM>()
                 val userVM by rememberInstance<UserVM>()
                 val coroutineScope = rememberCoroutineScope()
-                coroutineScope.launch(Dispatchers.Main) {
-                    serviceModel.resetService()
-                }
-                newService(onCancel = { navController.pop() }) {
+                newService(Service(), onCancel = { navController.pop() }) {
                     coroutineScope.launch(Dispatchers.IO) {
                         serviceModel.store(it).onSuccess {
-                            serviceModel.resetService()
                             withContext(Dispatchers.Main) {
                                 navController.push(List)
                             }

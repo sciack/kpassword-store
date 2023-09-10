@@ -1,15 +1,15 @@
 package passwordStore.services
 
-import androidx.compose.foundation.ContextMenuDataProvider
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +31,7 @@ import com.seanproctor.datatable.TableCellScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.kodein.di.DI
@@ -39,10 +40,7 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
-import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
-import passwordStore.ui.theme.XS
+import passwordStore.ui.theme.*
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -67,7 +65,7 @@ fun servicesTable() {
     }
 
     val selectedService = remember {
-        serviceModel.selectedService
+        mutableStateOf(Service())
     }
 
 
@@ -85,11 +83,11 @@ fun servicesTable() {
                 headers = listOf("Tags", "Service", "Username", "Password", "Note"),
                 values = services.toList(),
                 beforeRow = { service ->
-                    serviceButton(service, editService)
+                    serviceButton(service, editService, selectedService)
                 },
                 onClickRow = { row ->
                     editService.value = false
-                    serviceModel.selectService(row)
+                    selectedService.value = row
                 }
             ) { columnIndex, service ->
                 cell(service, columnIndex)
@@ -114,30 +112,42 @@ fun servicesTable() {
     }
 
     if (selectedService.value.service.isNotEmpty()) {
-        Card(modifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            val maxWidth = constraints.maxWidth
-            val x = (maxWidth - placeable.width).coerceAtLeast(0)
-            layout(width = placeable.width, height = placeable.height) {
-                placeable.place(x, 10)
-            }
+        Box(Modifier.fillMaxSize().clickable {
+            selectedService.value = Service()
         }) {
-            if (editService.value) {
-                newService(onCancel = {
-                    coroutineScope.launch {
-                        serviceModel.resetService()
-                    }
-                }) { service ->
-                    coroutineScope.launch {
-                        if (service.dirty) {
-                            serviceModel.update(service)
-                        }
+            OutlinedCard(modifier = Modifier
+                .fillMaxHeight(0.9f)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    val maxWidth = constraints.maxWidth
+                    val x = (maxWidth - placeable.width).coerceAtLeast(0)
+                    layout(width = placeable.width, height = placeable.height) {
+                        placeable.place(x, 10)
                     }
                 }
-            } else {
-                showService {
-                    coroutineScope.launch {
-                        serviceModel.resetService()
+                .clickable {
+                    // just do nothing but avoid propagate the click to the box
+                },
+                elevation = CardDefaults.cardElevation(MEDIUM),
+                colors = CardDefaults.cardColors(MaterialTheme.colors.background)
+                ) {
+                if (editService.value) {
+                    newService(selectedService = selectedService.value, onCancel = {
+                        selectedService.value = Service()
+                    }) { service ->
+                        coroutineScope.launch {
+                            if (service.dirty) {
+                                serviceModel.update(service).onSuccess {
+                                    selectedService.value = Service()
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    showService(selectedService = selectedService.value) {
+                        coroutineScope.launch {
+                            selectedService.value = Service()
+                        }
                     }
                 }
             }
@@ -148,16 +158,18 @@ fun servicesTable() {
 
 
 @Composable
-private fun TableCellScope.serviceButton(service: Service, editService: MutableState<Boolean>) {
+private fun TableCellScope.serviceButton(service: Service,
+                                         editService: MutableState<Boolean>,
+                                         selectedService: MutableState<Service>) {
     val coroutineScope = rememberCoroutineScope()
     val serviceModel by rememberInstance<ServiceVM>()
     val navController = LocalNavigator.currentOrThrow
 
-    Row() {
+    Row {
         IconButton(
             onClick = {
                 editService.value = false
-                serviceModel.selectService(service)
+                selectedService.value = service
             },
             modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
@@ -190,7 +202,7 @@ private fun TableCellScope.serviceButton(service: Service, editService: MutableS
         IconButton(
             onClick = {
                 editService.value = true
-                serviceModel.selectService(service)
+                selectedService.value = service
             },
             modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
         ) {
@@ -271,15 +283,15 @@ private fun cell(service: Service, columnIndex: Int) {
 
 
 @Composable
-fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
+fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val serviceModel by rememberInstance<ServiceVM>()
     val userVM by rememberInstance<UserVM>()
     val service = remember {
-        serviceModel.selectedService
+        mutableStateOf(selectedService)
     }
 
     val tags = remember {
-        mutableStateOf(serviceModel.selectedService.value.tags.toSet())
+        mutableStateOf(selectedService.tags.toSet())
     }
 
     val dirty = remember {
@@ -287,14 +299,13 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     }
 
     val readonly = remember {
-        mutableStateOf(serviceModel.selectedService.value.service.isNotEmpty())
+        mutableStateOf(selectedService.service.isNotEmpty())
     }
     val errorMsg = remember {
         serviceModel.saveError
     }
     val clock: Clock by localDI().instance()
 
-    tags.value = serviceModel.selectedService.value.tags.toSet()
     Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
@@ -313,7 +324,7 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
             )
 
             tagEditor(tags, onValueChange = { values ->
-                val modelTags = serviceModel.selectedService.value.tags
+                val modelTags = selectedService.tags
                 dirty.value = dirty.value || values != modelTags
                 service.value = service.value.copy(tags = values.toList())
             })
@@ -416,26 +427,25 @@ fun newService(onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
 
 
 @Composable
-fun showService(onClose: () -> Unit) {
+fun showService(selectedService: Service, onClose: () -> Unit) {
     val serviceModel by rememberInstance<ServiceVM>()
     val userVM by rememberInstance<UserVM>()
     val service = remember {
-        serviceModel.selectedService
+        selectedService
     }
     val tags = remember {
-        mutableStateOf(serviceModel.selectedService.value.tags.toSet())
+        mutableStateOf(selectedService.tags.toSet())
     }
 
     val clock: Clock by localDI().instance()
 
-    tags.value = serviceModel.selectedService.value.tags.toSet()
     Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(600.dp)) {
             OutlinedTextField(
                 label = { Text("Service") },
                 onValueChange = { },
                 readOnly = true,
-                value = service.value.service,
+                value = service.service,
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .testTag("service"),
@@ -446,7 +456,7 @@ fun showService(onClose: () -> Unit) {
 
             OutlinedTextField(
                 label = { Text("Username") },
-                value = service.value.username,
+                value = service.username,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
@@ -457,7 +467,7 @@ fun showService(onClose: () -> Unit) {
 
             OutlinedTextField(
                 label = { Text("Password") },
-                value = service.value.password,
+                value = service.password,
                 onValueChange = {
                 },
                 trailingIcon = {
@@ -471,7 +481,7 @@ fun showService(onClose: () -> Unit) {
 
             OutlinedTextField(
                 label = { Text("Note") },
-                value = service.value.note,
+                value = service.note,
                 minLines = 5,
                 maxLines = 10,
                 onValueChange = {

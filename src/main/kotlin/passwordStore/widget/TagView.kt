@@ -33,7 +33,7 @@ fun tagView() {
     }
 
     FlowRow(
-        maxItemsInEachRow = 8,
+        maxItemsInEachRow = 12,
         modifier = Modifier
             .focusable(false)
             .padding(top = XS, bottom = XS)
