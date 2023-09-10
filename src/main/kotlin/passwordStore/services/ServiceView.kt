@@ -39,7 +39,10 @@ import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
-import passwordStore.ui.theme.*
+import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XS
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -83,6 +86,10 @@ fun servicesTable() {
                 values = services.toList(),
                 beforeRow = { service ->
                     serviceButton(service, editService)
+                },
+                onClickRow = { row ->
+                    editService.value = false
+                    serviceModel.selectService(row)
                 }
             ) { columnIndex, service ->
                 cell(service, columnIndex)
@@ -99,8 +106,8 @@ fun servicesTable() {
                 Icons.Default.Add,
                 KPasswordScreen.NewService.name,
                 tint = MaterialTheme.colors.onSurface,
-                modifier = Modifier.size(XL * 2 ).clip(CircleShape)
-                    .background(color=MaterialTheme.colors.primary)
+                modifier = Modifier.size(XL * 2).clip(CircleShape)
+                    .background(color = MaterialTheme.colors.primary)
                     .border(2.dp, color = MaterialTheme.colors.onPrimary, shape = CircleShape)
             )
         }
@@ -243,7 +250,7 @@ private fun cell(service: Service, columnIndex: Int) {
     ) {
         SelectionContainer {
             when (columnIndex) {
-                0 -> Text(service.tags.joinToString(", ") )
+                0 -> Text(service.tags.joinToString(", "))
                 1 -> Text(service.service)
                 2 -> Text(service.username)
                 3 -> Text(text = service.password.obfuscate())
@@ -255,6 +262,7 @@ private fun cell(service: Service, columnIndex: Int) {
                     maxLines = 5,
                     modifier = Modifier.widthIn(max = 350.dp)
                 )
+
                 else -> Text("")
             }
         }

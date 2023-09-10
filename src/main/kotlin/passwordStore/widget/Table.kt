@@ -22,8 +22,8 @@ fun <T> Table(
     headers: List<String>,
     values: List<T>,
     beforeRow: @Composable TableCellScope.(row: T) -> Unit = {},
-    columnCount: Int = headers.size,
-    cellContent: @Composable TableCellScope.(col: Int, row: T) -> Unit,
+    onClickRow: (row: T) -> Unit = {},
+    cellContent: @Composable TableCellScope.(col: Int, row: T) -> Unit
 ) {
 
     PaginatedDataTable(
@@ -42,7 +42,10 @@ fun <T> Table(
     ) {
         values.forEach { currentRow ->
             row {
-                (0..columnCount).forEach { col ->
+                onClick = {
+                    onClickRow(currentRow)
+                }
+                (0..headers.size).forEach { col ->
                     cell {
                         if (col == 0) {
                             beforeRow(currentRow)
