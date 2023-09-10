@@ -1,17 +1,23 @@
 package passwordStore.services
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -22,9 +28,15 @@ import org.kodein.di.instance
 import passwordStore.audit.Action
 import passwordStore.audit.Event
 import passwordStore.navigation.KPasswordScreen
+import passwordStore.ui.theme.INPUT_MEDIUM
+import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.SMALL
 import passwordStore.utils.asTitle
+import passwordStore.utils.obfuscate
 import passwordStore.utils.short
 import passwordStore.widget.Table
+import passwordStore.widget.bottomBorder
+import passwordStore.widget.passwordToolTip
 import passwordStore.widget.showOk
 
 
@@ -33,9 +45,12 @@ fun historyTable(historyEvents: List<Event>) {
     val serviceModel by localDI().instance<ServiceVM>()
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavigator.currentOrThrow
-    val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Note")
+    val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Tags", "Note")
 
-    Column(Modifier.fillMaxSize(.9f)) {
+    Column(Modifier.fillMaxSize().padding(LARGE)) {
+        Row {
+            searchField()
+        }
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(modifier = Modifier.fillMaxSize(),
                 headers = headers,
@@ -53,7 +68,7 @@ fun historyTable(historyEvents: List<Event>) {
                             IconButton(onClick = {
                                 coroutineScope.launch {
                                     serviceModel.store(event.service)
-                                        .onSuccess { navController.push(KPasswordScreen.List) }
+                                        .onSuccess { navController.push(KPasswordScreen.Home) }
                                         .onFailure { showAlert.value = true }
                                 }
                             }, modifier = Modifier.align(Alignment.CenterVertically)) {
@@ -78,6 +93,7 @@ private fun contentRowModifier(event: Event) = when (event.action) {
     Action.update -> MaterialTheme.colors.primary
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun displayHistService(event: Event, columnIndex: Int) {
     val service = event.service
@@ -87,8 +103,9 @@ fun displayHistService(event: Event, columnIndex: Int) {
         1 -> Text(event.actionDate.short(), color = colors)
         2 -> Text(service.service, color = colors)
         3 -> Text(service.username, color = colors)
-        4 -> Text(service.password, color = colors)
-        5 -> Text(
+        4 -> passwordToolTip(service.password, colors)
+        5 -> Text(service.tags.joinToString(", "), color = colors)
+        6 -> Text(
             text = service.note,
             softWrap = true,
             overflow = TextOverflow.Clip,
@@ -98,5 +115,31 @@ fun displayHistService(event: Event, columnIndex: Int) {
             color = colors
         )
     }
+}
 
+@Composable
+private fun RowScope.searchField() {
+    val search = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val serviceVM by localDI().instance<ServiceVM>()
+
+    OutlinedTextField(
+        label = { Text("Search") },
+        value = search.value,
+        leadingIcon = {
+            Icon(
+                Icons.Default.Search,
+                "Search"
+            )
+        },
+        onValueChange = {
+            search.value = it
+            coroutineScope.launch {
+                serviceVM.history(it.text, false)
+            }
+        },
+        modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
+    )
 }

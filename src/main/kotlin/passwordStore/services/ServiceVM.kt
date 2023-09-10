@@ -28,12 +28,16 @@ class ServiceVM(
 
     val tags = mutableStateOf(mapOf<String, Int>())
 
-    private var pattern: String = ""
+    var pattern: String = ""
 
-    private var tag: String = ""
+    var tag: String = ""
 
     val saveError = mutableStateOf("")
 
+    fun resetSearch() {
+        tag = ""
+        pattern = ""
+    }
     suspend fun fetchAll() {
         val user = userVM.loggedUser.value
         withContext(Dispatchers.IO) {

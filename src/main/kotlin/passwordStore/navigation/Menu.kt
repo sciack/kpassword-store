@@ -32,12 +32,12 @@ fun menu() {
     val userVM by rememberInstance<UserVM>()
 
     menuItem(
-        onClick = { navController.push(KPasswordScreen.List) },
-        title = KPasswordScreen.List.name,
+        onClick = { navController.push(KPasswordScreen.Home) },
+        title = KPasswordScreen.Home.name,
         testTag = "Home",
         icon = {
             Icon(
-                Icons.Default.Home, contentDescription = KPasswordScreen.List.name,
+                Icons.Default.Home, contentDescription = KPasswordScreen.Home.name,
             )
         }
     )

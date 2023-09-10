@@ -43,8 +43,8 @@ sealed interface KPasswordScreen {
     val allowBack: Boolean
         get() = false
 
-    data object List : Screen, KPasswordScreen {
-        private fun readResolve(): Any = List
+    data object Home : Screen, KPasswordScreen {
+        private fun readResolve(): Any = Home
         override val name: String
             get() = "Home"
 
@@ -53,6 +53,7 @@ sealed interface KPasswordScreen {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()
+                serviceModel.resetSearch()
                 coroutineScope.launch(Dispatchers.Main) {
                     serviceModel.fetchAll()
                 }
@@ -75,7 +76,7 @@ sealed interface KPasswordScreen {
             loginPane(loginFunction = { currentUsername, pwd ->
                 userVM.login(currentUsername, pwd).onSuccess {
                     userVM.loggedUser.value = it
-                    navController.push(List)
+                    navController.push(Home)
                 }
             })
 
@@ -101,7 +102,7 @@ sealed interface KPasswordScreen {
                     coroutineScope.launch(Dispatchers.IO) {
                         serviceModel.store(it).onSuccess {
                             withContext(Dispatchers.Main) {
-                                navController.push(List)
+                                navController.push(Home)
                             }
                         }
 

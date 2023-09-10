@@ -80,7 +80,7 @@ fun servicesTable() {
         Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)) {
             Table(
                 modifier = Modifier.fillMaxSize(),
-                headers = listOf("Tags", "Service", "Username", "Password", "Note"),
+                headers = listOf("Service", "Username", "Password", "Tags", "Note"),
                 values = services.toList(),
                 beforeRow = { service ->
                     serviceButton(service, editService, selectedService)
@@ -130,7 +130,7 @@ fun servicesTable() {
                 },
                 elevation = CardDefaults.cardElevation(MEDIUM),
                 colors = CardDefaults.cardColors(MaterialTheme.colors.background)
-                ) {
+            ) {
                 if (editService.value) {
                     newService(selectedService = selectedService.value, onCancel = {
                         selectedService.value = Service()
@@ -158,9 +158,11 @@ fun servicesTable() {
 
 
 @Composable
-private fun TableCellScope.serviceButton(service: Service,
-                                         editService: MutableState<Boolean>,
-                                         selectedService: MutableState<Service>) {
+private fun TableCellScope.serviceButton(
+    service: Service,
+    editService: MutableState<Boolean>,
+    selectedService: MutableState<Service>
+) {
     val coroutineScope = rememberCoroutineScope()
     val serviceModel by rememberInstance<ServiceVM>()
     val navController = LocalNavigator.currentOrThrow
@@ -262,10 +264,10 @@ private fun cell(service: Service, columnIndex: Int) {
     ) {
         SelectionContainer {
             when (columnIndex) {
-                0 -> Text(service.tags.joinToString(", "))
-                1 -> Text(service.service)
-                2 -> Text(service.username)
-                3 -> Text(text = service.password.obfuscate())
+                0 -> Text(service.service)
+                1 -> Text(service.username)
+                2 -> passwordToolTip(service.password)
+                3 -> Text(service.tags.joinToString(", "))
                 4 -> Text(
                     text = service.note,
                     softWrap = true,
@@ -307,7 +309,7 @@ fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Servic
     val clock: Clock by localDI().instance()
 
     Row(Modifier.padding(LARGE)) {
-        Column(modifier = Modifier.width(600.dp)) {
+        Column(modifier = Modifier.width(INPUT_LARGE)) {
             OutlinedTextField(
                 label = { Text("Service") },
                 onValueChange = { value ->
@@ -440,7 +442,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
     val clock: Clock by localDI().instance()
 
     Row(Modifier.padding(LARGE)) {
-        Column(modifier = Modifier.width(600.dp)) {
+        Column(modifier = Modifier.width(INPUT_LARGE)) {
             OutlinedTextField(
                 label = { Text("Service") },
                 onValueChange = { },
@@ -504,11 +506,11 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 
 @Composable
 private fun RowScope.searchField() {
+    val serviceVM by localDI().instance<ServiceVM>()
     val search = remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(TextFieldValue(serviceVM.pattern))
     }
     val coroutineScope = rememberCoroutineScope()
-    val serviceVM by localDI().instance<ServiceVM>()
 
     OutlinedTextField(
         label = { Text("Search") },
@@ -525,7 +527,7 @@ private fun RowScope.searchField() {
                 serviceVM.searchPattern(it.text)
             }
         },
-        modifier = Modifier.testTag("Search field").align(Alignment.Bottom)
+        modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
     )
 }
 

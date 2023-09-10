@@ -29,7 +29,7 @@ fun tagView() {
         serviceModel.tags
     }
     val selected = remember {
-        mutableStateOf("")
+        mutableStateOf(serviceModel.tag)
     }
 
     FlowRow(
