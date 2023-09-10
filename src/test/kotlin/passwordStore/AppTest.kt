@@ -1,8 +1,13 @@
 package passwordStore
 
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.Navigator
 import com.github.javafaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -12,12 +17,14 @@ import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.navigation.NavController
+import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.Service
 import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UserVM
 import passwordStore.users.UserVM.Companion.NONE
+import passwordStore.utils.LocalStatusHolder
+import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
@@ -32,9 +39,9 @@ class AppTest {
     private val clock: Clock by di.instance()
     private val servicesRepository by di.instance<ServicesRepository>()
     private val serviceModel by di.instance<ServiceVM>()
-    private val navController by di.instance<NavController>()
     private val faker = Faker()
     private val userVM by di.instance<UserVM>()
+    private var navigator: Navigator? = null
 
     @get:Rule
     val rule = createComposeRule()
@@ -42,8 +49,6 @@ class AppTest {
     @BeforeTest
     fun setUp() {
         userVM.loggedUser.value = NONE
-        val navController by di.instance<NavController>()
-        navController.currentScreen.value = Screen.Login
         rule.mainClock.autoAdvance = true
     }
 
@@ -61,7 +66,9 @@ class AppTest {
     fun shouldShowLogin() = runTest {
         rule.setContent {
             withDI(di) {
-                app()
+                withNavigator {
+                    app()
+                }
             }
         }
 
@@ -74,7 +81,9 @@ class AppTest {
     fun shouldShowAnErrorIfLoginFail() = runTest {
         rule.setContent {
             withDI(di) {
-                app()
+                withNavigator {
+                    app()
+                }
             }
         }
 
@@ -86,9 +95,12 @@ class AppTest {
 
     @Test
     fun `should be able to add a service`() = runTest {
+
         rule.setContent {
             withDI(di) {
-                app()
+               withNavigator {
+                    app()
+                }
             }
         }
         rule.awaitIdle()
@@ -106,7 +118,7 @@ class AppTest {
         )
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
-
+        navigator?.push(KPasswordScreen.NewService)
         insertService(service)
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
@@ -121,7 +133,9 @@ class AppTest {
     fun `should throw an error if service is add two times`() = runTest {
         rule.setContent {
             withDI(di) {
-                app()
+                withNavigator {
+                    app()
+                }
             }
         }
         rule.awaitIdle()
@@ -139,7 +153,7 @@ class AppTest {
         )
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
-
+        navigator?.push(KPasswordScreen.NewService)
         insertService(service)
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
@@ -147,6 +161,7 @@ class AppTest {
             serviceModel.services.size == 1
         }
         rule.onNodeWithTag("Search field").assertExists()
+        navigator?.push(KPasswordScreen.NewService)
         fillService(service)
         rule.waitUntilAtLeastOneExists(hasTestTag("ErrorMsg"))
     }
@@ -160,9 +175,12 @@ class AppTest {
 
     @Test
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
+
         rule.setContent {
             withDI(di) {
-                app()
+                withNavigator {
+                    app()
+                }
             }
         }
         rule.awaitIdle()
@@ -183,7 +201,7 @@ class AppTest {
                 updateTime = clock.currentDateTime()
             )
             rule.onNodeWithTag("Search field").assertExists()
-
+            navigator?.push(KPasswordScreen.NewService)
             insertService(service)
             rule.awaitIdle()
 
@@ -223,7 +241,7 @@ class AppTest {
     }
 
     private suspend fun fillService(service: Service) {
-        navController.navigate(Screen.NewService)
+
 
         rule.waitUntilExactlyOneExists(hasTestTag("service"), 3000)
 
@@ -246,5 +264,19 @@ class AppTest {
         rule.onNodeWithTag("password").assertExists().performTextInput("secret")
         rule.awaitIdle()
         rule.onNodeWithTag("login").assertExists().performClick()
+    }
+
+    @Composable
+    fun withNavigator(screen: Screen = KPasswordScreen.Login,
+                      content: @Composable ()->Unit) {
+        Navigator(screen) {
+            navigator = it
+            val scaffoldState = rememberScaffoldState()
+            CompositionLocalProvider(
+                LocalStatusHolder provides StatusHolder(scaffoldState)
+            ) {
+                content()
+            }
+        }
     }
 }

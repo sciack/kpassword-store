@@ -10,11 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
-import passwordStore.navigation.NavController
 import passwordStore.ui.theme.LARGE
 import passwordStore.ui.theme.MEDIUM
 import passwordStore.ui.theme.SMALL
@@ -41,7 +42,7 @@ fun configView() {
     val darkMode = remember {
         configVM.darkMode
     }
-    val navController by rememberInstance<NavController>()
+    val navController = LocalNavigator.currentOrThrow
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(LARGE)) {
         Row {
             Text(
@@ -152,7 +153,7 @@ fun configView() {
                     coroutineScope.launch {
                         configVM.save()
                         withContext(Dispatchers.Main) {
-                            navController.navigateBack()
+                            navController.pop()
                         }
                     }
                 }
@@ -163,7 +164,7 @@ fun configView() {
             Button(
                 onClick = {
                     configVM.reset()
-                    navController.navigateBack()
+                    navController.pop()
                 }
             ) {
                 Text("Cancel")

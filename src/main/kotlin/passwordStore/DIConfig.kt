@@ -13,7 +13,6 @@ import passwordStore.audit.auditModule
 import passwordStore.config.ConfigVM
 import passwordStore.config.configureEnvironment
 import passwordStore.crypto.prodCryptExtension
-import passwordStore.navigation.navigation
 import passwordStore.services.services
 import passwordStore.sql.Migration
 import passwordStore.sql.prodDatasource
@@ -24,7 +23,6 @@ fun diCore(): DI.Module = DI.Module("core") {
 
     import(auditModule)
     import(services)
-    import(navigation)
     import(tagModule)
     import(userModule)
     bind {

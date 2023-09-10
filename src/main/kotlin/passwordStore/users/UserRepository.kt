@@ -33,7 +33,6 @@ import passwordStore.services.ServicesRepository
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
-import passwordStore.utils.logger
 import java.sql.SQLException
 import javax.sql.DataSource
 

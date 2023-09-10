@@ -23,8 +23,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
@@ -32,47 +35,42 @@ import org.kodein.di.instance
 import passwordStore.config.ConfigVM
 import passwordStore.config.MODE
 import passwordStore.config.getMode
+import passwordStore.navigation.KPasswordScreen
 import passwordStore.navigation.menu
-import passwordStore.navigation.rememberNavController
 import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XXL
+import passwordStore.ui.theme.appTheme
 import passwordStore.users.UserVM
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
-import passwordStore.ui.theme.appTheme
 
 @Composable
 @Preview
 fun app() {
-    val navController by rememberNavController()
     val userVM by rememberInstance<UserVM>()
-    val coroutineScope = rememberCoroutineScope()
-    StatusHolder.scaffoldState = rememberScaffoldState()
-
-    navController.onSelection {
-        coroutineScope.launch(Dispatchers.Main) {
-            StatusHolder.closeDrawer()
-        }
-    }
-
-    Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = StatusHolder.scaffoldState, topBar = {
+    val statusHolder = LocalStatusHolder.currentOrThrow
+    Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = statusHolder.scaffoldState, topBar = {
         TopAppBar(
             modifier = Modifier.height(APP_BAR_HEIGHT)
         ) {}
     }) {
 
         ModalDrawer(
-            drawerState = StatusHolder.scaffoldState.drawerState,
+            drawerState = statusHolder.scaffoldState.drawerState,
             drawerContent = {
-                menu(navController)
+                menu()
             },
             drawerShape = customShape(),
         ) {
-            route(navController)
+
+            CurrentScreen()
         }
+
     }
+
 }
 
 fun customShape() = object : Shape {
@@ -123,22 +121,28 @@ fun main() {
                     darkMode.value.isDarkMode()
                 ) {
                     LOGGER.info { "Building the app" }
-
-                    app()
-                    val title = remember {
-                        mutableStateOf(prefix)
-                    }
-                    AppWindowTitleBar(title = title,
-                        state = state,
-                        onMinimize = { state.isMinimized = state.isMinimized.not() },
-                        onMaximize = {
-                            state.placement =
-                                if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
-                        },
-                        onClose = {
-                            exitApplication()
-                        }) {
-                        menuDrawer()
+                    Navigator(KPasswordScreen.Login) {
+                        val scaffoldState = rememberScaffoldState()
+                        CompositionLocalProvider(
+                            LocalStatusHolder provides StatusHolder(scaffoldState)
+                        ) {
+                            app()
+                            val title = remember {
+                                mutableStateOf(prefix)
+                            }
+                            AppWindowTitleBar(title = title,
+                                state = state,
+                                onMinimize = { state.isMinimized = state.isMinimized.not() },
+                                onMaximize = {
+                                    state.placement =
+                                        if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
+                                },
+                                onClose = {
+                                    exitApplication()
+                                }) {
+                                menuDrawer()
+                            }
+                        }
                     }
                 }
             }
@@ -148,39 +152,43 @@ fun main() {
 
 @Composable
 fun menuDrawer() {
-    val navController by rememberNavController()
+    val navController = LocalNavigator.currentOrThrow
     val userVM by rememberInstance<UserVM>()
     val currentUser = remember {
         userVM.loggedUser
     }
     val coroutineScope = rememberCoroutineScope()
     Row {
-        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XL))
-        if (navController.currentScreen.value.allowBack) {
+        val currentScreen = navController.lastItem as KPasswordScreen
+        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XXL))
+        if (currentScreen.allowBack) {
             IconButton(
-                onClick = { navController.navigateBack() }, modifier = Modifier.padding(start = SMALL)
+                onClick = { navController.pop() }, modifier = Modifier.padding(start = SMALL)
             ) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colors.onPrimary
+                    tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
                 )
             }
         }
         if (currentUser.value.id > 0) {
+            val statusHolder = LocalStatusHolder.currentOrThrow
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        if (StatusHolder.scaffoldState.drawerState.isClosed) {
-                            StatusHolder.openDrawer()
+                        if (statusHolder.scaffoldState.drawerState.isClosed) {
+                            statusHolder.openDrawer()
                         } else {
-                            StatusHolder.closeDrawer()
+                            statusHolder.closeDrawer()
                         }
                     }
-                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL)
+                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
             ) {
                 Icon(
-                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary
+                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
                 )
             }
         }

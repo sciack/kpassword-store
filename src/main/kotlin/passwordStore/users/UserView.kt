@@ -16,14 +16,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
-import passwordStore.navigation.NavController
 import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XXL
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.widget.Table
 import passwordStore.widget.passwordDialog
@@ -31,7 +32,7 @@ import passwordStore.widget.showOkCancel
 
 @Composable
 fun userSettings(currentUser: User) {
-    val navController by rememberInstance<NavController>()
+    val navController = LocalNavigator.currentOrThrow
     val user = remember {
         mutableStateOf(
             EditableUser(
@@ -45,7 +46,7 @@ fun userSettings(currentUser: User) {
     }
 
     editUser(user) {
-        navController.navigateBack()
+        navController.pop()
     }
 
 }
@@ -240,6 +241,7 @@ private fun ColumnScope.userFields(
 
 @Composable
 fun createUser() {
+
     val user = remember {
         mutableStateOf(
             EditableUser()
@@ -255,7 +257,7 @@ fun createUser() {
     }
 
     val userVM by rememberInstance<UserVM>()
-    val navController by rememberInstance<NavController>()
+    val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
         userVM.errorMsg
@@ -288,7 +290,7 @@ fun createUser() {
                     if (dirty.value) {
                         coroutineScope.launch {
                             userVM.createUser(user.value).onSuccess {
-                                navController.navigateBack()
+                                navController.pop()
                             }
                         }
                     }
@@ -303,7 +305,7 @@ fun createUser() {
             Button(
                 onClick = {
                     errorMsg.value = ""
-                    navController.navigateBack()
+                    navController.pop()
                 },
                 modifier = Modifier.testTag("cancel")
             ) {
@@ -324,6 +326,7 @@ fun users() {
     val selectedUser = remember {
         mutableStateOf(EditableUser())
     }
+    val statusHolder = LocalStatusHolder.currentOrThrow
 
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(LARGE)) {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -373,7 +376,7 @@ fun users() {
                                 onConfirm = {
                                     coroutineScope.launch {
                                         userVM.delete(user.userid).onFailure {
-                                            StatusHolder.sendMessage("Error delete user ${user.userid}: ${it.localizedMessage}")
+                                            statusHolder.sendMessage("Error delete user ${user.userid}: ${it.localizedMessage}")
                                         }
                                     }
                                 }

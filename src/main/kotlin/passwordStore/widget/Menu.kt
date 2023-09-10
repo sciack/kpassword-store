@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XS
 
 @Composable
 fun menuItem(
