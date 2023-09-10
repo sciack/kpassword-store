@@ -243,18 +243,7 @@ private fun cell(service: Service, columnIndex: Int) {
     ) {
         SelectionContainer {
             when (columnIndex) {
-                0 -> {
-                    val tags = service.tags.filterNot(String::isEmpty).toSet()
-                    if (tags.isNotEmpty()) {
-                        tagViewer(
-                            mutableStateOf(tags),
-                            tagsPerRow = 8
-                        )
-                    } else {
-                        Text("")
-                    }
-                }
-
+                0 -> Text(service.tags.joinToString(", ") )
                 1 -> Text(service.service)
                 2 -> Text(service.username)
                 3 -> Text(text = service.password.obfuscate())
@@ -266,6 +255,7 @@ private fun cell(service: Service, columnIndex: Int) {
                     maxLines = 5,
                     modifier = Modifier.widthIn(max = 350.dp)
                 )
+                else -> Text("")
             }
         }
     }
