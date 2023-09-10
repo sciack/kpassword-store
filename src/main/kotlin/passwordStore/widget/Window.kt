@@ -22,7 +22,6 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
 import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
 import passwordStore.ui.theme.XXL
 
 
@@ -50,8 +49,10 @@ fun WindowScope.AppWindowTitleBar(
                 onClick = onMinimize,
                 modifier = Modifier.padding(end = SMALL)
             ) {
-                Icon(Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL))
+                Icon(
+                    Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
+                )
             }
             IconButton(
                 onClick = onMaximize,
@@ -65,16 +66,20 @@ fun WindowScope.AppWindowTitleBar(
                         modifier = Modifier.size(XXL)
                     )
                 } else {
-                    Icon(Icons.Default.Maximize, "Windows", tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.size(XXL))
+                    Icon(
+                        Icons.Default.Maximize, "Windows", tint = MaterialTheme.colors.onPrimary,
+                        modifier = Modifier.size(XXL)
+                    )
                 }
             }
             IconButton(
                 onClick = onClose,
                 modifier = Modifier.padding(end = SMALL)
             ) {
-                Icon(Icons.Default.Close, "Close", tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL))
+                Icon(
+                    Icons.Default.Close, "Close", tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
+                )
             }
         }
     }

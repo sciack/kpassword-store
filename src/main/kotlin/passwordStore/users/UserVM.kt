@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import passwordStore.LOGGER
-import passwordStore.utils.logger
 import passwordStore.utils.obfuscate
 
 class UserVM(private val userRepository: UserRepository, private val coroutineScope: CoroutineScope) {

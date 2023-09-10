@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,12 +39,11 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.LOGGER
-import passwordStore.Screen
-import passwordStore.navigation.NavController
+import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.LARGE
 import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XS
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -55,7 +56,7 @@ import kotlin.io.path.writer
 @Composable
 fun servicesTable() {
     val serviceModel by localDI().instance<ServiceVM>()
-    val navController by localDI().instance<NavController>()
+    val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
 
     val services = remember {
@@ -100,103 +101,103 @@ fun servicesTable() {
                                 "Show",
                                 tint = MaterialTheme.colors.secondary
 
-                    )
-                }
-                Spacer(Modifier.width(XS))
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceModel.history(service.service, true)
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(Screen.History)
+                            )
+                        }
+                        Spacer(Modifier.width(XS))
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    serviceModel.history(service.service, true)
+                                    withContext(Dispatchers.Main) {
+                                        navController.push(KPasswordScreen.History)
+                                    }
+                                }
+                            },
+                            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
+                        ) {
+                            Icon(
+                                painterResource("/icons/history.svg"),
+                                "History",
+                                tint = MaterialTheme.colors.secondary
+                            )
+                        }
+                        Spacer(Modifier.width(XS))
+                        IconButton(
+                            onClick = {
+                                editService.value = true
+                                serviceModel.selectService(service)
+                            },
+                            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
+                        ) {
+                            Icon(
+                                Icons.Default.Edit,
+                                "Edit",
+                                tint = MaterialTheme.colors.secondary
+                            )
+                        }
+                        val showAlert = remember {
+                            mutableStateOf(false)
+                        }
+                        Spacer(Modifier.width(XS))
+                        IconButton(
+                            onClick = { showAlert.value = true },
+                            modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                "Delete",
+                                tint = MaterialTheme.colors.error
+
+                            )
+                        }
+
+                        showOkCancel(
+                            title = "Delete confirmation",
+                            message = "Do you want to delete service ${service.service}?",
+                            showAlert,
+                            onConfirm = {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    serviceModel.delete(service)
+                                }
                             }
-                        }
-                    },
-                    modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        painterResource("/icons/history.svg"),
-                        "History",
-                        tint = MaterialTheme.colors.secondary
-                    )
-                }
-                Spacer(Modifier.width(XS))
-                IconButton(
-                    onClick = {
-                        editService.value = true
-                        serviceModel.selectService(service)
-                    },
-                    modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        Icons.Default.Edit,
-                        "Edit",
-                        tint = MaterialTheme.colors.secondary
-                    )
-                }
-                val showAlert = remember {
-                    mutableStateOf(false)
-                }
-                Spacer(Modifier.width(XS))
-                IconButton(
-                    onClick = { showAlert.value = true },
-                    modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        "Delete",
-                        tint = MaterialTheme.colors.error
-
-                    )
-                }
-
-                showOkCancel(
-                    title = "Delete confirmation",
-                    message = "Do you want to delete service ${service.service}?",
-                    showAlert,
-                    onConfirm = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceModel.delete(service)
-                        }
+                        )
                     }
-                )
-            }
+                }
+            )
         }
-        )
     }
-}
 
 
-if (selectedService.value .service.isNotEmpty()) {
-    Card(modifier = Modifier.layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        val maxWidth = constraints.maxWidth
-        val x = (maxWidth - placeable.width).coerceAtLeast(0)
-        layout(width = placeable.width, height = placeable.height) {
-            placeable.place(x, 10)
-        }
-    }) {
-        if (editService.value) {
-            newService(onCancel = {
-                coroutineScope.launch {
-                    serviceModel.resetService()
-                }
-            }) { service ->
-                coroutineScope.launch {
-                    if (service.dirty) {
-                        serviceModel.update(service)
+    if (selectedService.value.service.isNotEmpty()) {
+        Card(modifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val maxWidth = constraints.maxWidth
+            val x = (maxWidth - placeable.width).coerceAtLeast(0)
+            layout(width = placeable.width, height = placeable.height) {
+                placeable.place(x, 10)
+            }
+        }) {
+            if (editService.value) {
+                newService(onCancel = {
+                    coroutineScope.launch {
+                        serviceModel.resetService()
+                    }
+                }) { service ->
+                    coroutineScope.launch {
+                        if (service.dirty) {
+                            serviceModel.update(service)
+                        }
                     }
                 }
-            }
-        } else {
-            showService {
-                coroutineScope.launch {
-                    serviceModel.resetService()
+            } else {
+                showService {
+                    coroutineScope.launch {
+                        serviceModel.resetService()
+                    }
                 }
             }
         }
     }
-}
 
 }
 

@@ -30,7 +30,6 @@ import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import mu.KotlinLogging
 import passwordStore.LOGGER
 import passwordStore.audit.Action
 import passwordStore.audit.AuditMessage

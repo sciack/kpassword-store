@@ -7,7 +7,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -23,8 +26,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
@@ -32,8 +38,8 @@ import org.kodein.di.instance
 import passwordStore.config.ConfigVM
 import passwordStore.config.MODE
 import passwordStore.config.getMode
+import passwordStore.navigation.KPasswordScreen
 import passwordStore.navigation.menu
-import passwordStore.navigation.rememberNavController
 import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XXL
 import passwordStore.ui.theme.appTheme
@@ -46,16 +52,10 @@ import passwordStore.widget.AppWindowTitleBar
 @Composable
 @Preview
 fun app() {
-    val navController by rememberNavController()
     val userVM by rememberInstance<UserVM>()
     val coroutineScope = rememberCoroutineScope()
     StatusHolder.scaffoldState = rememberScaffoldState()
 
-    navController.onSelection {
-        coroutineScope.launch(Dispatchers.Main) {
-            StatusHolder.closeDrawer()
-        }
-    }
 
     Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = StatusHolder.scaffoldState, topBar = {
         TopAppBar(
@@ -66,12 +66,14 @@ fun app() {
         ModalDrawer(
             drawerState = StatusHolder.scaffoldState.drawerState,
             drawerContent = {
-                menu(navController)
+                menu()
             },
             drawerShape = customShape(),
         ) {
-            route(navController)
+
+            CurrentScreen()
         }
+
     }
 }
 
@@ -123,22 +125,23 @@ fun main() {
                     darkMode.value.isDarkMode()
                 ) {
                     LOGGER.info { "Building the app" }
-
-                    app()
-                    val title = remember {
-                        mutableStateOf(prefix)
-                    }
-                    AppWindowTitleBar(title = title,
-                        state = state,
-                        onMinimize = { state.isMinimized = state.isMinimized.not() },
-                        onMaximize = {
-                            state.placement =
-                                if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
-                        },
-                        onClose = {
-                            exitApplication()
-                        }) {
-                        menuDrawer()
+                    Navigator(KPasswordScreen.Login) {
+                        app()
+                        val title = remember {
+                            mutableStateOf(prefix)
+                        }
+                        AppWindowTitleBar(title = title,
+                            state = state,
+                            onMinimize = { state.isMinimized = state.isMinimized.not() },
+                            onMaximize = {
+                                state.placement =
+                                    if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
+                            },
+                            onClose = {
+                                exitApplication()
+                            }) {
+                            menuDrawer()
+                        }
                     }
                 }
             }
@@ -148,17 +151,18 @@ fun main() {
 
 @Composable
 fun menuDrawer() {
-    val navController by rememberNavController()
+    val navController = LocalNavigator.currentOrThrow
     val userVM by rememberInstance<UserVM>()
     val currentUser = remember {
         userVM.loggedUser
     }
     val coroutineScope = rememberCoroutineScope()
     Row {
+        val currentScreen = navController.lastItem as KPasswordScreen
         Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XXL))
-        if (navController.currentScreen.value.allowBack) {
+        if (currentScreen.allowBack) {
             IconButton(
-                onClick = { navController.navigateBack() }, modifier = Modifier.padding(start = SMALL)
+                onClick = { navController.pop() }, modifier = Modifier.padding(start = SMALL)
             ) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,

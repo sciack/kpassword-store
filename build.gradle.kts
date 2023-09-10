@@ -69,6 +69,10 @@ dependencies {
     implementation("org.slf4j:jul-to-slf4j:2.0.5")
     implementation("com.seanproctor:data-table-material3:0.5.1")
 
+    val voyagerVersion = "1.0.0-rc07"
+    implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-kodein:$voyagerVersion")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
     testImplementation(compose.desktop.uiTestJUnit4)

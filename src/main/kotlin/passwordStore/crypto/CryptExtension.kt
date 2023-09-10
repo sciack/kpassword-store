@@ -26,7 +26,6 @@
 
 package passwordStore.crypto
 
-import mu.KotlinLogging
 import org.apache.commons.codec.binary.Hex
 import org.jasypt.util.password.StrongPasswordEncryptor
 import org.kodein.di.*

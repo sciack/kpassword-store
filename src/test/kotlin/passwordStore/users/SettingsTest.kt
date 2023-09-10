@@ -1,9 +1,12 @@
 package passwordStore.users
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.Navigator
 import com.github.javafaker.Faker
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -13,6 +16,7 @@ import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
+import passwordStore.navigation.KPasswordScreen
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,7 +54,9 @@ class SettingsTest {
     fun `should store the new settings`() = runTest {
         rule.setContent {
             withDI(di) {
-                userSettings(user)
+                withNavigator(KPasswordScreen.UserSettings) {
+                    userSettings(user)
+                }
             }
         }
 
@@ -75,7 +81,9 @@ class SettingsTest {
     fun `should submitted disable if password is not matching`() = runTest {
         rule.setContent {
             withDI(di) {
-                userSettings(user)
+                withNavigator(KPasswordScreen.UserSettings) {
+                    userSettings(user)
+                }
             }
         }
 
@@ -90,4 +98,16 @@ class SettingsTest {
         rule.onNodeWithTag("submit").assertExists().performClick()
 
     }
+
+
+    @Composable
+    fun withNavigator(
+        screen: Screen = KPasswordScreen.Users,
+        content: @Composable () -> Unit
+    ) {
+        Navigator(screen) {
+            content()
+        }
+    }
+
 }
