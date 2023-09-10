@@ -35,13 +35,13 @@ import passwordStore.config.getMode
 import passwordStore.navigation.menu
 import passwordStore.navigation.rememberNavController
 import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.XXL
+import passwordStore.ui.theme.appTheme
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
-import passwordStore.ui.theme.appTheme
 
 @Composable
 @Preview
@@ -155,7 +155,7 @@ fun menuDrawer() {
     }
     val coroutineScope = rememberCoroutineScope()
     Row {
-        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XL))
+        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XXL))
         if (navController.currentScreen.value.allowBack) {
             IconButton(
                 onClick = { navController.navigateBack() }, modifier = Modifier.padding(start = SMALL)
@@ -163,7 +163,8 @@ fun menuDrawer() {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colors.onPrimary
+                    tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
                 )
             }
         }
@@ -177,10 +178,11 @@ fun menuDrawer() {
                             StatusHolder.closeDrawer()
                         }
                     }
-                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL)
+                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
             ) {
                 Icon(
-                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary
+                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
                 )
             }
         }
