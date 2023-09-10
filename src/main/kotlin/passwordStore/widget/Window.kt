@@ -6,17 +6,14 @@ import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Maximize
 import androidx.compose.material.icons.filled.Minimize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
@@ -30,7 +27,7 @@ val APP_BAR_HEIGHT = XXL
 
 @Composable
 fun WindowScope.AppWindowTitleBar(
-    title: MutableState<String>,
+    title: @Composable RowScope.() -> Unit = {},
     state: WindowState,
     onMinimize: () -> Unit,
     onMaximize: () -> Unit,
@@ -86,7 +83,7 @@ fun WindowScope.AppWindowTitleBar(
 }
 
 @Composable
-fun WindowScope.AppDraggableArea(title: MutableState<String>) =
+fun WindowScope.AppDraggableArea(title: @Composable RowScope.() -> Unit) =
     WindowDraggableArea(Modifier.fillMaxWidth().padding(start = MENU_WIDTH)) {
 
         Box(
@@ -95,12 +92,7 @@ fun WindowScope.AppDraggableArea(title: MutableState<String>) =
                 .background(MaterialTheme.colors.primary)
         ) {
             Row(modifier = Modifier.align(Alignment.TopCenter).height(XXL).padding(end = MENU_WIDTH)) {
-                Text(
-                    title.value,
-                    color = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    fontWeight = FontWeight.Bold
-                )
+                title()
             }
         }
     }

@@ -19,6 +19,7 @@ data class User(
     val roles: Set<Roles> = setOf()
 ) {
     fun isAdmin(): Boolean = roles.contains(Roles.Administrator)
+
 }
 
 data class EditableUser(

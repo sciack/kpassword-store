@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -130,7 +132,27 @@ fun main() {
                             val title = remember {
                                 mutableStateOf(prefix)
                             }
-                            AppWindowTitleBar(title = title,
+                            val userVM by rememberInstance<UserVM>()
+                            val user = remember {
+                                userVM.loggedUser
+                            }
+                            AppWindowTitleBar(title = {
+                                Text(
+                                    title.value,
+                                    color = MaterialTheme.colors.onPrimary,
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if(user.value != UserVM.NONE) {
+                                    Spacer(Modifier.width(SMALL))
+                                    Text(
+                                        user.value.fullName,
+                                        color = MaterialTheme.colors.onPrimary,
+                                        modifier = Modifier.align(Alignment.CenterVertically),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            },
                                 state = state,
                                 onMinimize = { state.isMinimized = state.isMinimized.not() },
                                 onMaximize = {
@@ -173,7 +195,7 @@ fun menuDrawer() {
                 )
             }
         }
-        if (currentUser.value.id > 0) {
+        if (currentUser.value != UserVM.NONE) {
             val statusHolder = LocalStatusHolder.currentOrThrow
             IconButton(
                 onClick = {

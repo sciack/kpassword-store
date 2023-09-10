@@ -25,7 +25,7 @@ import passwordStore.utils.LocalStatusHolder
 @Composable
 private fun withAuthentication(content: @Composable () -> Unit) {
     val userVM by rememberInstance<UserVM>()
-    check(userVM.loggedUser.value.id > 0) {
+    check(userVM.loggedUser.value != UserVM.NONE) {
         "Access denied"
     }
     content()

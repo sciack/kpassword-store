@@ -138,7 +138,7 @@ fun menu() {
             )
         }
     )
-    if (userVM.loggedUser.value.id > 0) {
+    if (userVM.loggedUser.value != UserVM.NONE) {
         menuItem(
             onClick = {
                 navController.push(KPasswordScreen.UserSettings)
