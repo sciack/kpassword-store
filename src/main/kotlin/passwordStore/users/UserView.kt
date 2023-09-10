@@ -3,8 +3,7 @@ package passwordStore.users
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +19,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
-import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.XL
-import passwordStore.ui.theme.XS
-import passwordStore.ui.theme.XXL
+import passwordStore.ui.theme.*
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.widget.Table
@@ -351,11 +347,11 @@ fun users() {
                                 modifier = Modifier.testTag("Edit ${user.userid}")
                             ) {
                                 Icon(
-                                    Icons.Default.Edit,
+                                    Icons.Default.Person,
                                     "Edit",
-
                                     )
                             }
+                            Spacer(Modifier.width(SMALL))
                             val showAlert = remember {
                                 mutableStateOf(false)
                             }
@@ -364,7 +360,7 @@ fun users() {
                                 modifier = Modifier.testTag("Delete ${user.userid}")
                             ) {
                                 Icon(
-                                    Icons.Default.Delete,
+                                    Icons.Default.PersonRemove,
                                     "Delete",
                                 )
                             }

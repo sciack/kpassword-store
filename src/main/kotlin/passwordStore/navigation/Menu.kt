@@ -173,7 +173,7 @@ fun menu() {
         testTag = "Exit",
         icon = {
             Icon(
-                Icons.Default.PowerOff,
+                Icons.Default.ExitToApp,
                 "Exit"
             )
         }
