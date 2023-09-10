@@ -246,6 +246,9 @@ private fun TableCellScope.serviceButton(
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
     val clipboardManager = LocalClipboardManager.current
+    val service = remember {
+        service
+    }
     ContextMenuDataProvider(
         items = {
             listOf(
@@ -266,7 +269,7 @@ private fun cell(service: Service, columnIndex: Int) {
             when (columnIndex) {
                 0 -> Text(service.service)
                 1 -> Text(service.username)
-                2 -> passwordToolTip(service.password)
+                2 -> Text(service.password.obfuscate())
                 3 -> Text(service.tags.joinToString(", "))
                 4 -> Text(
                     text = service.note,

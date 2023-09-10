@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -19,17 +20,18 @@ import passwordStore.utils.obfuscate
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun passwordToolTip(password: String, color: Color = MaterialTheme.colors.onBackground) {
+    val newPwd = remember { password }
     TooltipArea(tooltip = {
         Row(
             Modifier.background(MaterialTheme.colors.surface)
                 .border(2.dp, color = MaterialTheme.colors.onSurface, shape = RoundedCornerShape(4.dp))
         ) {
             Text(
-                password,
+                newPwd,
                 modifier = Modifier.padding(MEDIUM)
             )
         }
     }) {
-        Text(password.obfuscate(), color = color)
+        Text(newPwd.obfuscate(), color = color)
     }
 }
