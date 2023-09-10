@@ -59,7 +59,6 @@ fun app() {
             modifier = Modifier.height(APP_BAR_HEIGHT)
         ) {}
     }) {
-
         ModalDrawer(
             drawerState = statusHolder.scaffoldState.drawerState,
             drawerContent = {
@@ -67,10 +66,8 @@ fun app() {
             },
             drawerShape = customShape(),
         ) {
-
             CurrentScreen()
         }
-
     }
 
 }
