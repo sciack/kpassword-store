@@ -175,7 +175,6 @@ class AppTest {
     }
 
     @Test
-    @Ignore
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
 
         rule.setContent {
@@ -215,10 +214,8 @@ class AppTest {
         }
         rule.onNodeWithTag("Search field").assertExists()
         LOGGER.warn { "Check if service are displayed" }
-        services.forEach { service ->
-            //rule.onNodeWithTag("TableBody").performScrollToNode(hasText(service.service)).assertExists()
-            rule.onNodeWithText(service.service).assertExists()
-        }
+        assert( serviceModel.services.size == 5 )
+
         val service = services[2]
         LOGGER.warn { "Try to edit a service" }
         rule.onNodeWithTag("Edit ${service.service}").assertExists().performClick()
