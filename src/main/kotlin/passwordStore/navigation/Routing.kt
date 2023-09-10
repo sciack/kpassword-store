@@ -20,18 +20,15 @@ import passwordStore.users.createUser
 import passwordStore.users.userSettings
 import passwordStore.users.users
 import passwordStore.utils.LocalStatusHolder
-import passwordStore.utils.StatusHolder
 
 
 @Composable
-private fun authenticatedCall(content: @Composable () -> Unit) {
+private fun withAuthentication(content: @Composable () -> Unit) {
     val userVM by rememberInstance<UserVM>()
     check(userVM.loggedUser.value.id > 0) {
         "Access denied"
     }
-    withCloseDrawer {
-        content()
-    }
+    content()
 }
 
 @Composable
@@ -50,12 +47,13 @@ sealed interface KPasswordScreen {
         get() = false
 
     data object List : Screen, KPasswordScreen {
+        private fun readResolve(): Any = List
         override val name: String
             get() = "Home"
 
         @Composable
         override fun Content() = withCloseDrawer {
-            authenticatedCall {
+            withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()
                 coroutineScope.launch(Dispatchers.Main) {
@@ -67,12 +65,14 @@ sealed interface KPasswordScreen {
         }
     }
 
+
     data object Login : Screen, KPasswordScreen {
+        private fun readResolve(): Any = Login
         override val name: String
             get() = "Login"
 
         @Composable
-        override fun Content() {
+        override fun Content() = withCloseDrawer {
             val navController = LocalNavigator.currentOrThrow
             val serviceModel by rememberInstance<ServiceVM>()
             val userVM by rememberInstance<UserVM>()
@@ -88,54 +88,61 @@ sealed interface KPasswordScreen {
 
 
     object NewService : Screen, KPasswordScreen {
+        private fun readResolve(): Any = NewService
         override val allowBack: Boolean
             get() = true
         override val name: String
             get() = "New Service"
 
         @Composable
-        override fun Content() = authenticatedCall {
-            val navController = LocalNavigator.currentOrThrow
-            val serviceModel by rememberInstance<ServiceVM>()
-            val userVM by rememberInstance<UserVM>()
-            val coroutineScope = rememberCoroutineScope()
-            coroutineScope.launch(Dispatchers.Main) {
-                serviceModel.resetService()
-            }
-            newService(onCancel = { navController.pop() }) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.store(it).onSuccess {
-                        serviceModel.resetService()
-                        withContext(Dispatchers.Main) {
-                            navController.push(List)
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                val navController = LocalNavigator.currentOrThrow
+                val serviceModel by rememberInstance<ServiceVM>()
+                val userVM by rememberInstance<UserVM>()
+                val coroutineScope = rememberCoroutineScope()
+                coroutineScope.launch(Dispatchers.Main) {
+                    serviceModel.resetService()
+                }
+                newService(onCancel = { navController.pop() }) {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        serviceModel.store(it).onSuccess {
+                            serviceModel.resetService()
+                            withContext(Dispatchers.Main) {
+                                navController.push(List)
+                            }
                         }
-                    }
 
+                    }
                 }
             }
         }
     }
 
     object History : Screen, KPasswordScreen {
+        private fun readResolve(): Any = History
         override val name: String
             get() = "History"
         override val allowBack: Boolean
             get() = true
 
         @Composable
-        override fun Content() = authenticatedCall {
-            val coroutineScope = rememberCoroutineScope()
-            val serviceModel by rememberInstance<ServiceVM>()
-            historyTable(serviceModel.historyEvents.value)
-            if (serviceModel.shouldLoadHistory()) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.history("", exactMatch = false)
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                val coroutineScope = rememberCoroutineScope()
+                val serviceModel by rememberInstance<ServiceVM>()
+                historyTable(serviceModel.historyEvents.value)
+                if (serviceModel.shouldLoadHistory()) {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        serviceModel.history("", exactMatch = false)
+                    }
                 }
             }
         }
     }
 
     object UserSettings : Screen, KPasswordScreen {
+        private fun readResolve(): Any = UserSettings
         override val name: String
             get() = "Settings"
 
@@ -143,28 +150,34 @@ sealed interface KPasswordScreen {
             get() = true
 
         @Composable
-        override fun Content() = authenticatedCall {
-            val userVM by rememberInstance<UserVM>()
-            userSettings(userVM.loggedUser.value)
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                val userVM by rememberInstance<UserVM>()
+                userSettings(userVM.loggedUser.value)
+            }
         }
     }
 
     object Users : Screen, KPasswordScreen {
+        private fun readResolve(): Any = Users
         override val name: String
             get() = "Users"
 
         @Composable
-        override fun Content() = authenticatedCall {
-            val userVM by rememberInstance<UserVM>()
-            val coroutineScope = rememberCoroutineScope()
-            coroutineScope.launch {
-                userVM.loadUsers()
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                val userVM by rememberInstance<UserVM>()
+                val coroutineScope = rememberCoroutineScope()
+                coroutineScope.launch {
+                    userVM.loadUsers()
+                }
+                users()
             }
-            users()
         }
     }
 
     object CreateUser : Screen, KPasswordScreen {
+        private fun readResolve(): Any = CreateUser
         override val name: String
             get() = "Create User"
 
@@ -172,12 +185,15 @@ sealed interface KPasswordScreen {
             get() = true
 
         @Composable
-        override fun Content() = authenticatedCall {
-            createUser()
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                createUser()
+            }
         }
     }
 
     object ConfigureApp : Screen, KPasswordScreen {
+        private fun readResolve(): Any = ConfigureApp
         override val name: String
             get() = "Configure"
 
@@ -185,8 +201,10 @@ sealed interface KPasswordScreen {
             get() = true
 
         @Composable
-        override fun Content() = authenticatedCall {
-            configView()
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                configView()
+            }
         }
     }
 }
