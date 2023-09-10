@@ -19,6 +19,7 @@ import passwordStore.users.UserVM
 import passwordStore.users.createUser
 import passwordStore.users.userSettings
 import passwordStore.users.users
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 
 
@@ -36,8 +37,9 @@ private fun authenticatedCall(content: @Composable () -> Unit) {
 @Composable
 private fun withCloseDrawer(content: @Composable () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
+    val statusHolder = LocalStatusHolder.currentOrThrow
     coroutineScope.launch(Dispatchers.Main) {
-        StatusHolder.closeDrawer()
+        statusHolder.closeDrawer()
     }
     content()
 }
@@ -52,7 +54,7 @@ sealed interface KPasswordScreen {
             get() = "Home"
 
         @Composable
-        override fun Content() = withCloseDrawer{
+        override fun Content() = withCloseDrawer {
             authenticatedCall {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()

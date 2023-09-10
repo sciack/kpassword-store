@@ -45,6 +45,7 @@ import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XL
 import passwordStore.ui.theme.XS
 import passwordStore.users.UserVM
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import passwordStore.utils.obfuscate
@@ -500,7 +501,7 @@ fun searchField() {
     )
 }
 
-suspend fun upload(di: DI) {
+suspend fun upload(di: DI, statusHolder: StatusHolder) {
     withContext(Dispatchers.Main) {
         val serviceVM by di.instance<ServiceVM>()
         val home = System.getProperty("user.home")
@@ -511,12 +512,12 @@ suspend fun upload(di: DI) {
                 val path = fileChooser.selectedPath()
                 withContext(Dispatchers.IO) {
                     withContext(Dispatchers.Main) {
-                        StatusHolder.closeDrawer()
+                        statusHolder.closeDrawer()
                     }
                     serviceVM.readFile(path).onSuccess {
-                        StatusHolder.sendMessage("CSV imported")
+                        statusHolder.sendMessage("CSV imported")
                     }.onFailure {
-                        StatusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")
+                        statusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")
 
                     }
                 }
@@ -526,7 +527,7 @@ suspend fun upload(di: DI) {
 
 }
 
-fun CoroutineScope.download(di: DI) {
+fun CoroutineScope.download(di: DI, statusHolder: StatusHolder) {
     val exportPath = exportPath()
     val fileChooser = JFileChooser(exportPath.toFile())
     fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
@@ -535,11 +536,11 @@ fun CoroutineScope.download(di: DI) {
             val path = fileChooser.selectedPath()
             launch(Dispatchers.IO) {
                 LOGGER.info { "Writing in directory: $path" }
-                StatusHolder.closeDrawer()
+                statusHolder.closeDrawer()
                 path.writer().use {
                     it.performDownload(di)
                 }
-                StatusHolder.sendMessage("Download completed: $path")
+                statusHolder.sendMessage("Download completed: $path")
             }
         }
 

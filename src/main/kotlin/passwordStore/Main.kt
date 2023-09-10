@@ -7,10 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -44,6 +41,7 @@ import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XXL
 import passwordStore.ui.theme.appTheme
 import passwordStore.users.UserVM
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.APP_BAR_HEIGHT
@@ -53,18 +51,15 @@ import passwordStore.widget.AppWindowTitleBar
 @Preview
 fun app() {
     val userVM by rememberInstance<UserVM>()
-    val coroutineScope = rememberCoroutineScope()
-    StatusHolder.scaffoldState = rememberScaffoldState()
-
-
-    Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = StatusHolder.scaffoldState, topBar = {
+    val statusHolder = LocalStatusHolder.currentOrThrow
+    Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = statusHolder.scaffoldState, topBar = {
         TopAppBar(
             modifier = Modifier.height(APP_BAR_HEIGHT)
         ) {}
     }) {
 
         ModalDrawer(
-            drawerState = StatusHolder.scaffoldState.drawerState,
+            drawerState = statusHolder.scaffoldState.drawerState,
             drawerContent = {
                 menu()
             },
@@ -75,6 +70,7 @@ fun app() {
         }
 
     }
+
 }
 
 fun customShape() = object : Shape {
@@ -126,21 +122,26 @@ fun main() {
                 ) {
                     LOGGER.info { "Building the app" }
                     Navigator(KPasswordScreen.Login) {
-                        app()
-                        val title = remember {
-                            mutableStateOf(prefix)
-                        }
-                        AppWindowTitleBar(title = title,
-                            state = state,
-                            onMinimize = { state.isMinimized = state.isMinimized.not() },
-                            onMaximize = {
-                                state.placement =
-                                    if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
-                            },
-                            onClose = {
-                                exitApplication()
-                            }) {
-                            menuDrawer()
+                        val scaffoldState = rememberScaffoldState()
+                        CompositionLocalProvider(
+                            LocalStatusHolder provides StatusHolder(scaffoldState)
+                        ) {
+                            app()
+                            val title = remember {
+                                mutableStateOf(prefix)
+                            }
+                            AppWindowTitleBar(title = title,
+                                state = state,
+                                onMinimize = { state.isMinimized = state.isMinimized.not() },
+                                onMaximize = {
+                                    state.placement =
+                                        if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
+                                },
+                                onClose = {
+                                    exitApplication()
+                                }) {
+                                menuDrawer()
+                            }
                         }
                     }
                 }
@@ -173,13 +174,14 @@ fun menuDrawer() {
             }
         }
         if (currentUser.value.id > 0) {
+            val statusHolder = LocalStatusHolder.currentOrThrow
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        if (StatusHolder.scaffoldState.drawerState.isClosed) {
-                            StatusHolder.openDrawer()
+                        if (statusHolder.scaffoldState.drawerState.isClosed) {
+                            statusHolder.openDrawer()
                         } else {
-                            StatusHolder.closeDrawer()
+                            statusHolder.closeDrawer()
                         }
                     }
                 }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)

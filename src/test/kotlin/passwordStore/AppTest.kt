@@ -1,6 +1,8 @@
 package passwordStore
 
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -21,6 +23,8 @@ import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UserVM
 import passwordStore.users.UserVM.Companion.NONE
+import passwordStore.utils.LocalStatusHolder
+import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
@@ -267,7 +271,12 @@ class AppTest {
                       content: @Composable ()->Unit) {
         Navigator(screen) {
             navigator = it
-            content()
+            val scaffoldState = rememberScaffoldState()
+            CompositionLocalProvider(
+                LocalStatusHolder provides StatusHolder(scaffoldState)
+            ) {
+                content()
+            }
         }
     }
 }

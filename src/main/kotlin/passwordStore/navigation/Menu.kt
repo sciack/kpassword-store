@@ -18,6 +18,7 @@ import org.kodein.di.compose.rememberInstance
 import passwordStore.services.download
 import passwordStore.services.upload
 import passwordStore.users.UserVM
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.widget.menuItem
 import kotlin.system.exitProcess
 
@@ -25,6 +26,7 @@ import kotlin.system.exitProcess
 @Composable
 fun menu() {
     val navController = LocalNavigator.currentOrThrow
+    val statusHolder = LocalStatusHolder.currentOrThrow
     val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
     val userVM by rememberInstance<UserVM>()
@@ -65,7 +67,7 @@ fun menu() {
     Divider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
-            coroutineScope.download(di)
+            coroutineScope.download(di, statusHolder)
         },
         title = "Export CSV",
         testTag = "ExportCsv",
@@ -80,7 +82,7 @@ fun menu() {
     menuItem(
         onClick = {
             coroutineScope.launch {
-                upload(di)
+                upload(di, statusHolder)
             }
         },
         title = "Import CSV",

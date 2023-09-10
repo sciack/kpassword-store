@@ -24,6 +24,7 @@ import passwordStore.ui.theme.LARGE
 import passwordStore.ui.theme.XL
 import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XXL
+import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.widget.Table
 import passwordStore.widget.passwordDialog
@@ -325,6 +326,7 @@ fun users() {
     val selectedUser = remember {
         mutableStateOf(EditableUser())
     }
+    val statusHolder = LocalStatusHolder.currentOrThrow
 
     Column(modifier = Modifier.fillMaxWidth(0.9f).padding(LARGE)) {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -374,7 +376,7 @@ fun users() {
                                 onConfirm = {
                                     coroutineScope.launch {
                                         userVM.delete(user.userid).onFailure {
-                                            StatusHolder.sendMessage("Error delete user ${user.userid}: ${it.localizedMessage}")
+                                            statusHolder.sendMessage("Error delete user ${user.userid}: ${it.localizedMessage}")
                                         }
                                     }
                                 }
