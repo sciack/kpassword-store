@@ -33,3 +33,7 @@ data class EditableUser(
         return fullName.isNotEmpty() && email.isNotEmpty() && roles.isNotEmpty()
     }
 }
+
+fun User?.isAuthenticated(): Boolean = this != null
+
+fun User?.admin(): Boolean = this?.isAdmin() == true

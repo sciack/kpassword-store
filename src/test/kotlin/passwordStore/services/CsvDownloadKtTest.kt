@@ -30,7 +30,6 @@ class CsvDownloadKtTest {
     @BeforeTest
     fun setup() {
         val userVM by di.instance<UserVM>()
-        userVM.loggedUser.value = user
     }
 
     @AfterTest
@@ -60,7 +59,7 @@ class CsvDownloadKtTest {
         val storedService = servicesRepository.store(service)
         val writer = StringWriter()
 
-        writer.performDownload(di)
+        writer.performDownload(di, user)
         await.atMost(Duration.ofSeconds(2)).untilAsserted {
             val result = writer.toString()
             assertThat(result.lines()[0], equalTo("Service,Username,Password,Notes,Tags,Last Update"))

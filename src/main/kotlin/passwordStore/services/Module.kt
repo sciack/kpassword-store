@@ -13,7 +13,7 @@ val services = DI.Module("services") {
     }
     bind {
         singleton {
-            ServiceVM(instance(), instance(), instance())
+            ServiceVM(instance(), instance())
         }
     }
 

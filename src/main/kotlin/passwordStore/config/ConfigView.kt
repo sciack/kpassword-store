@@ -20,13 +20,14 @@ import passwordStore.ui.theme.LARGE
 import passwordStore.ui.theme.MEDIUM
 import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XL
-import passwordStore.users.UserVM
+import passwordStore.users.LocalUser
+import passwordStore.users.admin
 
 @Composable
 fun configView() {
     val configVM by rememberInstance<ConfigVM>()
     val coroutineScope = rememberCoroutineScope()
-    val userVM by rememberInstance<UserVM>()
+    val user = LocalUser.current
     val jdbc = remember {
         mutableStateOf(TextFieldValue(configVM.jdbcUrl))
     }
@@ -87,7 +88,7 @@ fun configView() {
                     jdbc.value = value
                 },
                 label = { Text("Jdbc Url") },
-                readOnly = !userVM.isAdmin()
+                readOnly = !user.admin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -98,7 +99,7 @@ fun configView() {
                     dbPassword.value = value
                 },
                 label = { Text("Database Password") },
-                readOnly = !userVM.isAdmin()
+                readOnly = !user.admin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -109,7 +110,7 @@ fun configView() {
                     secret.value = value
                 },
                 label = { Text("Secret") },
-                readOnly = !userVM.isAdmin()
+                readOnly = !user.admin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -135,7 +136,7 @@ fun configView() {
                 },
                 isError = ivSpec.value.text.toByteArray().size != 16,
                 label = { Text("IV spec string") },
-                readOnly = !userVM.isAdmin()
+                readOnly = !user.admin()
             )
         }
         Row(modifier = Modifier.fillMaxWidth()) {

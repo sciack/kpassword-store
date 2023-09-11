@@ -13,17 +13,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.services.ServiceVM
 import passwordStore.ui.theme.XS
+import passwordStore.users.LocalUser
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun tagView() {
     val serviceModel by localDI().instance<ServiceVM>()
+    val user = LocalUser.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
     val tags = remember {
         serviceModel.tags
@@ -50,7 +53,7 @@ fun tagView() {
                         selected.value = ""
                     }
                     coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.searchWithTags(selected.value)
+                        serviceModel.searchWithTags(selected.value, user = user)
                     }
                 },
                 colors = if (selected.value != tag) {

@@ -39,6 +39,8 @@ import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.*
+import passwordStore.users.LocalUser
+import passwordStore.users.User
 import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
@@ -66,6 +68,7 @@ fun servicesTable() {
         mutableStateOf(Service())
     }
 
+    val user = LocalUser.currentOrThrow
 
     Column(modifier = Modifier.padding(LARGE).fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -135,7 +138,7 @@ fun servicesTable() {
                     }) { service ->
                         coroutineScope.launch {
                             if (service.dirty) {
-                                serviceModel.update(service).onSuccess {
+                                serviceModel.update(service, user).onSuccess {
                                     selectedService.value = Service()
                                 }
                             }
@@ -164,6 +167,7 @@ private fun TableCellScope.serviceButton(
     val coroutineScope = rememberCoroutineScope()
     val serviceModel by rememberInstance<ServiceVM>()
     val navController = LocalNavigator.currentOrThrow
+    val user = LocalUser.currentOrThrow
 
     Row {
         IconButton(
@@ -184,7 +188,7 @@ private fun TableCellScope.serviceButton(
         IconButton(
             onClick = {
                 coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.history(service.service, true)
+                    serviceModel.history(service.service, true, user)
                     withContext(Dispatchers.Main) {
                         navController.push(KPasswordScreen.History)
                     }
@@ -234,7 +238,7 @@ private fun TableCellScope.serviceButton(
             showAlert,
             onConfirm = {
                 coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.delete(service)
+                    serviceModel.delete(service, user)
                 }
             }
         )
@@ -288,7 +292,8 @@ private fun cell(service: Service, columnIndex: Int) {
 @Composable
 fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
     val serviceModel by rememberInstance<ServiceVM>()
-    val userVM by rememberInstance<UserVM>()
+
+    val user = LocalUser.currentOrThrow
     val service = remember {
         mutableStateOf(selectedService)
     }
@@ -402,9 +407,9 @@ fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Servic
                     enabled = dirty.value,
                     onClick = {
                         if (dirty.value) {
-                            val user = userVM.loggedUser
+
                             val newService = service.value.copy(
-                                userid = user.value.userid, dirty = dirty.value,
+                                userid = user.userid, dirty = dirty.value,
                                 updateTime = clock.currentDateTime()
                             ).trim()
                             newService.validate().onSuccess {
@@ -507,6 +512,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 
 @Composable
 private fun RowScope.searchField() {
+    val user = LocalUser.currentOrThrow
     val serviceVM by localDI().instance<ServiceVM>()
     val search = remember {
         mutableStateOf(TextFieldValue(serviceVM.pattern))
@@ -525,14 +531,14 @@ private fun RowScope.searchField() {
         onValueChange = {
             search.value = it
             coroutineScope.launch {
-                serviceVM.searchPattern(it.text)
+                serviceVM.searchPattern(it.text, user)
             }
         },
         modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
     )
 }
 
-suspend fun upload(di: DI, statusHolder: StatusHolder) {
+suspend fun upload(di: DI, statusHolder: StatusHolder, user: User) {
     withContext(Dispatchers.Main) {
         val serviceVM by di.instance<ServiceVM>()
         val home = System.getProperty("user.home")
@@ -545,7 +551,7 @@ suspend fun upload(di: DI, statusHolder: StatusHolder) {
                     withContext(Dispatchers.Main) {
                         statusHolder.closeDrawer()
                     }
-                    serviceVM.readFile(path).onSuccess {
+                    serviceVM.readFile(path, user).onSuccess {
                         statusHolder.sendMessage("CSV imported")
                     }.onFailure {
                         statusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")
@@ -558,7 +564,7 @@ suspend fun upload(di: DI, statusHolder: StatusHolder) {
 
 }
 
-fun CoroutineScope.download(di: DI, statusHolder: StatusHolder) {
+fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
     val exportPath = exportPath()
     val fileChooser = JFileChooser(exportPath.toFile())
     fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
@@ -569,7 +575,7 @@ fun CoroutineScope.download(di: DI, statusHolder: StatusHolder) {
                 LOGGER.info { "Writing in directory: $path" }
                 statusHolder.closeDrawer()
                 path.writer().use {
-                    it.performDownload(di)
+                    it.performDownload(di, user)
                 }
                 statusHolder.sendMessage("Download completed: $path")
             }

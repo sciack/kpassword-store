@@ -5,6 +5,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -14,10 +15,13 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
-import org.kodein.di.compose.rememberInstance
+import passwordStore.LOGGER
 import passwordStore.services.download
 import passwordStore.services.upload
-import passwordStore.users.UserVM
+import passwordStore.users.LocalSetUser
+import passwordStore.users.LocalUser
+import passwordStore.users.admin
+import passwordStore.users.isAuthenticated
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.widget.menuItem
 import kotlin.system.exitProcess
@@ -29,8 +33,11 @@ fun menu() {
     val statusHolder = LocalStatusHolder.currentOrThrow
     val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
-    val userVM by rememberInstance<UserVM>()
 
+    val user = LocalUser.current
+    val setUser = LocalSetUser.current
+
+    LOGGER.warn { "Current user: $user" }
     menuItem(
         onClick = { navController.push(KPasswordScreen.Home) },
         title = KPasswordScreen.Home.name,
@@ -67,7 +74,7 @@ fun menu() {
     Divider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
-            coroutineScope.download(di, statusHolder)
+            coroutineScope.download(di, statusHolder, user!!)
         },
         title = "Export CSV",
         testTag = "ExportCsv",
@@ -82,7 +89,7 @@ fun menu() {
     menuItem(
         onClick = {
             coroutineScope.launch {
-                upload(di, statusHolder)
+                upload(di, statusHolder, user!!)
             }
         },
         title = "Import CSV",
@@ -108,7 +115,7 @@ fun menu() {
             )
         }
     )
-    if (userVM.isAdmin()) {
+    if (user.admin()) {
         menuItem(
             onClick = {
                 navController.push(KPasswordScreen.CreateUser)
@@ -138,7 +145,7 @@ fun menu() {
             )
         }
     )
-    if (userVM.loggedUser.value != UserVM.NONE) {
+    if (user.isAuthenticated()) {
         menuItem(
             onClick = {
                 navController.push(KPasswordScreen.UserSettings)
@@ -154,7 +161,7 @@ fun menu() {
     menuItem(
         onClick = {
             navController.popUntilRoot()
-            userVM.loggedUser.value = UserVM.NONE
+            setUser(null)
         },
         title = "Logout",
         testTag = "Logout",

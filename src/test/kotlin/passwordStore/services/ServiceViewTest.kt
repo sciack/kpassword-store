@@ -18,6 +18,7 @@ import passwordStore.DiInjection
 import passwordStore.testUser
 import passwordStore.users.UserVM
 import passwordStore.utils.currentDateTime
+import passwordStore.withLogin
 import java.nio.file.Path
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -38,7 +39,7 @@ class ServiceViewTest {
     @BeforeTest
     fun setUp() = runBlocking {
         val userVM by di.instance<UserVM>()
-        userVM.loggedUser.value = user
+
     }
 
     @AfterTest
@@ -52,9 +53,11 @@ class ServiceViewTest {
             var service = Service()
             val clock by di.instance<Clock>()
             rule.setContent {
-                withDI(di) {
-                    newService(service, {}) {
-                        service = it
+                withLogin(user) {
+                    withDI(di) {
+                        newService(service, {}) {
+                            service = it
+                        }
                     }
                 }
             }
@@ -98,11 +101,15 @@ class ServiceViewTest {
                 updateTime = clock.currentDateTime()
             )
             rule.setContent {
-                withDI(di) {
-                    newService(service, {}) {
-                        service = it
+
+                withLogin(user) {
+                    withDI(di) {
+                        newService(service, {}) {
+                            service = it
+                        }
                     }
                 }
+
             }
             rule.awaitIdle()
             val expectedService = service.copy(username = "New username", dirty = true)
@@ -133,9 +140,11 @@ class ServiceViewTest {
                 updateTime = clock.currentDateTime()
             )
             rule.setContent {
-                withDI(di) {
-                    newService(service, {}) {
-                        service = it
+                withLogin(user) {
+                    withDI(di) {
+                        newService(service, {}) {
+                            service = it
+                        }
                     }
                 }
             }
@@ -171,9 +180,11 @@ class ServiceViewTest {
             )
             val expectedService = service.copy()
             rule.setContent {
-                withDI(di) {
-                    newService(service, {}) {
-                        service = it
+                withLogin(user) {
+                    withDI(di) {
+                        newService(service, {}) {
+                            service = it
+                        }
                     }
                 }
             }
@@ -213,8 +224,8 @@ class ServiceViewTest {
         )
 
         runTest {
-            serviceModel.readFile(path)
-            serviceModel.fetchAll()
+            serviceModel.readFile(path, user)
+            serviceModel.fetchAll(user)
             await.atMost(2.seconds.toJavaDuration()).untilAsserted {
                 assertThat(serviceModel.services.size, equalTo(2))
                 assertThat(serviceModel.services.toList(), hasElement(expectedServices))

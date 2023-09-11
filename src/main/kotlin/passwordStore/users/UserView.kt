@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.TextUnitType
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberInstance
 import passwordStore.ui.theme.*
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.widget.Table
@@ -28,7 +27,8 @@ import passwordStore.widget.passwordDialog
 import passwordStore.widget.showOkCancel
 
 @Composable
-fun userSettings(currentUser: User) {
+fun userSettings(userVM: UserVM) {
+    val currentUser = LocalUser.currentOrThrow
     val navController = LocalNavigator.currentOrThrow
     val user = remember {
         mutableStateOf(
@@ -42,14 +42,14 @@ fun userSettings(currentUser: User) {
         )
     }
 
-    editUser(user) {
+    editUser(userVM, user) {
         navController.pop()
     }
 
 }
 
 @Composable
-fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
+fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit) {
     val dirty = remember {
         mutableStateOf(false)
     }
@@ -58,7 +58,8 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
         mutableStateOf(TextFieldValue())
     }
 
-    val userVM by rememberInstance<UserVM>()
+    val currentUser = LocalUser.currentOrThrow
+    val setUser = LocalSetUser.current
 
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
@@ -83,8 +84,8 @@ fun editUser(user: MutableState<EditableUser>, back: () -> Unit) {
                     if (dirty.value) {
                         coroutineScope.launch {
                             userVM.updateUser(user.value).onSuccess { newUser ->
-                                if (userVM.loggedUser.value.userid == newUser.userid) {
-                                    userVM.loggedUser.value = newUser
+                                if (currentUser?.userid == newUser.userid) {
+                                    setUser(newUser)
                                 }
                                 back()
                             }
@@ -117,7 +118,7 @@ private fun ColumnScope.userFields(
     passwordConfirmation: MutableState<TextFieldValue>
 
 ) {
-    val userVM by rememberInstance<UserVM>()
+    val currentUser = LocalUser.currentOrThrow
     val showPasswordDialog = remember {
         mutableStateOf(false)
     }
@@ -191,7 +192,7 @@ private fun ColumnScope.userFields(
         modifier = Modifier.Companion.align(Alignment.CenterHorizontally).testTag("password-confirmation")
     )
     Spacer(Modifier.height(LARGE))
-    if (userVM.isAdmin()) {
+    if (currentUser.isAdmin()) {
         Row(modifier = Modifier.Companion.align(Alignment.CenterHorizontally)) {
             Column {
                 Text("Roles:")
@@ -237,7 +238,7 @@ private fun ColumnScope.userFields(
 }
 
 @Composable
-fun createUser() {
+fun createUser(userVM: UserVM) {
 
     val user = remember {
         mutableStateOf(
@@ -253,7 +254,6 @@ fun createUser() {
         mutableStateOf(TextFieldValue())
     }
 
-    val userVM by rememberInstance<UserVM>()
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
@@ -314,9 +314,11 @@ fun createUser() {
 }
 
 @Composable
-fun users() {
-    val userVM by rememberInstance<UserVM>()
+fun users(userVM: UserVM) {
+
     val coroutineScope = rememberCoroutineScope()
+    val currentUser = LocalUser.currentOrThrow
+
     val users = remember {
         userVM.users
     }
@@ -335,7 +337,7 @@ fun users() {
                     cell(user, columnIndex)
                 },
                 beforeRow = { user ->
-                    if (userVM.isAdmin()) {
+                    if (currentUser.isAdmin()) {
                         Row {
                             IconButton(
                                 onClick = {
@@ -395,7 +397,7 @@ fun users() {
             }
         }) {
 
-            editUser(selectedUser) {
+            editUser(userVM, selectedUser) {
                 coroutineScope.launch {
                     userVM.loadUsers()
                 }

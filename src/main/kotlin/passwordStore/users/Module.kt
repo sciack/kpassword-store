@@ -1,9 +1,6 @@
 package passwordStore.users
 
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.instance
-import org.kodein.di.singleton
+import org.kodein.di.*
 
 
 internal val userModule = DI.Module("userModule") {
@@ -12,9 +9,7 @@ internal val userModule = DI.Module("userModule") {
             UserRepository(instance(), instance())
         }
     }
-    bind<UserVM> {
-        singleton {
-            UserVM(instance(), instance())
-        }
+    bindProvider {
+        UserVM(instance())
     }
 }

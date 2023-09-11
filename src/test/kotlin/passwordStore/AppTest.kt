@@ -21,6 +21,7 @@ import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.Service
 import passwordStore.services.ServiceVM
 import passwordStore.services.ServicesRepository
+import passwordStore.users.UserRepository
 import passwordStore.users.UserVM
 import passwordStore.users.UserVM.Companion.NONE
 import passwordStore.utils.LocalStatusHolder
@@ -40,34 +41,38 @@ class AppTest {
     private val servicesRepository by di.instance<ServicesRepository>()
     private val serviceModel by di.instance<ServiceVM>()
     private val faker = Faker()
-    private val userVM by di.instance<UserVM>()
+    private val userRepository by di.instance<UserRepository>()
+    private val userVM = UserVM(userRepository)
     private var navigator: Navigator? = null
+    private var currentUser = NONE
 
     @get:Rule
     val rule = createComposeRule()
 
     @BeforeTest
     fun setUp() {
-        userVM.loggedUser.value = NONE
+
         rule.mainClock.autoAdvance = true
     }
 
     @AfterTest
     fun tearDown() {
         runBlocking(Dispatchers.IO) {
-            servicesRepository.search(userVM.loggedUser.value).forEach {
+            servicesRepository.search(currentUser).forEach {
                 servicesRepository.delete(it.service, it.userid)
             }
         }
-        userVM.loggedUser.value = NONE
+        currentUser = NONE
     }
 
     @Test
     fun shouldShowLogin() = runTest {
         rule.setContent {
-            withDI(di) {
-                withNavigator {
-                    app()
+            withLogin(null) {
+                withDI(di) {
+                    withNavigator {
+                        app()
+                    }
                 }
             }
         }
@@ -97,9 +102,11 @@ class AppTest {
     fun `should be able to add a service`() = runTest {
 
         rule.setContent {
-            withDI(di) {
-                withNavigator {
-                    app()
+            withLogin(null) {
+                withDI(di) {
+                    withNavigator {
+                        app()
+                    }
                 }
             }
         }
@@ -132,9 +139,11 @@ class AppTest {
     @Test
     fun `should throw an error if service is add two times`() = runTest {
         rule.setContent {
-            withDI(di) {
-                withNavigator {
-                    app()
+            withLogin(null) {
+                withDI(di) {
+                    withNavigator {
+                        app()
+                    }
                 }
             }
         }
@@ -177,9 +186,11 @@ class AppTest {
     fun `should show all the inserted services`() = runTest(timeout = 20.seconds) {
 
         rule.setContent {
-            withDI(di) {
-                withNavigator {
-                    app()
+            withLogin(null) {
+                withDI(di) {
+                    withNavigator {
+                        app()
+                    }
                 }
             }
         }
@@ -229,7 +240,7 @@ class AppTest {
         fillService(service)
         rule.waitUntil(timeoutMillis = 1000) {
             runBlocking {
-                servicesRepository.search(userVM.loggedUser.value, "", "").any {
+                servicesRepository.search(currentUser, "", "").any {
                     it.service == service.service
                 }
             }
@@ -262,6 +273,9 @@ class AppTest {
         rule.onNodeWithTag("password").assertExists().performTextInput("secret")
         rule.awaitIdle()
         rule.onNodeWithTag("login").assertExists().performClick()
+        currentUser = runCatching {
+            userRepository.findUser(username)
+        }.getOrDefault(NONE)
     }
 
     @Composable

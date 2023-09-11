@@ -26,6 +26,7 @@ import passwordStore.audit.Event
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.INPUT_MEDIUM
 import passwordStore.ui.theme.LARGE
+import passwordStore.users.LocalUser
 import passwordStore.utils.asTitle
 import passwordStore.utils.short
 import passwordStore.widget.Table
@@ -112,6 +113,7 @@ fun displayHistService(event: Event, columnIndex: Int) {
 
 @Composable
 private fun RowScope.searchField() {
+    val user = LocalUser.currentOrThrow
     val search = remember {
         mutableStateOf(TextFieldValue())
     }
@@ -130,7 +132,7 @@ private fun RowScope.searchField() {
         onValueChange = {
             search.value = it
             coroutineScope.launch {
-                serviceVM.history(it.text, false)
+                serviceVM.history(it.text, false, user)
             }
         },
         modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)

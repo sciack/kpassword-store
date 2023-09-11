@@ -3,26 +3,25 @@ package passwordStore.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
+import passwordStore.LOGGER
 import passwordStore.config.configView
 import passwordStore.loginPane
 import passwordStore.services.*
-import passwordStore.users.UserVM
-import passwordStore.users.createUser
-import passwordStore.users.userSettings
-import passwordStore.users.users
+import passwordStore.users.*
 import passwordStore.utils.LocalStatusHolder
 
 
 @Composable
 private fun withAuthentication(content: @Composable () -> Unit) {
-    val userVM by rememberInstance<UserVM>()
-    check(userVM.loggedUser.value != UserVM.NONE) {
+    val user = LocalUser.current
+    check(user.isAuthenticated()) {
         "Access denied"
     }
     content()
@@ -53,9 +52,10 @@ sealed interface KPasswordScreen {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()
+                val user = LocalUser.currentOrThrow
                 serviceModel.resetSearch()
                 coroutineScope.launch(Dispatchers.Main) {
-                    serviceModel.fetchAll()
+                    serviceModel.fetchAll(user)
                 }
                 servicesTable()
             }
@@ -72,10 +72,11 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             val navController = LocalNavigator.currentOrThrow
             val serviceModel by rememberInstance<ServiceVM>()
-            val userVM by rememberInstance<UserVM>()
+            val userVM = rememberScreenModel<UserVM>()
+            val setUser = LocalSetUser.current
             loginPane(loginFunction = { currentUsername, pwd ->
                 userVM.login(currentUsername, pwd).onSuccess {
-                    userVM.loggedUser.value = it
+                    setUser(it)
                     navController.push(Home)
                 }
             })
@@ -96,7 +97,6 @@ sealed interface KPasswordScreen {
             withAuthentication {
                 val navController = LocalNavigator.currentOrThrow
                 val serviceModel by rememberInstance<ServiceVM>()
-                val userVM by rememberInstance<UserVM>()
                 val coroutineScope = rememberCoroutineScope()
                 newService(Service(), onCancel = { navController.pop() }) {
                     coroutineScope.launch(Dispatchers.IO) {
@@ -124,10 +124,11 @@ sealed interface KPasswordScreen {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceModel by rememberInstance<ServiceVM>()
+                val user = LocalUser.currentOrThrow
                 historyTable(serviceModel.historyEvents.value)
                 if (serviceModel.shouldLoadHistory()) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.history("", exactMatch = false)
+                        serviceModel.history("", exactMatch = false, user)
                     }
                 }
             }
@@ -145,8 +146,9 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val userVM by rememberInstance<UserVM>()
-                userSettings(userVM.loggedUser.value)
+
+                val userVM = rememberScreenModel<UserVM>()
+                userSettings(userVM)
             }
         }
     }
@@ -159,12 +161,12 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val userVM by rememberInstance<UserVM>()
+                val userVM = rememberScreenModel<UserVM>()
                 val coroutineScope = rememberCoroutineScope()
                 coroutineScope.launch {
                     userVM.loadUsers()
                 }
-                users()
+                users(userVM)
             }
         }
     }
@@ -180,7 +182,8 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                createUser()
+                val userVM = rememberScreenModel<UserVM>()
+                createUser(userVM = userVM)
             }
         }
     }

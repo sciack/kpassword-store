@@ -24,6 +24,7 @@ import passwordStore.tags.TagRepository
 import passwordStore.testService
 import passwordStore.testUser
 import passwordStore.users.UserVM
+import passwordStore.withLogin
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -42,7 +43,7 @@ class TagViewTest {
     @BeforeTest
     fun setup() {
         val userVM by di.instance<UserVM>()
-        userVM.loggedUser.value = user
+
         runBlocking {
             servicesRepository.search(user).forEach {
                 servicesRepository.delete(it.service, it.userid)
@@ -64,13 +65,15 @@ class TagViewTest {
         val service = testService().copy(tags = listOf("Tags"))
         servicesRepository.store(service)
         rule.setContent {
-            withDI(di) {
-                val serviceModel by localDI().instance<ServiceVM>()
-                val cs = rememberCoroutineScope()
-                cs.launch {
-                    serviceModel.fetchAll()
+            withLogin(user) {
+                withDI(di) {
+                    val serviceModel by localDI().instance<ServiceVM>()
+                    val cs = rememberCoroutineScope()
+                    cs.launch {
+                        serviceModel.fetchAll(user)
+                    }
+                    tagView()
                 }
-                tagView()
             }
         }
         rule.awaitIdle()
@@ -83,13 +86,15 @@ class TagViewTest {
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
         val serviceModel by di.instance<ServiceVM>()
-        serviceModel.fetchAll()
+        serviceModel.fetchAll(user)
         await.atMost(Duration.ofSeconds(1)).until {
             serviceModel.services.size == 2
         }
         rule.setContent {
-            withDI(di) {
-                tagView()
+            withLogin(user) {
+                withDI(di) {
+                    tagView()
+                }
             }
         }
         rule.awaitIdle()

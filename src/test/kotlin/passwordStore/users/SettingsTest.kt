@@ -17,6 +17,7 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.navigation.KPasswordScreen
+import passwordStore.withLogin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -28,6 +29,7 @@ class SettingsTest {
     private val faker = Faker()
     private lateinit var user: User
     private val userRepository by di.instance<UserRepository>()
+    private val userVM = UserVM(userRepository)
 
     @get:Rule
     val rule = createComposeRule()
@@ -53,9 +55,11 @@ class SettingsTest {
     @Test
     fun `should store the new settings`() = runTest {
         rule.setContent {
-            withDI(di) {
-                withNavigator(KPasswordScreen.UserSettings) {
-                    userSettings(user)
+            withLogin(user) {
+                withDI(di) {
+                    withNavigator(KPasswordScreen.UserSettings) {
+                        userSettings(userVM)
+                    }
                 }
             }
         }
@@ -80,9 +84,11 @@ class SettingsTest {
     @Test
     fun `should submitted disable if password is not matching`() = runTest {
         rule.setContent {
-            withDI(di) {
-                withNavigator(KPasswordScreen.UserSettings) {
-                    userSettings(user)
+            withLogin(user) {
+                withDI(di) {
+                    withNavigator(KPasswordScreen.UserSettings) {
+                        userSettings(userVM)
+                    }
                 }
             }
         }

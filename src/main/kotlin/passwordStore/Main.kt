@@ -42,17 +42,22 @@ import passwordStore.navigation.menu
 import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XXL
 import passwordStore.ui.theme.appTheme
-import passwordStore.users.UserVM
+import passwordStore.users.LocalSetUser
+import passwordStore.users.LocalUser
+import passwordStore.users.User
+import passwordStore.users.isAuthenticated
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
 
+
+val LOGGER = configureLog()
+
 @Composable
 @Preview
 fun app() {
-    val userVM by rememberInstance<UserVM>()
     val statusHolder = LocalStatusHolder.currentOrThrow
     Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = statusHolder.scaffoldState, topBar = {
         TopAppBar(
@@ -77,6 +82,50 @@ fun customShape() = object : Shape {
         size: Size, layoutDirection: LayoutDirection, density: Density
     ): Outline {
         return Outline.Rectangle(Rect(0f, 0f, 400f, size.height))
+    }
+}
+
+
+@Composable
+fun menuDrawer() {
+    val navController = LocalNavigator.currentOrThrow
+    val user = LocalUser.current
+
+    val coroutineScope = rememberCoroutineScope()
+    Row {
+        val currentScreen = navController.lastItem as KPasswordScreen
+        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XXL))
+        if (currentScreen.allowBack) {
+            IconButton(
+                onClick = { navController.pop() }, modifier = Modifier.padding(start = SMALL)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
+                )
+            }
+        }
+        if (user.isAuthenticated()) {
+            val statusHolder = LocalStatusHolder.currentOrThrow
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        if (statusHolder.scaffoldState.drawerState.isClosed) {
+                            statusHolder.openDrawer()
+                        } else {
+                            statusHolder.closeDrawer()
+                        }
+                    }
+                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
+            ) {
+                Icon(
+                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.size(XXL)
+                )
+            }
+        }
     }
 }
 
@@ -112,6 +161,9 @@ fun main() {
 
             state = state
         ) {
+            val (user, setUser) = remember {
+                mutableStateOf<User?>(null)
+            }
             withDI(di) {
                 val configVM by rememberInstance<ConfigVM>()
                 val darkMode = remember { configVM.darkMode }
@@ -123,16 +175,15 @@ fun main() {
                     Navigator(KPasswordScreen.Login) {
                         val scaffoldState = rememberScaffoldState()
                         CompositionLocalProvider(
-                            LocalStatusHolder provides StatusHolder(scaffoldState)
+                            LocalStatusHolder provides StatusHolder(scaffoldState),
+                            LocalUser provides user,
+                            LocalSetUser provides setUser
                         ) {
                             app()
                             val title = remember {
                                 mutableStateOf(prefix)
                             }
-                            val userVM by rememberInstance<UserVM>()
-                            val user = remember {
-                                userVM.loggedUser
-                            }
+
                             AppWindowTitleBar(title = {
                                 Text(
                                     title.value,
@@ -140,10 +191,10 @@ fun main() {
                                     modifier = Modifier.align(Alignment.CenterVertically),
                                     fontWeight = FontWeight.Bold
                                 )
-                                if (user.value != UserVM.NONE) {
+                                if (user.isAuthenticated()) {
                                     Spacer(Modifier.width(SMALL))
                                     Text(
-                                        user.value.fullName,
+                                        user?.fullName.orEmpty(),
                                         color = MaterialTheme.colors.onPrimary,
                                         modifier = Modifier.align(Alignment.CenterVertically),
                                         fontWeight = FontWeight.Bold
@@ -168,52 +219,3 @@ fun main() {
         }
     }
 }
-
-@Composable
-fun menuDrawer() {
-    val navController = LocalNavigator.currentOrThrow
-    val userVM by rememberInstance<UserVM>()
-    val currentUser = remember {
-        userVM.loggedUser
-    }
-    val coroutineScope = rememberCoroutineScope()
-    Row {
-        val currentScreen = navController.lastItem as KPasswordScreen
-        Image(painterResource("/icons/lockoverlay.png"), "App Icon", modifier = Modifier.size(XXL))
-        if (currentScreen.allowBack) {
-            IconButton(
-                onClick = { navController.pop() }, modifier = Modifier.padding(start = SMALL)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL)
-                )
-            }
-        }
-        if (currentUser.value != UserVM.NONE) {
-            val statusHolder = LocalStatusHolder.currentOrThrow
-            IconButton(
-                onClick = {
-                    coroutineScope.launch {
-                        if (statusHolder.scaffoldState.drawerState.isClosed) {
-                            statusHolder.openDrawer()
-                        } else {
-                            statusHolder.closeDrawer()
-                        }
-                    }
-                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
-            ) {
-                Icon(
-                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL)
-                )
-            }
-        }
-    }
-}
-
-val LOGGER = configureLog()
-
-

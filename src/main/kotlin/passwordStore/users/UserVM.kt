@@ -3,17 +3,16 @@ package passwordStore.users
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.CoroutineScope
+import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import passwordStore.LOGGER
 import passwordStore.utils.obfuscate
 
-class UserVM(private val userRepository: UserRepository, private val coroutineScope: CoroutineScope) {
+class UserVM(private val userRepository: UserRepository) : ScreenModel {
 
     val users = mutableStateListOf<ListUser>()
 
-    val loggedUser = mutableStateOf<User>(NONE)
 
     val errorMsg = mutableStateOf("")
 
@@ -81,17 +80,12 @@ class UserVM(private val userRepository: UserRepository, private val coroutineSc
         }
 
         return runCatching {
-            val user = userRepository.login(username.text, password.text)
-            loggedUser.value = user
-            user
+            userRepository.login(username.text, password.text)
         }.onFailure {
-            passwordStore.LOGGER.warn(it) { "Wrong credentials" }
+            LOGGER.warn(it) { "Wrong credentials" }
         }
     }
 
-    fun isAdmin(): Boolean {
-        return loggedUser.value.isAdmin()
-    }
 
     companion object {
         val NONE =
