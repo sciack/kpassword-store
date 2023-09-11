@@ -186,12 +186,7 @@ private fun TableCellScope.serviceButton(
         Spacer(Modifier.width(XS))
         IconButton(
             onClick = {
-                coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.history(service.service, true, user)
-                    withContext(Dispatchers.Main) {
-                        navController.push(KPasswordScreen.History)
-                    }
-                }
+                navController.push(KPasswordScreen.ServiceHistory(service))
             },
             modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
         ) {

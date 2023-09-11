@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.localDI
-import org.kodein.di.instance
 import passwordStore.audit.Action
 import passwordStore.audit.Event
 import passwordStore.navigation.KPasswordScreen
@@ -35,20 +33,19 @@ import passwordStore.widget.showOk
 
 
 @Composable
-fun historyTable(historyEvents: List<Event>) {
-    val serviceModel by localDI().instance<ServiceVM>()
+fun historyTable(historySM: HistorySM) {
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavigator.currentOrThrow
     val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Tags", "Note")
 
     Column(Modifier.fillMaxSize().padding(LARGE)) {
         Row {
-            searchField()
+            searchField(historySM)
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(modifier = Modifier.fillMaxSize(),
                 headers = headers,
-                values = historyEvents,
+                values = historySM.historyEvents.value,
                 cellContent = { columnIndex, event ->
                     displayHistService(event, columnIndex)
                 },
@@ -61,7 +58,7 @@ fun historyTable(historyEvents: List<Event>) {
                             }
                             IconButton(onClick = {
                                 coroutineScope.launch {
-                                    serviceModel.store(event.service)
+                                    historySM.store(event.service)
                                         .onSuccess { navController.push(KPasswordScreen.Home) }
                                         .onFailure { showAlert.value = true }
                                 }
@@ -70,7 +67,7 @@ fun historyTable(historyEvents: List<Event>) {
                             }
                             showOk(
                                 "Error on restore",
-                                "Error restoring service ${event.service.service}: ${serviceModel.saveError.value}",
+                                "Error restoring service ${event.service.service}: ${historySM.saveError.value}",
                                 showAlert
                             )
                         }
@@ -112,13 +109,12 @@ fun displayHistService(event: Event, columnIndex: Int) {
 }
 
 @Composable
-private fun RowScope.searchField() {
+private fun RowScope.searchField(historySM: HistorySM) {
     val user = LocalUser.currentOrThrow
     val search = remember {
         mutableStateOf(TextFieldValue())
     }
     val coroutineScope = rememberCoroutineScope()
-    val serviceVM by localDI().instance<ServiceVM>()
 
     OutlinedTextField(
         label = { Text("Search") },
@@ -132,7 +128,7 @@ private fun RowScope.searchField() {
         onValueChange = {
             search.value = it
             coroutineScope.launch {
-                serviceVM.history(it.text, false, user)
+                historySM.history(it.text, false, user)
             }
         },
         modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)

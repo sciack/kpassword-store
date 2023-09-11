@@ -122,17 +122,39 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
-                val serviceModel by rememberInstance<ServiceVM>()
+                val historySM by rememberInstance<HistorySM>()
                 val user = LocalUser.currentOrThrow
-                historyTable(serviceModel.historyEvents.value)
-                if (serviceModel.shouldLoadHistory()) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.history("", exactMatch = false, user)
-                    }
+                historyTable(historySM)
+                coroutineScope.launch(Dispatchers.IO) {
+                    historySM.history("", exactMatch = false, user)
                 }
             }
         }
     }
+
+    data class ServiceHistory(val service: Service) : KPasswordScreen, Screen {
+        override val name: String
+            get() = "History"
+
+        override val allowBack: Boolean
+            get() = true
+
+        @Composable
+        override fun Content() = withCloseDrawer {
+            withAuthentication {
+                val coroutineScope = rememberCoroutineScope()
+                val historySM by rememberInstance<HistorySM>()
+                val user = LocalUser.currentOrThrow
+                historySM.resetHistory()
+                historyTable(historySM)
+                coroutineScope.launch(Dispatchers.IO) {
+                    historySM.history(service.service, exactMatch = true, user)
+
+                }
+            }
+        }
+    }
+
 
     object UserSettings : Screen, KPasswordScreen {
         private fun readResolve(): Any = UserSettings
