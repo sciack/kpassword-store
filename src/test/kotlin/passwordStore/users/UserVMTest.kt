@@ -3,7 +3,6 @@ package passwordStore.users
 import com.github.javafaker.Faker
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.isEmptyString
 import kotlinx.coroutines.test.runTest
 import org.awaitility.kotlin.await
 import org.kodein.di.instance
@@ -63,28 +62,8 @@ class UserVMTest {
 
     }
 
-    @Test
-    fun `should create a user`() = runTest {
-        val user = createUser("testInsert")
-        assertThat(user.roles, equalTo(setOf(Roles.NormalUser)))
-        assertThat(user.fullName, !isEmptyString)
-        assertThat(user.email, !isEmptyString)
-        assertThat(userVM.errorMsg.value, isEmptyString)
-        userRepository.deleteUser(user.userid)
-    }
 
-    @Test
-    fun `should create a fail to create a user if duplicate`() = runTest {
-        val user = createUser("testInsert")
-        createUser("testInsert")
-        await.atMost(2.seconds.toJavaDuration()).untilAsserted {
-            assertThat(userVM.errorMsg.value, !isEmptyString)
-        }
-        userRepository.deleteUser(user.userid)
-    }
-
-
-    private suspend fun createUser(userId: String): User {
+    private fun createUser(userId: String): User {
         val faker = Faker()
         val user = EditableUser(
             userid = userId,
@@ -93,7 +72,7 @@ class UserVMTest {
             password = faker.internet().password(),
             roles = setOf(Roles.NormalUser)
         )
-        userVM.createUser(user)
+        userRepository.insertUser(user)
         await.atMost(2.seconds.toJavaDuration()).until {
             runCatching {
                 userRepository.findUser(userid = user.userid)

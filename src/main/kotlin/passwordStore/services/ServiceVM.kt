@@ -11,7 +11,6 @@ import passwordStore.LOGGER
 import passwordStore.audit.Event
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
-import passwordStore.users.UserVM
 import java.nio.file.Path
 import java.sql.SQLException
 import kotlin.io.path.bufferedReader
@@ -71,7 +70,7 @@ class ServiceVM(
         }
     }
 
-    suspend fun update( service: Service, user: User) = runCatching {
+    suspend fun update(service: Service, user: User) = runCatching {
         servicesRepository.update(service.trim())
         fetchAll(user)
     }.onFailure {

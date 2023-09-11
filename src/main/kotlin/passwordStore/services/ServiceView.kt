@@ -41,7 +41,6 @@ import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
 import passwordStore.users.User
-import passwordStore.users.UserVM
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import passwordStore.utils.obfuscate
@@ -437,7 +436,6 @@ fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Servic
 @Composable
 fun showService(selectedService: Service, onClose: () -> Unit) {
     val serviceModel by rememberInstance<ServiceVM>()
-    val userVM by rememberInstance<UserVM>()
     val service = remember {
         selectedService
     }

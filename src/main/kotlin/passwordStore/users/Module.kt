@@ -12,4 +12,10 @@ internal val userModule = DI.Module("userModule") {
     bindProvider {
         UserVM(instance())
     }
+    bindProvider {
+        LoginSM(instance())
+    }
+    bindProvider {
+        CreateUserSM(instance())
+    }
 }

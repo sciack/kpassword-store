@@ -238,7 +238,7 @@ private fun ColumnScope.userFields(
 }
 
 @Composable
-fun createUser(userVM: UserVM) {
+fun createUser(createUserSM: CreateUserSM) {
 
     val user = remember {
         mutableStateOf(
@@ -257,7 +257,7 @@ fun createUser(userVM: UserVM) {
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
     val errorMsg = remember {
-        userVM.errorMsg
+        createUserSM.errorMsg
     }
 
     Column(Modifier.padding(XXL)) {
@@ -286,7 +286,7 @@ fun createUser(userVM: UserVM) {
                 onClick = {
                     if (dirty.value) {
                         coroutineScope.launch {
-                            userVM.createUser(user.value).onSuccess {
+                            createUserSM.createUser(user.value).onSuccess {
                                 navController.pop()
                             }
                         }

@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
-import passwordStore.LOGGER
 import passwordStore.config.configView
 import passwordStore.loginPane
 import passwordStore.services.*
@@ -72,10 +71,10 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             val navController = LocalNavigator.currentOrThrow
             val serviceModel by rememberInstance<ServiceVM>()
-            val userVM = rememberScreenModel<UserVM>()
+            val loginSM = rememberScreenModel<LoginSM>()
             val setUser = LocalSetUser.current
             loginPane(loginFunction = { currentUsername, pwd ->
-                userVM.login(currentUsername, pwd).onSuccess {
+                loginSM.login(currentUsername, pwd).onSuccess {
                     setUser(it)
                     navController.push(Home)
                 }
@@ -182,8 +181,8 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val userVM = rememberScreenModel<UserVM>()
-                createUser(userVM = userVM)
+                val createUserSM = rememberScreenModel<CreateUserSM>()
+                createUser(createUserSM = createUserSM)
             }
         }
     }

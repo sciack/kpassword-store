@@ -4,7 +4,6 @@ import org.apache.commons.csv.CSVFormat
 import org.kodein.di.DI
 import org.kodein.di.instance
 import passwordStore.users.User
-import passwordStore.users.UserVM
 import java.io.Writer
 import java.nio.file.Path
 
