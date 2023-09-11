@@ -19,7 +19,7 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.Service
-import passwordStore.services.ServiceVM
+import passwordStore.services.ServiceSM
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UserRepository
 import passwordStore.users.UserVM
@@ -39,7 +39,7 @@ class AppTest {
     private val user = testUser()
     private val clock: Clock by di.instance()
     private val servicesRepository by di.instance<ServicesRepository>()
-    private val serviceModel by di.instance<ServiceVM>()
+    private val serviceModel by di.instance<ServiceSM>()
     private val faker = Faker()
     private val userRepository by di.instance<UserRepository>()
     private val userVM = UserVM(userRepository)
@@ -129,8 +129,10 @@ class AppTest {
         insertService(service)
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
-            //waiting that the system is able to read the new data, if not the visualization is flaky
-            serviceModel.services.size == 1
+            runBlocking {
+                serviceModel.fetchAll(currentUser)
+                serviceModel.services.size == 1
+            }
         }
         rule.onNodeWithTag("Search field").assertExists()
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
@@ -167,7 +169,10 @@ class AppTest {
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
             //waiting that the system is able to read the new data, if not the visualization is flaky
-            serviceModel.services.size == 1
+            runBlocking {
+                serviceModel.fetchAll(currentUser)
+                serviceModel.services.size == 1
+            }
         }
         rule.onNodeWithTag("Search field").assertExists()
         navigator?.push(KPasswordScreen.NewService)
@@ -218,7 +223,10 @@ class AppTest {
 
             await.atMost(Duration.ofSeconds(1)).until {
                 //waiting that the system is able to read the new data, if not the visualization is flaky
-                serviceModel.services.size == it
+                runBlocking {
+                    serviceModel.fetchAll(currentUser)
+                    serviceModel.services.size == it
+                }
             }
             services.add(service)
         }

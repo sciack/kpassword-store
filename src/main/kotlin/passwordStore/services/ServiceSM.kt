@@ -11,7 +11,6 @@ import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.audit.Event
 import passwordStore.tags.Tag
-import passwordStore.tags.TagElement
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
 import java.nio.file.Path
@@ -19,10 +18,10 @@ import java.sql.SQLException
 import kotlin.io.path.bufferedReader
 
 
-class ServiceVM(
+class ServiceSM(
     private val servicesRepository: ServicesRepository,
     private val tagRepository: TagRepository
-) {
+) : ScreenModel {
 
     val services = mutableStateListOf<Service>()
 

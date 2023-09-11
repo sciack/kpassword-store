@@ -36,7 +36,7 @@ class ServiceViewTest {
 
     @get:Rule
     val rule = createComposeRule()
-    private val serviceModel by di.instance<ServiceVM>()
+    private val serviceModel by di.instance<ServiceSM>()
 
     @BeforeTest
     fun setUp() = runBlocking {
@@ -60,7 +60,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        newService(error,service, {}) {
+                        newService(error, service, {}) {
                             service = it
                         }
                     }

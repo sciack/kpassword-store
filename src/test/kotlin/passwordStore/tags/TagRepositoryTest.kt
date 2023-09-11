@@ -1,7 +1,5 @@
 package passwordStore.tags
 
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.kodein.di.instance

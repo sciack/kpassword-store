@@ -50,13 +50,13 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
-                val serviceModel by rememberInstance<ServiceVM>()
+                val serviceSM = rememberScreenModel<ServiceSM>()
                 val user = LocalUser.currentOrThrow
-                serviceModel.resetSearch()
+                serviceSM.resetSearch()
                 coroutineScope.launch(Dispatchers.Main) {
-                    serviceModel.fetchAll(user)
+                    serviceSM.fetchAll(user)
                 }
-                servicesTable()
+                servicesTable(serviceSM)
             }
         }
     }
@@ -70,7 +70,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             val navController = LocalNavigator.currentOrThrow
-            val serviceModel by rememberInstance<ServiceVM>()
+            val serviceModel by rememberInstance<ServiceSM>()
             val loginSM = rememberScreenModel<LoginSM>()
             val setUser = LocalSetUser.current
             loginPane(loginFunction = { currentUsername, pwd ->

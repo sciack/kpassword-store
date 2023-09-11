@@ -9,7 +9,6 @@ import androidx.compose.ui.test.performClick
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -20,7 +19,7 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
-import passwordStore.services.ServiceVM
+import passwordStore.services.ServiceSM
 import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import passwordStore.testService
@@ -69,7 +68,7 @@ class TagViewTest {
         rule.setContent {
             withLogin(user) {
                 withDI(di) {
-                    val serviceModel by localDI().instance<ServiceVM>()
+                    val serviceModel by localDI().instance<ServiceSM>()
                     val cs = rememberCoroutineScope()
                     cs.launch {
                         serviceModel.fetchAll(user)
@@ -79,7 +78,7 @@ class TagViewTest {
             }
         }
         rule.awaitIdle()
-        rule.onNodeWithText("Tags").assertExists()
+        rule.waitUntilAtLeastOneExists(hasText("Tags"), 3000)
     }
 
     @Test
@@ -87,7 +86,7 @@ class TagViewTest {
         var service = testService().copy(tags = listOf("Tags"))
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
-        val serviceModel by di.instance<ServiceVM>()
+        val serviceModel by di.instance<ServiceSM>()
 
         serviceModel.fetchAll(user)
         await.atMost(Duration.ofSeconds(1)).until {
@@ -96,7 +95,7 @@ class TagViewTest {
         rule.setContent {
             withLogin(user) {
                 withDI(di) {
-                    tagView(serviceModel.tags, serviceModel.tag) {tag ->
+                    tagView(serviceModel.tags, serviceModel.tag) { tag ->
                         launch(Dispatchers.IO) {
                             serviceModel.searchWithTags(tag?.name.orEmpty(), user)
                         }

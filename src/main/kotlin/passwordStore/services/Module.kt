@@ -8,10 +8,8 @@ val services = DI.Module("services") {
             ServicesRepository(instance(), instance(), instance())
         }
     }
-    bind {
-        singleton {
-            ServiceVM(instance(), instance())
-        }
+    bindProvider {
+        ServiceSM(instance(), instance())
     }
 
     bindProvider {

@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.seanproctor.datatable.TableCellScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +33,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
-import org.kodein.di.compose.rememberInstance
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
@@ -50,13 +48,13 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.writer
 
 @Composable
-fun servicesTable() {
-    val serviceModel by localDI().instance<ServiceVM>()
+fun servicesTable(serviceSM: ServiceSM) {
+
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
 
     val services = remember {
-        serviceModel.services
+        serviceSM.services
     }
 
     val editService = remember {
@@ -71,29 +69,31 @@ fun servicesTable() {
 
     Column(modifier = Modifier.padding(LARGE).fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            searchField()
+            searchField(serviceSM)
             Spacer(Modifier.width(XL))
-            tagView(serviceModel.tags, serviceModel.tag) { tag ->
+            tagView(serviceSM.tags, serviceSM.tag) { tag ->
                 coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.searchWithTags(tag?.name.orEmpty(), user = user)
+                    serviceSM.searchWithTags(tag?.name.orEmpty(), user = user)
                 }
             }
         }
 
         Spacer(Modifier.height(LARGE))
         Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)) {
-            Table(
-                modifier = Modifier.fillMaxSize(),
+            Table(modifier = Modifier.fillMaxSize(),
                 headers = listOf("Service", "Username", "Password", "Tags", "Note"),
-                values = services.toList(),
+                values = services,
                 beforeRow = { service ->
-                    serviceButton(service, editService, selectedService)
+                    serviceButton(service, editService, selectedService) {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            serviceSM.delete(service, user)
+                        }
+                    }
                 },
                 onClickRow = { row ->
                     editService.value = false
                     selectedService.value = row
-                }
-            ) { columnIndex, service ->
+                }) { columnIndex, service ->
                 cell(service, columnIndex)
             }
         }
@@ -108,8 +108,7 @@ fun servicesTable() {
                 Icons.Default.Add,
                 KPasswordScreen.NewService.name,
                 tint = MaterialTheme.colors.onSurface,
-                modifier = Modifier.size(XL * 2).clip(CircleShape)
-                    .background(color = MaterialTheme.colors.primary)
+                modifier = Modifier.size(XL * 2).clip(CircleShape).background(color = MaterialTheme.colors.primary)
                     .border(2.dp, color = MaterialTheme.colors.onPrimary, shape = CircleShape)
             )
         }
@@ -119,32 +118,26 @@ fun servicesTable() {
         Box(Modifier.fillMaxSize().clickable {
             selectedService.value = Service()
         }) {
-            OutlinedCard(modifier = Modifier
-                .fillMaxHeight(0.9f)
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    val maxWidth = constraints.maxWidth
-                    val x = (maxWidth - placeable.width).coerceAtLeast(0)
-                    layout(width = placeable.width, height = placeable.height) {
-                        placeable.place(x, 10)
-                    }
+            OutlinedCard(modifier = Modifier.fillMaxHeight(0.9f).layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                val maxWidth = constraints.maxWidth
+                val x = (maxWidth - placeable.width).coerceAtLeast(0)
+                layout(width = placeable.width, height = placeable.height) {
+                    placeable.place(x, 10)
                 }
-                .clickable {
-                    // just do nothing but avoid propagate the click to the box
-                },
+            }.clickable {
+                // just do nothing but avoid propagate the click to the box
+            },
                 elevation = CardDefaults.cardElevation(MEDIUM),
                 colors = CardDefaults.cardColors(MaterialTheme.colors.background)
             ) {
                 if (editService.value) {
-                    newService(
-                        serviceModel.saveError,
-                        selectedService = selectedService.value,
-                        onCancel = {
-                            selectedService.value = Service()
-                        }) { service ->
+                    newService(serviceSM.saveError, selectedService = selectedService.value, onCancel = {
+                        selectedService.value = Service()
+                    }) { service ->
                         coroutineScope.launch {
                             if (service.dirty) {
-                                serviceModel.update(service, user).onSuccess {
+                                serviceSM.update(service, user).onSuccess {
                                     selectedService.value = Service()
                                 }
                             }
@@ -165,28 +158,20 @@ fun servicesTable() {
 
 
 @Composable
-private fun TableCellScope.serviceButton(
-    service: Service,
-    editService: MutableState<Boolean>,
-    selectedService: MutableState<Service>
+private fun serviceButton(
+    service: Service, editService: MutableState<Boolean>, selectedService: MutableState<Service>, onDelete: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val serviceModel by rememberInstance<ServiceVM>()
     val navController = LocalNavigator.currentOrThrow
-    val user = LocalUser.currentOrThrow
 
     Row {
         IconButton(
             onClick = {
                 editService.value = false
                 selectedService.value = service
-            },
-            modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
+            }, modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.KeyboardArrowRight,
-                "Show",
-                tint = MaterialTheme.colors.secondary
+                Icons.Default.KeyboardArrowRight, "Show", tint = MaterialTheme.colors.secondary
 
             )
         }
@@ -194,13 +179,10 @@ private fun TableCellScope.serviceButton(
         IconButton(
             onClick = {
                 navController.push(KPasswordScreen.ServiceHistory(service))
-            },
-            modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
+            }, modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                painterResource("/icons/history.svg"),
-                "History",
-                tint = MaterialTheme.colors.secondary
+                painterResource("/icons/history.svg"), "History", tint = MaterialTheme.colors.secondary
             )
         }
         Spacer(Modifier.width(XS))
@@ -208,13 +190,10 @@ private fun TableCellScope.serviceButton(
             onClick = {
                 editService.value = true
                 selectedService.value = service
-            },
-            modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
+            }, modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.Edit,
-                "Edit",
-                tint = MaterialTheme.colors.secondary
+                Icons.Default.Edit, "Edit", tint = MaterialTheme.colors.secondary
             )
         }
         val showAlert = remember {
@@ -226,45 +205,34 @@ private fun TableCellScope.serviceButton(
             modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.Delete,
-                "Delete",
-                tint = MaterialTheme.colors.error
+                Icons.Default.Delete, "Delete", tint = MaterialTheme.colors.error
 
             )
         }
 
-        showOkCancel(
-            title = "Delete confirmation",
+        showOkCancel(title = "Delete confirmation",
             message = "Do you want to delete service ${service.service}?",
             showAlert,
             onConfirm = {
-                coroutineScope.launch(Dispatchers.IO) {
-                    serviceModel.delete(service, user)
-                }
-            }
-        )
+                onDelete()
+            })
     }
 }
 
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
     val clipboardManager = LocalClipboardManager.current
-    ContextMenuDataProvider(
-        items = {
-            listOf(
-                ContextMenuItem("Copy username") {
-                    clipboardManager.setText(
-                        AnnotatedString(service.username)
-                    )
-                },
-                ContextMenuItem("Copy password") {
-                    clipboardManager.setText(
-                        AnnotatedString(service.password)
-                    )
-                }
+    ContextMenuDataProvider(items = {
+        listOf(ContextMenuItem("Copy username") {
+            clipboardManager.setText(
+                AnnotatedString(service.username)
             )
-        }
-    ) {
+        }, ContextMenuItem("Copy password") {
+            clipboardManager.setText(
+                AnnotatedString(service.password)
+            )
+        })
+    }) {
         SelectionContainer {
             when (columnIndex) {
                 0 -> Text(service.service)
@@ -326,9 +294,7 @@ fun newService(
                 },
                 readOnly = readonly.value,
                 value = service.value.service,
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("service"),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("service"),
                 singleLine = true,
                 isError = errorMsg.value.isNotEmpty()
             )
@@ -346,9 +312,7 @@ fun newService(
                     dirty.value = dirty.value || service.value.username != it
                     service.value = service.value.copy(username = it)
                 },
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("username"),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("username"),
                 singleLine = true,
                 isError = errorMsg.value.isNotEmpty()
             )
@@ -369,9 +333,7 @@ fun newService(
                         Icon(Icons.Default.Edit, "Generate password")
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("password"),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("password"),
                 singleLine = true,
                 isError = errorMsg.value.isNotEmpty()
             )
@@ -389,8 +351,7 @@ fun newService(
                     dirty.value = dirty.value || service.value.note != it
                     service.value = service.value.copy(note = it)
                 },
-                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
-                    .testTag("note")
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("note")
             )
             if (errorMsg.value.isNotEmpty()) {
                 Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -404,24 +365,19 @@ fun newService(
                 }
             }
             Row(Modifier.align(Alignment.CenterHorizontally).padding(top = SMALL)) {
-                Button(
-                    modifier = Modifier.testTag("submit"),
-                    enabled = dirty.value,
-                    onClick = {
-                        if (dirty.value) {
+                Button(modifier = Modifier.testTag("submit"), enabled = dirty.value, onClick = {
+                    if (dirty.value) {
 
-                            val newService = service.value.copy(
-                                userid = user.userid, dirty = dirty.value,
-                                updateTime = clock.currentDateTime()
-                            ).trim()
-                            newService.validate().onSuccess {
-                                onSubmit(newService)
-                            }.onFailure {
-                                errorMsg.value = it.localizedMessage
-                            }
+                        val newService = service.value.copy(
+                            userid = user.userid, dirty = dirty.value, updateTime = clock.currentDateTime()
+                        ).trim()
+                        newService.validate().onSuccess {
+                            onSubmit(newService)
+                        }.onFailure {
+                            errorMsg.value = it.localizedMessage
                         }
                     }
-                ) {
+                }) {
                     Text("Submit")
                 }
                 Spacer(Modifier.width(SMALL))
@@ -438,7 +394,6 @@ fun newService(
 
 @Composable
 fun showService(selectedService: Service, onClose: () -> Unit) {
-    val serviceModel by rememberInstance<ServiceVM>()
     val service = remember {
         selectedService
     }
@@ -455,9 +410,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 onValueChange = { },
                 readOnly = true,
                 value = service.service,
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("service"),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("service"),
                 singleLine = true,
             )
 
@@ -467,9 +420,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 label = { Text("Username") },
                 value = service.username,
                 onValueChange = {},
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("username"),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("username"),
                 singleLine = true,
                 readOnly = true
             )
@@ -477,13 +428,9 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
             OutlinedTextField(
                 label = { Text("Password") },
                 value = service.password,
-                onValueChange = {
-                },
-                trailingIcon = {
-                },
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .testTag("password"),
+                onValueChange = {},
+                trailingIcon = {},
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("password"),
                 singleLine = true,
                 readOnly = true
             )
@@ -493,10 +440,8 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 value = service.note,
                 minLines = 5,
                 maxLines = 10,
-                onValueChange = {
-                },
-                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
-                    .testTag("note"),
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("note"),
                 readOnly = true
             )
 
@@ -512,36 +457,30 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 }
 
 @Composable
-private fun RowScope.searchField() {
+private fun RowScope.searchField(serviceSM: ServiceSM) {
     val user = LocalUser.currentOrThrow
-    val serviceVM by localDI().instance<ServiceVM>()
+
     val search = remember {
-        mutableStateOf(TextFieldValue(serviceVM.pattern))
+        mutableStateOf(TextFieldValue(serviceSM.pattern))
     }
     val coroutineScope = rememberCoroutineScope()
 
-    OutlinedTextField(
-        label = { Text("Search") },
-        value = search.value,
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                "Search"
-            )
-        },
-        onValueChange = {
-            search.value = it
-            coroutineScope.launch {
-                serviceVM.searchPattern(it.text, user)
-            }
-        },
-        modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
+    OutlinedTextField(label = { Text("Search") }, value = search.value, leadingIcon = {
+        Icon(
+            Icons.Default.Search, "Search"
+        )
+    }, onValueChange = {
+        search.value = it
+        coroutineScope.launch {
+            serviceSM.searchPattern(it.text, user)
+        }
+    }, modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
     )
 }
 
 suspend fun upload(di: DI, statusHolder: StatusHolder, user: User) {
     withContext(Dispatchers.Main) {
-        val serviceVM by di.instance<ServiceVM>()
+        val serviceSM by di.instance<ServiceSM>()
         val home = System.getProperty("user.home")
         val fileChooser = JFileChooser(home)
         fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
@@ -552,7 +491,7 @@ suspend fun upload(di: DI, statusHolder: StatusHolder, user: User) {
                     withContext(Dispatchers.Main) {
                         statusHolder.closeDrawer()
                     }
-                    serviceVM.readFile(path, user).onSuccess {
+                    serviceSM.readFile(path, user).onSuccess {
                         statusHolder.sendMessage("CSV imported")
                     }.onFailure {
                         statusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")

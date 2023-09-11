@@ -28,4 +28,4 @@ class TagRepository(private val dataSource: DataSource) {
 
 typealias TagElement = List<Tag>
 
-data class Tag(val name:String, val occurrence: Int = 0)
+data class Tag(val name: String, val occurrence: Int = 0)
