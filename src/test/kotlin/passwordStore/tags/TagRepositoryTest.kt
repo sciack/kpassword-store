@@ -34,8 +34,7 @@ class TagRepositoryTest {
             val service = testService().copy(tags = listOf("Tags"))
             servicesRepository.store(service)
             val tags = tagRepository.tags(testUser)
-            assertContains(tags, "Tags")
-            assertThat(tags["Tags"], equalTo(1))
+            assertContains(tags, Tag("Tags", 1))
         }
     }
 }

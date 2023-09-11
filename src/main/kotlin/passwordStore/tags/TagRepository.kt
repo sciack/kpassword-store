@@ -19,11 +19,13 @@ class TagRepository(private val dataSource: DataSource) {
             ) 
             from tags t""".trimIndent(), mapOf("userid" to user.userid)
         ) {
-            it.getString(1) to it.getInt(2)
+            Tag(it.getString(1), it.getInt(2))
         }.filter { (key, _) ->
             key.isNotEmpty()
-        }.toMap()
+        }
     }
 }
 
-typealias TagElement = Map<String, Int>
+typealias TagElement = List<Tag>
+
+data class Tag(val name:String, val occurrence: Int = 0)

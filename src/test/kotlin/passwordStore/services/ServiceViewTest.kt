@@ -1,5 +1,7 @@
 package passwordStore.services
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
@@ -48,14 +50,17 @@ class ServiceViewTest {
     }
 
     @Test
-    fun newService() {
+    fun `creation of new service should store the result`() {
         runTest {
-            var service = Service()
             val clock by di.instance<Clock>()
+            var service = Service()
             rule.setContent {
+                val error = remember {
+                    mutableStateOf("")
+                }
                 withLogin(user) {
                     withDI(di) {
-                        newService(service, {}) {
+                        newService(error,service, {}) {
                             service = it
                         }
                     }
@@ -100,11 +105,14 @@ class ServiceViewTest {
                 score = 0.0,
                 updateTime = clock.currentDateTime()
             )
-            rule.setContent {
 
+            rule.setContent {
+                val error = remember {
+                    mutableStateOf("")
+                }
                 withLogin(user) {
                     withDI(di) {
-                        newService(service, {}) {
+                        newService(error, service, {}) {
                             service = it
                         }
                     }
@@ -140,9 +148,12 @@ class ServiceViewTest {
                 updateTime = clock.currentDateTime()
             )
             rule.setContent {
+                val error = remember {
+                    mutableStateOf("")
+                }
                 withLogin(user) {
                     withDI(di) {
-                        newService(service, {}) {
+                        newService(error, service, {}) {
                             service = it
                         }
                     }
@@ -180,9 +191,12 @@ class ServiceViewTest {
             )
             val expectedService = service.copy()
             rule.setContent {
+                val error = remember {
+                    mutableStateOf("")
+                }
                 withLogin(user) {
                     withDI(di) {
-                        newService(service, {}) {
+                        newService(error, service, {}) {
                             service = it
                         }
                     }

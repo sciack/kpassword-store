@@ -8,6 +8,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -72,7 +74,7 @@ class TagViewTest {
                     cs.launch {
                         serviceModel.fetchAll(user)
                     }
-                    tagView()
+                    tagView(serviceModel.tags, serviceModel.tag) {}
                 }
             }
         }
@@ -86,6 +88,7 @@ class TagViewTest {
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
         val serviceModel by di.instance<ServiceVM>()
+
         serviceModel.fetchAll(user)
         await.atMost(Duration.ofSeconds(1)).until {
             serviceModel.services.size == 2
@@ -93,7 +96,11 @@ class TagViewTest {
         rule.setContent {
             withLogin(user) {
                 withDI(di) {
-                    tagView()
+                    tagView(serviceModel.tags, serviceModel.tag) {tag ->
+                        launch(Dispatchers.IO) {
+                            serviceModel.searchWithTags(tag?.name.orEmpty(), user)
+                        }
+                    }
                 }
             }
         }

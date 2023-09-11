@@ -14,25 +14,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.kodein.di.compose.localDI
-import org.kodein.di.instance
-import passwordStore.services.ServiceVM
+import passwordStore.tags.Tag
 import passwordStore.ui.theme.XS
 import passwordStore.users.LocalUser
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun tagView() {
-    val serviceModel by localDI().instance<ServiceVM>()
-    val user = LocalUser.currentOrThrow
-    val coroutineScope = rememberCoroutineScope()
+fun tagView(inputTag: List<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
     val tags = remember {
-        serviceModel.tags
+        inputTag
     }
     val selected = remember {
-        mutableStateOf(serviceModel.tag)
+        mutableStateOf(selectedTag)
     }
 
     FlowRow(
@@ -43,18 +36,16 @@ fun tagView() {
             .border(width = 1.dp, color = MaterialTheme.colors.primary),
 
         ) {
-        tags.value.forEach { (tag, _) ->
+        tags.forEach { tag ->
 
             Chip(
                 onClick = {
                     if (selected.value != tag) {
                         selected.value = tag
                     } else {
-                        selected.value = ""
+                        selected.value = null
                     }
-                    coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.searchWithTags(selected.value, user = user)
-                    }
+                    searchFn(selected.value)
                 },
                 colors = if (selected.value != tag) {
                     ChipDefaults.outlinedChipColors()
@@ -64,7 +55,7 @@ fun tagView() {
                 border = BorderStroke(1.dp, MaterialTheme.colors.primary),
                 modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS)
             ) {
-                Text(tag)
+                Text(tag.name)
             }
         }
     }

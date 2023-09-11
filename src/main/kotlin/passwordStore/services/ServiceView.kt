@@ -73,7 +73,11 @@ fun servicesTable() {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField()
             Spacer(Modifier.width(XL))
-            tagView()
+            tagView(serviceModel.tags, serviceModel.tag) { tag ->
+                coroutineScope.launch(Dispatchers.IO) {
+                    serviceModel.searchWithTags(tag?.name.orEmpty(), user = user)
+                }
+            }
         }
 
         Spacer(Modifier.height(LARGE))
@@ -132,9 +136,12 @@ fun servicesTable() {
                 colors = CardDefaults.cardColors(MaterialTheme.colors.background)
             ) {
                 if (editService.value) {
-                    newService(selectedService = selectedService.value, onCancel = {
-                        selectedService.value = Service()
-                    }) { service ->
+                    newService(
+                        serviceModel.saveError,
+                        selectedService = selectedService.value,
+                        onCancel = {
+                            selectedService.value = Service()
+                        }) { service ->
                         coroutineScope.launch {
                             if (service.dirty) {
                                 serviceModel.update(service, user).onSuccess {
@@ -281,8 +288,12 @@ private fun cell(service: Service, columnIndex: Int) {
 
 
 @Composable
-fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Service) -> Unit) {
-    val serviceModel by rememberInstance<ServiceVM>()
+fun newService(
+    saveError: MutableState<String>,
+    selectedService: Service = Service(),
+    onCancel: () -> Unit,
+    onSubmit: (Service) -> Unit
+) {
 
     val user = LocalUser.currentOrThrow
     val service = remember {
@@ -301,7 +312,7 @@ fun newService(selectedService: Service, onCancel: () -> Unit, onSubmit: (Servic
         mutableStateOf(selectedService.service.isNotEmpty())
     }
     val errorMsg = remember {
-        serviceModel.saveError
+        saveError
     }
     val clock: Clock by localDI().instance()
 

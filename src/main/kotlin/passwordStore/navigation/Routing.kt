@@ -95,11 +95,11 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val navController = LocalNavigator.currentOrThrow
-                val serviceModel by rememberInstance<ServiceVM>()
+                val createServiceSM = rememberScreenModel<CreateServiceSM>()
                 val coroutineScope = rememberCoroutineScope()
-                newService(Service(), onCancel = { navController.pop() }) {
+                newService(createServiceSM.saveError, onCancel = { navController.pop() }) {
                     coroutineScope.launch(Dispatchers.IO) {
-                        serviceModel.store(it).onSuccess {
+                        createServiceSM.store(it).onSuccess {
                             withContext(Dispatchers.Main) {
                                 navController.push(Home)
                             }

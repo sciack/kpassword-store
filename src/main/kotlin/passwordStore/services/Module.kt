@@ -17,4 +17,8 @@ val services = DI.Module("services") {
     bindProvider {
         HistorySM(instance())
     }
+
+    bindProvider {
+        CreateServiceSM(instance())
+    }
 }

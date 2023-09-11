@@ -10,6 +10,8 @@ import org.apache.commons.csv.CSVFormat
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.audit.Event
+import passwordStore.tags.Tag
+import passwordStore.tags.TagElement
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
 import java.nio.file.Path
@@ -24,42 +26,34 @@ class ServiceVM(
 
     val services = mutableStateListOf<Service>()
 
-    val tags = mutableStateOf(mapOf<String, Int>())
+    val tags = mutableStateListOf<Tag>()
 
     var pattern: String = ""
 
-    var tag: String = ""
+    var tag: Tag? = null
 
     val saveError = mutableStateOf("")
 
     fun resetSearch() {
-        tag = ""
+        tag = null
         pattern = ""
     }
 
     suspend fun fetchAll(user: User) {
         resetSearch()
         withContext(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern, tag)
+            val result = servicesRepository.search(user, pattern, tag?.name.orEmpty())
             val currentTags = tagRepository.tags(user)
             withContext(Dispatchers.Main) {
                 LOGGER.warn("Found ${result.size} records")
                 services.clear()
                 services.addAll(result)
-                tags.value = currentTags
+                tags.clear()
+                tags.addAll(currentTags)
             }
 
         }
     }
-
-    suspend fun store(service: Service) = runCatching {
-        servicesRepository.store(service.trim())
-    }.onSuccess {
-        saveError.value = ""
-    }.onFailure {
-        saveError.value = processError(it, service)
-    }
-
 
     suspend fun update(service: Service, user: User) = runCatching {
         servicesRepository.update(service.trim())
@@ -70,13 +64,13 @@ class ServiceVM(
 
 
     suspend fun searchWithTags(tag: String, user: User) {
-        this.tag = tag
+        this.tag = Tag(tag)
         search(user)
     }
 
     private suspend fun search(user: User) {
         withContext(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern = pattern, tag = tag)
+            val result = servicesRepository.search(user, pattern = pattern, tag = tag?.name.orEmpty())
             withContext(Dispatchers.Main) {
                 services.clear()
                 services.addAll(result)
@@ -105,10 +99,7 @@ class ServiceVM(
         }
 
         return withContext(Dispatchers.IO) {
-            val csvFormat: CSVFormat = CSVFormat.EXCEL.builder()
-                .setHeader(*HEADERS)
-                .setSkipHeaderRecord(true)
-                .build()
+            val csvFormat: CSVFormat = CSVFormat.EXCEL.builder().setHeader(*HEADERS).setSkipHeaderRecord(true).build()
 
             runCatching {
                 path.bufferedReader().use {
@@ -162,6 +153,19 @@ class HistorySM(private val servicesRepository: ServicesRepository) : ScreenMode
 
     fun resetHistory() {
         historyEvents.value = listOf()
+    }
+
+}
+
+class CreateServiceSM(private val servicesRepository: ServicesRepository) : ScreenModel {
+    val saveError = mutableStateOf("")
+
+    suspend fun store(service: Service) = runCatching {
+        servicesRepository.store(service.trim())
+    }.onSuccess {
+        saveError.value = ""
+    }.onFailure {
+        saveError.value = processError(it, service)
     }
 
 }
