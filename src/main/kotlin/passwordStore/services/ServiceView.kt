@@ -242,9 +242,6 @@ private fun TableCellScope.serviceButton(
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
     val clipboardManager = LocalClipboardManager.current
-    val service = remember {
-        service
-    }
     ContextMenuDataProvider(
         items = {
             listOf(
