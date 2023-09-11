@@ -74,7 +74,6 @@ fun app() {
             CurrentScreen()
         }
     }
-
 }
 
 fun customShape() = object : Shape {

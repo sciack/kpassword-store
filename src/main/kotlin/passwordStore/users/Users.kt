@@ -1,5 +1,8 @@
 package passwordStore.users
 
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
+
 
 data class ListUser(
     val userid: String,
@@ -37,3 +40,7 @@ data class EditableUser(
 fun User?.isAuthenticated(): Boolean = this != null
 
 fun User?.admin(): Boolean = this?.isAdmin() == true
+
+val LocalUser: ProvidableCompositionLocal<User?> =
+    compositionLocalOf { null }
+val LocalSetUser: ProvidableCompositionLocal<(User?) -> Unit> = compositionLocalOf { {} }
