@@ -29,7 +29,6 @@ import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
@@ -214,7 +213,7 @@ class AppTest {
         }
         rule.onNodeWithTag("Search field").assertExists()
         LOGGER.warn { "Check if service are displayed" }
-        assert( serviceModel.services.size == 5 )
+        assert(serviceModel.services.size == 5)
 
         val service = services[2]
         LOGGER.warn { "Try to edit a service" }

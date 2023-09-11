@@ -20,7 +20,6 @@ import passwordStore.tags.tagModule
 import passwordStore.users.userModule
 
 fun diCore(): DI.Module = DI.Module("core") {
-
     import(auditModule)
     import(services)
     import(tagModule)

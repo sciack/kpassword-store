@@ -1,11 +1,7 @@
 package passwordStore.services
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.TooltipArea
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -30,12 +26,9 @@ import passwordStore.audit.Event
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.INPUT_MEDIUM
 import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.SMALL
 import passwordStore.utils.asTitle
-import passwordStore.utils.obfuscate
 import passwordStore.utils.short
 import passwordStore.widget.Table
-import passwordStore.widget.bottomBorder
 import passwordStore.widget.passwordToolTip
 import passwordStore.widget.showOk
 

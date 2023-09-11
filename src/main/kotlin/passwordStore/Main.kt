@@ -140,7 +140,7 @@ fun main() {
                                     modifier = Modifier.align(Alignment.CenterVertically),
                                     fontWeight = FontWeight.Bold
                                 )
-                                if(user.value != UserVM.NONE) {
+                                if (user.value != UserVM.NONE) {
                                     Spacer(Modifier.width(SMALL))
                                     Text(
                                         user.value.fullName,

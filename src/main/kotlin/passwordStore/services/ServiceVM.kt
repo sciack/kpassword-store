@@ -38,6 +38,7 @@ class ServiceVM(
         tag = ""
         pattern = ""
     }
+
     suspend fun fetchAll() {
         val user = userVM.loggedUser.value
         resetSearch()
