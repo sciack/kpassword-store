@@ -107,7 +107,7 @@ fun servicesTable(serviceSM: ServiceSM) {
             Icon(
                 Icons.Default.Add,
                 KPasswordScreen.NewService.name,
-                tint = MaterialTheme.colors.onSurface,
+                tint = MaterialTheme.colors.onPrimary,
                 modifier = Modifier.size(XL * 2).clip(CircleShape).background(color = MaterialTheme.colors.primary)
                     .border(2.dp, color = MaterialTheme.colors.onPrimary, shape = CircleShape)
             )

@@ -16,25 +16,22 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -134,10 +131,8 @@ fun menuDrawer() {
 }
 
 
-@Suppress("UNCHECKED_CAST")
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
-    val versionJson = Thread.currentThread().contextClassLoader.getResource("version.json")!!.readText()
-    val version = ObjectMapper().readValue(versionJson, Map::class.java) as Map<String, String>
     val di = di()
     val datasource by di.instance<HikariDataSource>()
     Runtime.getRuntime().addShutdownHook(object : Thread() {
@@ -145,15 +140,13 @@ fun main() {
             datasource.close()
         }
     })
-    val prefix = buildString {
-        append("Password Store")
-        if (getMode() == MODE.TEST) {
-            append(" - ")
-            append(getMode())
-        }
-    }
+
 
     application(exitProcessOnExit = true) {
+        val version = useResource("/version.json") {
+            LOGGER.info { "Loading version file" }
+            Json.decodeFromStream<Map<String, String>>(it)
+        }
         val state = rememberWindowState(size = DpSize(1600.dp, 900.dp))
         Window(
             icon = painterResource("/icons/lockoverlay.png"), onCloseRequest = {
@@ -182,38 +175,7 @@ fun main() {
                             LocalVersion provides version["version"]!!
                         ) {
                             app()
-                            val title = remember {
-                                mutableStateOf(prefix)
-                            }
-
-                            AppWindowTitleBar(title = {
-                                Text(
-                                    title.value,
-                                    color = MaterialTheme.colors.onPrimary,
-                                    modifier = Modifier.align(Alignment.CenterVertically),
-                                    fontWeight = FontWeight.Bold
-                                )
-                                if (user.isAuthenticated()) {
-                                    Spacer(Modifier.width(SMALL))
-                                    Text(
-                                        user?.fullName.orEmpty(),
-                                        color = MaterialTheme.colors.onPrimary,
-                                        modifier = Modifier.align(Alignment.CenterVertically),
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            },
-                                state = state,
-                                onMinimize = { state.isMinimized = state.isMinimized.not() },
-                                onMaximize = {
-                                    state.placement =
-                                        if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
-                                },
-                                onClose = {
-                                    exitApplication()
-                                }) {
-                                menuDrawer()
-                            }
+                            appTitle(state, onClose = ::exitApplication)
                         }
                     }
                 }
@@ -221,3 +183,49 @@ fun main() {
         }
     }
 }
+
+@Composable
+private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
+
+    val user = LocalUser.current
+    val title = remember {
+        val prefix = buildString {
+            append("Password Store")
+            if (getMode() == MODE.TEST) {
+                append(" - ")
+                append(getMode())
+            }
+        }
+        mutableStateOf(prefix)
+    }
+
+    AppWindowTitleBar(
+        title = {
+            Text(
+                title.value,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                fontWeight = FontWeight.Bold
+            )
+            if (user.isAuthenticated()) {
+                Spacer(Modifier.width(SMALL))
+                Text(
+                    user?.fullName.orEmpty(),
+                    color = MaterialTheme.colors.onPrimary,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        state = state,
+        onMinimize = { state.isMinimized = state.isMinimized.not() },
+        onMaximize = {
+            state.placement =
+                if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
+        },
+        onClose = onClose
+    ) {
+        menuDrawer()
+    }
+}
+

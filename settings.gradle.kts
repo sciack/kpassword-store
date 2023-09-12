@@ -21,7 +21,7 @@ dependencyResolutionManagement {
         create("libs") {
             val coroutines = "1.7.3"
             val voyager = "1.0.0-rc07"
-            val kotlin = "1.9.10"
+            val kotlinxSerialization = "1.6.0"
             library(
                 "kotlinx-coroutines-core",
                 "org.jetbrains.kotlinx",
@@ -32,13 +32,16 @@ dependencyResolutionManagement {
                 "org.jetbrains.kotlinx",
                 "kotlinx-coroutines-swing"
             ).version(coroutines)
-            library("kotlinx-datetime", "org.jetbrains.kotlinx", "kotlinx-datetime").version("0.4.0")
+            library("kotlinx-serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json")
+                .version(kotlinxSerialization)
+            library("kotlinx-datetime", "org.jetbrains.kotlinx", "kotlinx-datetime")
+                .version("0.4.0")
 // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm
             library(
                 "kotlinx-serialization-core-jvm",
                 "org.jetbrains.kotlinx",
                 "kotlinx-serialization-core-jvm"
-            ).version("1.5.1")
+            ).version(kotlinxSerialization)
 
 
             library("kotlin-logging", "io.github.microutils:kotlin-logging-jvm:3.0.5")
@@ -63,7 +66,8 @@ dependencyResolutionManagement {
                     "kotlinx-coroutines-core",
                     "kotlinx-coroutines-swing",
                     "kotlinx-datetime",
-                    "kotlinx-serialization-core-jvm"
+                    "kotlinx-serialization-core-jvm",
+                    "kotlinx-serialization-json"
                 )
             )
             bundle("log", listOf("kotlin-logging", "logback", "slf4j-jul"))
