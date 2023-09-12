@@ -84,7 +84,7 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
                     if (dirty.value) {
                         coroutineScope.launch {
                             userVM.updateUser(user.value).onSuccess { newUser ->
-                                if (currentUser?.userid == newUser.userid) {
+                                if (currentUser.userid == newUser.userid) {
                                     setUser(newUser)
                                 }
                                 back()

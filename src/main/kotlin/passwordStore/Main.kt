@@ -134,6 +134,7 @@ fun menuDrawer() {
 }
 
 
+@Suppress("UNCHECKED_CAST")
 fun main() {
     val versionJson = Thread.currentThread().contextClassLoader.getResource("version.json")!!.readText()
     val version = ObjectMapper().readValue(versionJson, Map::class.java) as Map<String, String>

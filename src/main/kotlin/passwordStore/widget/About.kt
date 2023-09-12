@@ -41,7 +41,6 @@ fun showAbout(show: MutableState<Boolean>) {
                         "Lock Overlay",
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
-                    val color = MaterialTheme.colors.onSurface
                     Column(
                         Modifier.padding(LARGE)
                     ) {
