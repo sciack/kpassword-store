@@ -29,12 +29,17 @@ import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.config.ConfigVM
+import passwordStore.config.LocalVersion
 import passwordStore.config.MODE
 import passwordStore.config.getMode
 import passwordStore.navigation.KPasswordScreen
@@ -130,12 +135,8 @@ fun menuDrawer() {
 
 
 fun main() {
-    LOGGER.warn {
-        """
-            Starting KPassword Store - ${getMode()}
-            Using JVM: ${System.getProperty("java.version")} - ${System.getProperty("java.vendor")}
-        """.trimIndent()
-    }
+    val versionJson = Thread.currentThread().contextClassLoader.getResource("version.json")!!.readText()
+    val version = ObjectMapper().readValue(versionJson, Map::class.java) as Map<String, String>
     val di = di()
     val datasource by di.instance<HikariDataSource>()
     Runtime.getRuntime().addShutdownHook(object : Thread() {
@@ -176,7 +177,8 @@ fun main() {
                         CompositionLocalProvider(
                             LocalStatusHolder provides StatusHolder(scaffoldState),
                             LocalUser provides user,
-                            LocalSetUser provides setUser
+                            LocalSetUser provides setUser,
+                            LocalVersion provides version["version"]!!
                         ) {
                             app()
                             val title = remember {

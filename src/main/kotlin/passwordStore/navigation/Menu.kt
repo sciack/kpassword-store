@@ -1,13 +1,26 @@
 package passwordStore.navigation
 
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -15,14 +28,17 @@ import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import passwordStore.LOGGER
+import passwordStore.config.LocalVersion
 import passwordStore.services.download
 import passwordStore.services.upload
+import passwordStore.ui.theme.LARGE
 import passwordStore.users.LocalSetUser
 import passwordStore.users.LocalUser
 import passwordStore.users.admin
 import passwordStore.users.isAuthenticated
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.widget.menuItem
+import passwordStore.widget.showAbout
 import kotlin.system.exitProcess
 
 
@@ -157,6 +173,20 @@ fun menu() {
         )
     }
     Divider(color = Color.LightGray, thickness = 1.dp)
+    val showAbout = remember { mutableStateOf(false) }
+    menuItem(
+        onClick = {
+            showAbout.value = true
+            coroutineScope.launch {
+                statusHolder.closeDrawer()
+            }
+        },
+        title = "About",
+        testTag = "About",
+        icon = {
+            Icon(Icons.Default.QuestionMark, "About")
+        }
+    )
     menuItem(
         onClick = {
             navController.popUntilRoot()
@@ -184,5 +214,5 @@ fun menu() {
             )
         }
     )
-
+    showAbout(showAbout)
 }

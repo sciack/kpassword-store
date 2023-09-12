@@ -1,5 +1,11 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.nio.file.Path
+import java.nio.file.Paths
 
 plugins {
     kotlin("jvm")
@@ -40,6 +46,31 @@ tasks {
 
     }
     jacocoTestReport.get().dependsOn(koverXmlReport)
+    val versionTask = register("writeVersion") {
+
+        doLast {
+            val generatedResourceDir = sourceSets.main.get().output.resourcesDir
+            logger.warn("GeneratedResourceDir: $generatedResourceDir")
+            val versionFile = generatedResourceDir?.resolve("version.json")
+            val versionObj = mapOf("version" to semver.version)
+            val versionJson = Json.Default.encodeToString(versionObj)
+            logger.warn("Version: $versionJson")
+            versionFile?.writeText(versionJson)
+        }
+    }
+
+    test {
+        //useJUnitPlatform()
+    }
+
+    releaseVersion {
+        setNoCommit(false)
+        setNoTag(false)
+    }
+
+    compileKotlin {
+        dependsOn(versionTask)
+    }
 }
 
 dependencies {
@@ -74,14 +105,7 @@ dependencies {
 }
 
 
-tasks.test {
-    //useJUnitPlatform()
-}
 
-tasks.releaseVersion {
-    setNoCommit(false)
-    setNoTag(false)
-}
 
 compose.desktop {
 

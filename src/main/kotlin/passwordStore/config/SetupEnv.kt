@@ -1,5 +1,6 @@
 package passwordStore.config
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import mu.KotlinLogging
 import passwordStore.LOGGER
 import passwordStore.utils.Platform
@@ -67,3 +68,6 @@ fun configDir(): Path {
     val userHome = System.getProperty("user.home")
     return os.configDirectory(userHome)
 }
+
+
+val LocalVersion = staticCompositionLocalOf { "" }
