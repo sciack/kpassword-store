@@ -1,19 +1,19 @@
 package passwordStore.services
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ContextMenuDataProvider
+import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -115,45 +115,28 @@ fun servicesTable(serviceSM: ServiceSM) {
     }
 
     if (selectedService.value.service.isNotEmpty()) {
-        Box(Modifier.fillMaxSize().clickable {
+        EditorCard(onCloseRequest = {
             selectedService.value = Service()
         }) {
-            OutlinedCard(modifier = Modifier.fillMaxHeight(0.9f).layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                val maxWidth = constraints.maxWidth
-                val x = (maxWidth - placeable.width).coerceAtLeast(0)
-                layout(width = placeable.width, height = placeable.height) {
-                    placeable.place(x, 10)
-                }
-            }.clickable {
-                // just do nothing but avoid propagate the click to the box
-            },
-                elevation = CardDefaults.cardElevation(MEDIUM),
-                colors = CardDefaults.cardColors(MaterialTheme.colors.background)
-            ) {
-                if (editService.value) {
-                    newService(serviceSM.saveError, selectedService = selectedService.value, onCancel = {
-                        selectedService.value = Service()
-                    }) { service ->
-                        coroutineScope.launch {
-                            if (service.dirty) {
-                                serviceSM.update(service, user).onSuccess {
-                                    selectedService.value = Service()
-                                }
+            if (editService.value) {
+                newService(serviceSM.saveError, selectedService = selectedService.value, onCancel = {
+                    close()
+                }) { service ->
+                    coroutineScope.launch {
+                        if (service.dirty) {
+                            serviceSM.update(service, user).onSuccess {
+                                close()
                             }
                         }
                     }
-                } else {
-                    showService(selectedService = selectedService.value) {
-                        coroutineScope.launch {
-                            selectedService.value = Service()
-                        }
-                    }
+                }
+            } else {
+                showService(selectedService = selectedService.value) {
+                    close()
                 }
             }
         }
     }
-
 }
 
 

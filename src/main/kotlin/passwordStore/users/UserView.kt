@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +21,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import passwordStore.ui.theme.*
 import passwordStore.utils.LocalStatusHolder
+import passwordStore.widget.EditorCard
 import passwordStore.widget.Table
 import passwordStore.widget.passwordDialog
 import passwordStore.widget.showOkCancel
@@ -388,21 +388,15 @@ fun users(userVM: UserVM) {
     }
 
     if (selectedUser.value.userid.isNotEmpty()) {
-        Card(modifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            val maxWidth = constraints.maxWidth
-            val x = (maxWidth - placeable.width).coerceAtLeast(0)
-            layout(width = placeable.width, height = placeable.height) {
-                placeable.place(x, 10)
-            }
+        EditorCard(onCloseRequest = {
+            selectedUser.value = EditableUser()
         }) {
 
             editUser(userVM, selectedUser) {
                 coroutineScope.launch {
                     userVM.loadUsers()
                 }
-                selectedUser.value = EditableUser()
-
+                close()
             }
         }
     }
