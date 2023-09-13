@@ -32,11 +32,7 @@ fun EditorCard(onCloseRequest: () -> Unit, content: @Composable EditorCardScope.
             elevation = CardDefaults.cardElevation(MEDIUM),
             colors = CardDefaults.cardColors(MaterialTheme.colors.background)
         ) {
-            with(object: EditorCardScope {
-                override fun close() {
-                    onCloseRequest()
-                }
-            }) {
+            withScope(onCloseRequest) {
                 content()
             }
         }
@@ -45,4 +41,17 @@ fun EditorCard(onCloseRequest: () -> Unit, content: @Composable EditorCardScope.
 
 interface EditorCardScope {
     fun close()
+}
+
+
+private class CurrentEditorCardScope(private val onClose: ()->Unit): EditorCardScope {
+
+    override fun close() {
+        onClose()
+    }
+}
+fun withScope(onClose: () -> Unit, content: @Composable EditorCardScope.() -> Unit) {
+    with(CurrentEditorCardScope(onClose)) {
+        content()
+    }
 }
