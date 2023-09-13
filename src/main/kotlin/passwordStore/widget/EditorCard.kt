@@ -50,6 +50,8 @@ private class CurrentEditorCardScope(private val onClose: ()->Unit): EditorCardS
         onClose()
     }
 }
+
+@Composable
 fun withScope(onClose: () -> Unit, content: @Composable EditorCardScope.() -> Unit) {
     with(CurrentEditorCardScope(onClose)) {
         content()
