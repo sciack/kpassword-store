@@ -5,12 +5,10 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.datetime.Clock
-import org.kodein.di.DI
-import org.kodein.di.bind
-import org.kodein.di.instance
-import org.kodein.di.singleton
+import org.kodein.di.*
 import passwordStore.audit.auditModule
 import passwordStore.config.ConfigVM
+import passwordStore.config.configModule
 import passwordStore.config.configureEnvironment
 import passwordStore.crypto.prodCryptExtension
 import passwordStore.services.services
@@ -33,7 +31,7 @@ fun diCore(): DI.Module = DI.Module("core") {
 
 
 fun di() = DI {
-    val configFile = configureEnvironment()
+    import(configModule)
     import(diCore())
     import(prodCryptExtension)
     bind<Clock> {
@@ -48,9 +46,5 @@ fun di() = DI {
             ds
         }
     }
-    bind<ConfigVM> {
-        singleton {
-            ConfigVM(configFile, instance(), instance())
-        }
-    }
+
 }

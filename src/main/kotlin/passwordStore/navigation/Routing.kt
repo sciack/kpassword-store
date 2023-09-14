@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
+import passwordStore.config.ConfigVM
 import passwordStore.config.configView
 import passwordStore.loginPane
 import passwordStore.services.*
@@ -220,7 +221,8 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                configView()
+                val configVM = rememberScreenModel<ConfigVM>()
+                configView(configVM)
             }
         }
     }

@@ -3,6 +3,7 @@ package passwordStore.config
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import cafe.adriel.voyager.core.model.ScreenModel
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +20,8 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.reader
 import kotlin.io.path.writer
 
-class ConfigVM(private val configFile: Path, private val secrets: Secrets, private val dataSource: HikariDataSource) {
+class ConfigVM(private val configFile: Path, private val secrets: Secrets, private val dataSource: HikariDataSource) :
+    ScreenModel {
 
 
     lateinit var jdbcUrl: String

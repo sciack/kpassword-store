@@ -4,7 +4,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
+import passwordStore.config.DarkModes
 
 
 private val LightColors = lightColors(
@@ -72,3 +74,6 @@ val XXL = 32.dp
 
 val INPUT_MEDIUM = 350.dp
 val INPUT_LARGE = 640.dp
+
+val LocalDarkMode = staticCompositionLocalOf { DarkModes.SYSTEM_DEFAULT }
+val LocalSetDarkMode = staticCompositionLocalOf<(DarkModes) -> Unit> { {} }

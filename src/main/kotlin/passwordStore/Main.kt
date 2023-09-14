@@ -32,18 +32,12 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import passwordStore.config.ConfigVM
-import passwordStore.config.LocalVersion
-import passwordStore.config.MODE
-import passwordStore.config.getMode
+import passwordStore.config.*
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.navigation.menu
-import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XXL
-import passwordStore.ui.theme.appTheme
+import passwordStore.ui.theme.*
 import passwordStore.users.LocalSetUser
 import passwordStore.users.LocalUser
 import passwordStore.users.User
@@ -158,24 +152,32 @@ fun main() {
             val (user, setUser) = remember {
                 mutableStateOf<User?>(null)
             }
+            val configuredDarkMode =
+                runCatching { DarkModes.valueOf(System.getProperty(DARK_MODE)) }.getOrDefault(DarkModes.SYSTEM_DEFAULT)
+            val (darkMode, setDarkMode) = remember {
+                mutableStateOf(configuredDarkMode)
+            }
             withDI(di) {
-                val configVM by rememberInstance<ConfigVM>()
-                val darkMode = remember { configVM.darkMode }
-
-                appTheme(
-                    darkMode.value.isDarkMode()
+                CompositionLocalProvider(
+                    LocalDarkMode provides darkMode,
+                    LocalSetDarkMode provides setDarkMode
                 ) {
-                    LOGGER.info { "Building the app" }
-                    Navigator(KPasswordScreen.Login) {
-                        val scaffoldState = rememberScaffoldState()
-                        CompositionLocalProvider(
-                            LocalStatusHolder provides StatusHolder(scaffoldState),
-                            LocalUser provides user,
-                            LocalSetUser provides setUser,
-                            LocalVersion provides version["version"]!!
-                        ) {
-                            app()
-                            appTitle(state, onClose = ::exitApplication)
+                    appTheme(
+                        darkMode.isDarkMode()
+                    ) {
+                        LOGGER.info { "Building the app" }
+                        Navigator(KPasswordScreen.Login) {
+                            val scaffoldState = rememberScaffoldState()
+                            CompositionLocalProvider(
+                                LocalStatusHolder provides StatusHolder(scaffoldState),
+                                LocalUser provides user,
+                                LocalSetUser provides setUser,
+                                LocalVersion provides version["version"]!!
+
+                            ) {
+                                app()
+                                appTitle(state, onClose = ::exitApplication)
+                            }
                         }
                     }
                 }

@@ -15,17 +15,12 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.kodein.di.compose.rememberInstance
-import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.MEDIUM
-import passwordStore.ui.theme.SMALL
-import passwordStore.ui.theme.XL
+import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
 import passwordStore.users.admin
 
 @Composable
-fun configView() {
-    val configVM by rememberInstance<ConfigVM>()
+fun configView(configVM: ConfigVM) {
     val coroutineScope = rememberCoroutineScope()
     val user = LocalUser.current
     val jdbc = remember {
@@ -149,11 +144,13 @@ fun configView() {
         }
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.fillMaxWidth()) {
+            val setDarkMode = LocalSetDarkMode.current
             Button(
                 onClick = {
                     coroutineScope.launch {
                         configVM.save()
                         withContext(Dispatchers.Main) {
+                            setDarkMode(darkMode.value)
                             navController.pop()
                         }
                     }
