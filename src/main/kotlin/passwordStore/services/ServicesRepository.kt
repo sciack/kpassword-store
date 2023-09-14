@@ -42,6 +42,8 @@ import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
 import passwordStore.users.User
 import passwordStore.utils.*
+import java.lang.IllegalArgumentException
+import java.net.URL
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -354,6 +356,12 @@ data class Service(
             }
             check(password.isNotEmpty()) {
                 "Password must be present"
+            }
+            runCatching {
+                URL(url).toURI()
+            }.getOrElse {
+                throw IllegalArgumentException("Url is invalid: ${it.message}")
+
             }
         }
 

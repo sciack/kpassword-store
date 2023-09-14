@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,12 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -81,7 +87,7 @@ fun servicesTable(serviceSM: ServiceSM) {
         Spacer(Modifier.height(LARGE))
         Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)) {
             Table(modifier = Modifier.fillMaxSize(),
-                headers = listOf("Service", "Username", "Password", "Tags", "Note"),
+                headers = listOf("Service", "Username", "Password", "Url", "Tags", "Note"),
                 values = services,
                 beforeRow = { service ->
                     serviceButton(service, editService, selectedService) {
@@ -203,8 +209,9 @@ private fun serviceButton(
 }
 
 @Composable
-private fun cell(service: Service, columnIndex: Int) {
+fun withMenu(service: Service, content: @Composable () -> Unit) {
     val clipboardManager = LocalClipboardManager.current
+
     ContextMenuDataProvider(items = {
         listOf(ContextMenuItem("Copy username") {
             clipboardManager.setText(
@@ -217,24 +224,61 @@ private fun cell(service: Service, columnIndex: Int) {
         })
     }) {
         SelectionContainer {
-            when (columnIndex) {
-                0 -> Text(service.service)
-                1 -> Text(service.username)
-                2 -> Text(service.password.obfuscate())
-                3 -> Text(service.tags.joinToString(", "))
-                4 -> Text(
-                    text = service.note,
-                    softWrap = true,
-                    overflow = TextOverflow.Clip,
-                    minLines = 1,
-                    maxLines = 5,
-                    modifier = Modifier.widthIn(max = 350.dp)
-                )
-
-                else -> Text("")
-            }
+            content()
         }
+
     }
+}
+
+@Composable
+private fun cell(service: Service, columnIndex: Int) {
+
+    val localUrl = LocalUriHandler.current
+
+
+    when (columnIndex) {
+        0 -> withMenu(service) {
+            Text(service.service)
+        }
+
+        1 -> withMenu(service) {
+            Text(service.username)
+        }
+
+        2 -> withMenu(service) {
+            Text(service.password.obfuscate())
+        }
+
+        3 -> ClickableText(buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colors.secondary,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(service.url)
+            }
+            toAnnotatedString()
+        },
+            onClick = {
+                LOGGER.warn("Try to open url ${service.url}")
+                localUrl.openUri(service.url)
+            })
+
+        4 -> Text(service.tags.joinToString(", "))
+        5 -> Text(
+            text = service.note,
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            minLines = 1,
+            maxLines = 5,
+            modifier = Modifier.widthIn(max = 350.dp)
+        )
+
+        else -> Text("")
+
+    }
+
 }
 
 
@@ -326,6 +370,17 @@ fun newService(
             }
 
             OutlinedTextField(
+                label = { Text("Url") },
+                value = service.value.url,
+                singleLine = true,
+                onValueChange = {
+                    dirty.value = dirty.value || service.value.url != it
+                    service.value = service.value.copy(url = it)
+                },
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("url")
+            )
+
+            OutlinedTextField(
                 label = { Text("Note") },
                 value = service.value.note,
                 minLines = 5,
@@ -385,6 +440,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
     }
 
     val clock: Clock by localDI().instance()
+    val localUrl = LocalUriHandler.current
 
     Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(INPUT_LARGE)) {
@@ -416,6 +472,25 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("password"),
                 singleLine = true,
                 readOnly = true
+            )
+
+            ClickableText(
+                buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colors.secondary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(service.url)
+                    }
+                    toAnnotatedString()
+                },
+                onClick = {
+                    LOGGER.warn("Try to open url ${service.url}")
+                    localUrl.openUri(service.url)
+                },
+                modifier = Modifier.padding(LARGE)
             )
 
             OutlinedTextField(
