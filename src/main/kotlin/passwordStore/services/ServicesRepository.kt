@@ -358,9 +358,11 @@ data class Service(
                 "Password must be present"
             }
             runCatching {
-                URL(url).toURI()
+                if(url.isNotEmpty()) {
+                    URL(url).toURI()
+                }
             }.getOrElse {
-                throw IllegalArgumentException("Url is invalid: ${it.message}")
+                throw IllegalArgumentException("Invalid url: ${it.message}")
 
             }
         }

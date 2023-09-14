@@ -36,7 +36,7 @@ import passwordStore.widget.showOk
 fun historyTable(historySM: HistorySM) {
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavigator.currentOrThrow
-    val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Tags", "Note")
+    val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Url", "Tags", "Note")
 
     Column(Modifier.fillMaxSize().padding(LARGE)) {
         Row {
@@ -95,8 +95,9 @@ fun displayHistService(event: Event, columnIndex: Int) {
         2 -> Text(service.service, color = colors)
         3 -> Text(service.username, color = colors)
         4 -> passwordToolTip(service.password, colors)
-        5 -> Text(service.tags.joinToString(", "), color = colors)
-        6 -> Text(
+        5 -> Text(service.url, color = colors)
+        6 -> Text(service.tags.joinToString(", "), color = colors)
+        7 -> Text(
             text = service.note,
             softWrap = true,
             overflow = TextOverflow.Clip,
