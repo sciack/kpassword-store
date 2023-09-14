@@ -31,10 +31,10 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import passwordStore.LOGGER
-import passwordStore.audit.Action
-import passwordStore.audit.AuditMessage
-import passwordStore.audit.Event
-import passwordStore.audit.EventBus
+import passwordStore.services.audit.Action
+import passwordStore.services.audit.AuditMessage
+import passwordStore.services.audit.Event
+import passwordStore.services.audit.EventBus
 import passwordStore.crypto.CryptExtension
 import passwordStore.sql.performTransaction
 import passwordStore.sql.query
@@ -72,7 +72,10 @@ class ServicesRepository(
             rs.getString("note").decrypt(),
             false,
             rs.getTimestamp("lastUpdate").toLocalDateTime().toKotlinLocalDateTime(),
-            rs.getString("userid"), 1.0, tags
+            rs.getString("userid"),
+            1.0,
+            tags,
+            rs.getString("url").orEmpty()
         )
     }
 
@@ -147,15 +150,16 @@ class ServicesRepository(
         }
         datasource.performTransaction {
             val insertedRows = this.saveOrUpdate(
-                """ insert into services (service, username, password, note, lastUpdate, userid)
-              values (?, ?, ?, ?, ?, ?)
+                """ insert into services (service, username, password, note, lastUpdate, userid, url)
+              values (?, ?, ?, ?, ?, ?, ?)
             """,
                 service.service,
                 service.username,
                 service.password.crypt(),
                 service.note.crypt(),
                 service.updateTime.toTimestamp(timezone),
-                service.userid
+                service.userid,
+                service.url
             )
             assert(insertedRows > 0)
             val id = findServiceId(service.service, service.userid)
@@ -230,9 +234,11 @@ class ServicesRepository(
               password = ?,
               note = ?,
               lastUpdate = ?,
-              userid = ?
+              userid = ?,
+              url = ?
               where service = ?""", service.username, service.password.crypt(),
-                service.note.crypt(), service.updateTime.toTimestamp(timezone), userId, service.service
+                service.note.crypt(), service.updateTime.toTimestamp(timezone), userId,
+                service.url, service.service
             ).also { rows ->
                 check(rows > 0) {
                     "No rows updated"
@@ -332,7 +338,8 @@ data class Service(
     var updateTime: LocalDateTime = Clock.System.currentDateTime(),
     var userid: String = "",
     var score: Double = 0.0,
-    var tags: List<String> = listOf()
+    var tags: List<String> = listOf(),
+    var url: String = ""
 ) {
     fun trim(): Service =
         this.copy(service = this.service.trim(), username = this.username.trim(), password = this.password.trim())

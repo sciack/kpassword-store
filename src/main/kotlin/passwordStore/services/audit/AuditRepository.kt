@@ -24,7 +24,7 @@
  *
  */
 
-package passwordStore.audit
+package passwordStore.services.audit
 
 
 import kotlinx.coroutines.Dispatchers
@@ -45,9 +45,9 @@ class AuditRepository(
 
     internal fun track(event: Event) {
         ds.saveOrUpdate(""" insert into services_hist
-              (service, username, password, note, lastUpdate, userid, operation, operation_date, tags)
+              (service, username, password, note, lastUpdate, userid, operation, operation_date, tags, url)
             values
-              (?, ?, ?, ?, ?, ?, ?, ?, ?)
+              (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
           """,
             event.service.service,
             event.service.username,
@@ -57,7 +57,9 @@ class AuditRepository(
             event.service.userid,
             event.action.name,
             event.actionDate.toTimestamp(timezone),
-            event.service.tags.joinToString(",") { it.asTitle().trim() })
+            event.service.tags.joinToString(",") { it.asTitle().trim() },
+            event.service.url
+        )
     }
 
     private fun String.crypt() = cryptExtension.crypt(this)

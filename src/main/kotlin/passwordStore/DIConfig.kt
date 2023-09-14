@@ -5,12 +5,12 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.datetime.Clock
-import org.kodein.di.*
-import passwordStore.audit.auditModule
-import passwordStore.config.ConfigVM
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.singleton
 import passwordStore.config.configModule
-import passwordStore.config.configureEnvironment
 import passwordStore.crypto.prodCryptExtension
+import passwordStore.services.audit.auditModule
 import passwordStore.services.services
 import passwordStore.sql.Migration
 import passwordStore.sql.prodDatasource

@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import passwordStore.audit.Action
-import passwordStore.audit.Event
+import passwordStore.services.audit.Action
+import passwordStore.services.audit.Event
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.INPUT_MEDIUM
 import passwordStore.ui.theme.LARGE

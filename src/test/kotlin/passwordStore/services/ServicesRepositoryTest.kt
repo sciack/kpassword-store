@@ -47,7 +47,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val storedService = servicesRepository.store(service)
         assertThat(service.copy(dirty = false), equalTo(storedService))
@@ -64,7 +65,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         servicesRepository.store(service)
 
@@ -87,7 +89,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val result = servicesRepository.store(service)
         await.atMost(5.seconds.toJavaDuration()).untilAsserted {
@@ -111,12 +114,14 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         servicesRepository.store(service)
         val result = servicesRepository.search(user, "", "Tag")
         assertThat(result, isEmpty.not())
         assertThat(result[0].service, equalTo("Test service"))
+
     }
 
     @Test
@@ -130,7 +135,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val storedService = servicesRepository.store(service)
         val services = servicesRepository.search(user)
