@@ -1,4 +1,4 @@
-package passwordStore.audit
+package passwordStore.services.audit
 
 import org.kodein.di.*
 

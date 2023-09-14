@@ -24,7 +24,7 @@
  *
  */
 
-package passwordStore.audit
+package passwordStore.services.audit
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime

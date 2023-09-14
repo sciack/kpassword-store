@@ -1,10 +1,7 @@
 package passwordStore.services
 
+import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.hasElement
-import com.natpryce.hamkrest.isEmpty
-import com.natpryce.hamkrest.throws
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
@@ -14,6 +11,7 @@ import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.nowWithMicro
 import passwordStore.testUser
+import java.lang.IllegalArgumentException
 import java.sql.SQLException
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -47,7 +45,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val storedService = servicesRepository.store(service)
         assertThat(service.copy(dirty = false), equalTo(storedService))
@@ -64,7 +63,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         servicesRepository.store(service)
 
@@ -87,7 +87,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("Some tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val result = servicesRepository.store(service)
         await.atMost(5.seconds.toJavaDuration()).untilAsserted {
@@ -111,12 +112,14 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         servicesRepository.store(service)
         val result = servicesRepository.search(user, "", "Tag")
         assertThat(result, isEmpty.not())
         assertThat(result[0].service, equalTo("Test service"))
+
     }
 
     @Test
@@ -130,7 +133,8 @@ class ServicesRepositoryTest() {
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
             tags = listOf("tag"),
-            score = 1.0
+            score = 1.0,
+            url = "http://example.com"
         )
         val storedService = servicesRepository.store(service)
         val services = servicesRepository.search(user)
@@ -138,5 +142,28 @@ class ServicesRepositoryTest() {
         servicesRepository.delete(serviceName = service.service, userId = user.userid)
         val newServices = servicesRepository.search(user)
         assertThat(newServices, !hasElement(storedService))
+    }
+
+
+    @Test
+    fun `should not validate an invalid url`() {
+        val service = Service(
+            service = "Test service",
+            username = "My username",
+            password = "a password",
+            note = "Some very long notes",
+            dirty = true,
+            updateTime = LocalDateTime.nowWithMicro(),
+            userid = user.userid,
+            tags = listOf("tag"),
+            score = 1.0,
+            url = "abc"
+        )
+        service.validate()
+        assertThat(service.validate().isFailure, equalTo(true))
+        assertThat(
+            service.validate().exceptionOrNull()?.message.orEmpty(),
+            containsSubstring("Invalid url")
+        )
     }
 }

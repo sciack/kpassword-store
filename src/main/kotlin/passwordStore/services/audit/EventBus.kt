@@ -1,4 +1,4 @@
-package passwordStore.audit
+package passwordStore.services.audit
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

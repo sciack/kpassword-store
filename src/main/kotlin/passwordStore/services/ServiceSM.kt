@@ -9,7 +9,7 @@ import kotlinx.datetime.LocalDateTime
 import org.apache.commons.csv.CSVFormat
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
-import passwordStore.audit.Event
+import passwordStore.services.audit.Event
 import passwordStore.tags.Tag
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
