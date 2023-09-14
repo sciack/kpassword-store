@@ -1,7 +1,7 @@
 package passwordStore
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -52,10 +53,13 @@ import passwordStore.widget.AppWindowTitleBar
 val LOGGER = configureLog()
 
 @Composable
-@Preview
 fun app() {
     val statusHolder = LocalStatusHolder.currentOrThrow
-    Scaffold(Modifier.then(Modifier.fillMaxSize()), scaffoldState = statusHolder.scaffoldState, topBar = {
+    Scaffold(Modifier.then(
+        Modifier.fillMaxSize().border(
+            1.dp, color = MaterialTheme.colors.primary, shape = RectangleShape
+        )
+    ), scaffoldState = statusHolder.scaffoldState, topBar = {
         TopAppBar(
             modifier = Modifier.height(APP_BAR_HEIGHT)
         ) {}
@@ -145,8 +149,9 @@ fun main() {
         Window(
             icon = painterResource("/icons/lockoverlay.png"), onCloseRequest = {
                 exitApplication()
-            }, undecorated = true,
-
+            },
+            undecorated = true,
+            resizable = true,
             state = state
         ) {
             val (user, setUser) = remember {
