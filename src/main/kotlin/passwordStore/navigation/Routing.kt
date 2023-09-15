@@ -54,10 +54,11 @@ sealed interface KPasswordScreen {
                 val serviceSM = rememberScreenModel<ServiceSM>()
                 val user = LocalUser.currentOrThrow
                 serviceSM.resetSearch()
+                servicesTable(serviceSM)
                 coroutineScope.launch(Dispatchers.Main) {
                     serviceSM.fetchAll(user)
                 }
-                servicesTable(serviceSM)
+
             }
         }
     }
@@ -112,28 +113,7 @@ sealed interface KPasswordScreen {
         }
     }
 
-    object History : Screen, KPasswordScreen {
-        private fun readResolve(): Any = History
-        override val name: String
-            get() = "History"
-        override val allowBack: Boolean
-            get() = true
-
-        @Composable
-        override fun Content() = withCloseDrawer {
-            withAuthentication {
-                val coroutineScope = rememberCoroutineScope()
-                val historySM by rememberInstance<HistorySM>()
-                val user = LocalUser.currentOrThrow
-                historyTable(historySM)
-                coroutineScope.launch(Dispatchers.IO) {
-                    historySM.history("", exactMatch = false, user)
-                }
-            }
-        }
-    }
-
-    data class ServiceHistory(val service: Service) : KPasswordScreen, Screen {
+    data class ServiceHistory(val service: Service?) : KPasswordScreen, Screen {
         override val name: String
             get() = "History"
 
@@ -144,12 +124,15 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
-                val historySM by rememberInstance<HistorySM>()
+                val historySM = rememberScreenModel<HistorySM>()
                 val user = LocalUser.currentOrThrow
-                historySM.resetHistory()
                 historyTable(historySM)
                 coroutineScope.launch(Dispatchers.IO) {
-                    historySM.history(service.service, exactMatch = true, user)
+                    if(service == null) {
+                        historySM.history("", exactMatch = false, user)
+                    } else {
+                        historySM.history(service.service, exactMatch = true, user)
+                    }
 
                 }
             }
@@ -168,9 +151,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-
-                val userVM = rememberScreenModel<UserVM>()
-                userSettings(userVM)
+                userSettings(rememberScreenModel())
             }
         }
     }
@@ -204,8 +185,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val createUserSM = rememberScreenModel<CreateUserSM>()
-                createUser(createUserSM = createUserSM)
+                createUser(createUserSM = rememberScreenModel())
             }
         }
     }
@@ -221,8 +201,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val configVM = rememberScreenModel<ConfigVM>()
-                configView(configVM)
+                configView(rememberScreenModel())
             }
         }
     }
