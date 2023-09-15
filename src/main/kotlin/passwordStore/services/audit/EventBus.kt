@@ -1,37 +1,26 @@
 package passwordStore.services.audit
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
-import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.flow.*
 
-class EventBus(coroutineScope: CoroutineScope) {
+class EventBus(private val coroutineScope: CoroutineScope) {
 
-    private val channel = Channel<AuditMessage>(capacity = 100)
-
-    private val listeners = CopyOnWriteArrayList<EventListener<AuditMessage>>()
+    private val channel = MutableSharedFlow<AuditMessage>()
 
     suspend fun send(message: AuditMessage) {
-        channel.send(message)
+        channel.emit(message)
     }
 
-    fun subscribe(listener: EventListener<AuditMessage>) {
-        listeners.add(listener)
-    }
+    fun subscribe(listener: EventListener<AuditMessage>): Job {
+        return coroutineScope.launch {
+            channel.collect { message ->
+                listener.onEvent(message)
 
-    init {
-        coroutineScope.launch(Dispatchers.IO) {
-            channel.consumeAsFlow().collect { message ->
-                listeners.map { listener ->
-                    async {
-                        listener.onEvent(message)
-                    }
-                }.awaitAll()
             }
         }
     }
 }
 
-interface EventListener<AuditMessage> {
-    suspend fun onEvent(event: AuditMessage)
+interface EventListener<T> {
+    suspend fun onEvent(event: T)
 }

@@ -76,7 +76,7 @@ class AppTest {
                 }
             }
         }
-
+        rule.awaitIdle()
         performLogin()
         rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()

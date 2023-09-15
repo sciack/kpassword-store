@@ -24,6 +24,8 @@
  *
  */
 
+@file:Suppress("SqlSourceToSinkFlow")
+
 package passwordStore.sql
 
 import mu.KotlinLogging

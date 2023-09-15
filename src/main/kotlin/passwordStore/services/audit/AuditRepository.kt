@@ -44,10 +44,11 @@ class AuditRepository(
 ) {
 
     internal fun track(event: Event) {
-        ds.saveOrUpdate(""" insert into services_hist
+        ds.saveOrUpdate(
+            """ insert into services_hist
               (service, username, password, note, lastUpdate, userid, operation, operation_date, tags, url)
             values
-              (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+              (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           """,
             event.service.service,
             event.service.username,
@@ -67,7 +68,7 @@ class AuditRepository(
 
 class AuditEventDeque(
     private val repository: AuditRepository,
-    private val eventBus: EventBus
+    eventBus: EventBus
 ) : EventListener<AuditMessage> {
 
     init {
@@ -77,7 +78,7 @@ class AuditEventDeque(
     override suspend fun onEvent(event: AuditMessage) {
         withContext(Dispatchers.IO) {
             launch {
-                LOGGER.info { "Storing event ${event}" }
+                LOGGER.info { "Storing event $event" }
                 repository.track(event.event)
             }
         }
