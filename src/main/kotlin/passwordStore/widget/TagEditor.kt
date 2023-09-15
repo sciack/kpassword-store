@@ -1,6 +1,7 @@
 package passwordStore.widget
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import passwordStore.ui.theme.XS
+import passwordStore.tags.Tag
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -115,4 +117,47 @@ private fun assignTag(
     tags.value += tag
     currentTag.value = TextFieldValue()
     onValueChange(tags.value)
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun tagView(inputTag: List<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
+    val tags = remember {
+        inputTag
+    }
+    val selected = remember {
+        mutableStateOf(selectedTag)
+    }
+
+    FlowRow(
+        maxItemsInEachRow = 12,
+        modifier = Modifier
+            .focusable(false)
+            .padding(top = XS, bottom = XS)
+            .border(width = 1.dp, color = MaterialTheme.colors.primary),
+
+        ) {
+        tags.forEach { tag ->
+
+            Chip(
+                onClick = {
+                    if (selected.value != tag) {
+                        selected.value = tag
+                    } else {
+                        selected.value = null
+                    }
+                    searchFn(selected.value)
+                },
+                colors = if (selected.value != tag) {
+                    ChipDefaults.outlinedChipColors()
+                } else {
+                    ChipDefaults.chipColors()
+                },
+                border = BorderStroke(1.dp, MaterialTheme.colors.primary),
+                modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS)
+            ) {
+                Text(tag.name)
+            }
+        }
+    }
 }

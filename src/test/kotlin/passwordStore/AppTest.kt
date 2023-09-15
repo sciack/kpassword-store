@@ -116,7 +116,7 @@ class AppTest {
             service = "myService",
             username = "a username",
             password = "a password",
-            tags = listOf("tag"),
+            tags = setOf("tag"),
             note = "someNote",
             userid = user.userid,
             dirty = true,
@@ -155,7 +155,7 @@ class AppTest {
             service = "myService",
             username = "a username",
             password = "a password",
-            tags = listOf("tag"),
+            tags = setOf("tag"),
             note = "someNote",
             userid = user.userid,
             dirty = true,
@@ -209,7 +209,7 @@ class AppTest {
                 service = faker.app().name() + it,
                 username = faker.dragonBall().character(),
                 password = faker.dune().planet(),
-                tags = listOf(faker.book().genre()),
+                tags = setOf(faker.book().genre()),
                 note = faker.dune().quote(),
                 userid = user.userid,
                 dirty = true,
@@ -267,7 +267,7 @@ class AppTest {
         rule.onNodeWithTag("service").performTextInput(service.service)
         rule.onNodeWithTag("username").performTextInput(service.username)
         rule.onNodeWithTag("password").performTextInput(service.password)
-        rule.onNodeWithTag("tags").performTextInput(service.tags[0])
+        rule.onNodeWithTag("tags").performTextInput(service.tags.first())
         rule.onNodeWithTag("note").performTextInput(service.note)
         rule.awaitIdle()
 

@@ -53,7 +53,7 @@ class CsvDownloadKtTest {
             dirty = true,
             updateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS).toKotlinLocalDateTime(),
             userid = user.userid,
-            tags = listOf("Some tag"),
+            tags = setOf("Some tag"),
             score = 1.0
         )
         val storedService = servicesRepository.store(service)

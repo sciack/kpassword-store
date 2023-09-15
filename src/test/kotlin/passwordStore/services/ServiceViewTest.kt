@@ -71,7 +71,7 @@ class ServiceViewTest {
                 service = "my service",
                 username = "a username",
                 password = "a password",
-                tags = listOf("tag"),
+                tags = setOf("tag"),
                 note = "someNote",
                 userid = user.userid,
                 dirty = true,
@@ -81,7 +81,7 @@ class ServiceViewTest {
             rule.onNodeWithTag("service").performTextInput(expectedService.service)
             rule.onNodeWithTag("username").performTextInput(expectedService.username)
             rule.onNodeWithTag("password").performTextInput(expectedService.password)
-            rule.onNodeWithTag("tags").performTextInput(expectedService.tags[0])
+            rule.onNodeWithTag("tags").performTextInput(expectedService.tags.first())
             rule.onNodeWithTag("note").performTextInput(expectedService.note)
             rule.awaitIdle()
             rule.onNodeWithTag("submit").performClick()
@@ -98,7 +98,7 @@ class ServiceViewTest {
                 service = "my service",
                 username = "a username",
                 password = "a password",
-                tags = listOf("tag"),
+                tags = setOf("tag"),
                 note = "someNote",
                 userid = user.userid,
                 dirty = false,
@@ -123,7 +123,7 @@ class ServiceViewTest {
             val expectedService = service.copy(username = "New username", dirty = true)
             rule.onNodeWithTag("username").performTextReplacement(expectedService.username)
             rule.onNodeWithTag("password").performTextReplacement(expectedService.password)
-            rule.onNodeWithTag("tags").performTextReplacement(expectedService.tags[0])
+            rule.onNodeWithTag("tags").performTextReplacement(expectedService.tags.first())
             rule.onNodeWithTag("note").performTextReplacement(expectedService.note)
             rule.awaitIdle()
             rule.onNodeWithTag("submit").performClick()
@@ -140,7 +140,7 @@ class ServiceViewTest {
                 service = "my service",
                 username = "a username",
                 password = "a password",
-                tags = listOf(),
+                tags = setOf(),
                 note = "someNote",
                 userid = user.userid,
                 dirty = false,
@@ -160,8 +160,8 @@ class ServiceViewTest {
                 }
             }
             rule.awaitIdle()
-            val expectedService = service.copy(tags = listOf("Tag"), dirty = true)
-            rule.onNodeWithTag("tags").assertExists().performTextReplacement(expectedService.tags[0])
+            val expectedService = service.copy(tags = setOf("Tag"), dirty = true)
+            rule.onNodeWithTag("tags").assertExists().performTextReplacement(expectedService.tags.first())
             rule.onNodeWithTag("note").performTextReplacement(expectedService.note)
             rule.awaitIdle()
             rule.onNodeWithTag("submit").assertExists().assertHasClickAction().performClick()
@@ -182,7 +182,7 @@ class ServiceViewTest {
                 service = "my service",
                 username = "a username",
                 password = "a password",
-                tags = listOf("tag"),
+                tags = setOf("tag"),
                 note = "someNote",
                 userid = user.userid,
                 dirty = false,
@@ -221,7 +221,7 @@ class ServiceViewTest {
             username = "what",
             password = "#4TRMlRNw",
             note = "test",
-            tags = listOf("Mine"),
+            tags = setOf("Mine"),
             updateTime = LocalDateTime.parse("2023-08-01T17:38:16.460784"),
             userid = user.userid,
             score = 1.0
@@ -231,7 +231,7 @@ class ServiceViewTest {
             username = "myUser",
             password = "123456",
             note = "https://github.com",
-            tags = listOf("Technology", "Git", "Code"),
+            tags = setOf("Technology", "Git", "Code"),
             updateTime = LocalDateTime.parse("2023-07-27T10:04:55.972140"),
             userid = user.userid,
             score = 1.0

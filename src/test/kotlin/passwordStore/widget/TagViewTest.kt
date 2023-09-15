@@ -63,7 +63,7 @@ class TagViewTest {
 
     @Test
     fun `should show the tags`() = runTest {
-        val service = testService().copy(tags = listOf("Tags"))
+        val service = testService().copy(tags = setOf("Tags"))
         servicesRepository.store(service)
         rule.setContent {
             withLogin(user) {
@@ -83,7 +83,7 @@ class TagViewTest {
 
     @Test
     fun `should search for the tag`() = runTest {
-        var service = testService().copy(tags = listOf("Tags"))
+        var service = testService().copy(tags = setOf("Tags"))
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
         val serviceModel by di.instance<ServiceSM>()

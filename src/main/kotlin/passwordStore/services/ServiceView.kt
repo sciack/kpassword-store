@@ -329,7 +329,7 @@ fun newService(
             tagEditor(tags, onValueChange = { values ->
                 val modelTags = selectedService.tags
                 dirty.value = dirty.value || values != modelTags
-                service.value = service.value.copy(tags = values.toList())
+                service.value = service.value.copy(tags = values)
             })
 
             OutlinedTextField(

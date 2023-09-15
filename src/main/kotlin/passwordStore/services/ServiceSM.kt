@@ -92,9 +92,9 @@ class ServiceSM(
     }
 
     suspend fun readFile(path: Path, user: User): Result<Unit> {
-        fun convert(tagString: String): List<String> {
+        fun convert(tagString: String): Set<String> {
             val tag = tagString.substringAfter('[').substringBeforeLast(']').split(',')
-            return tag.map { it.trim() }.toList()
+            return tag.map { it.trim() }.toSet()
         }
 
         return withContext(Dispatchers.IO) {

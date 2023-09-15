@@ -29,7 +29,7 @@ class TagRepositoryTest {
     @Test
     fun `should retrieve tags`() {
         runTest {
-            val service = testService().copy(tags = listOf("Tags"))
+            val service = testService().copy(tags = setOf("Tags"))
             servicesRepository.store(service)
             val tags = tagRepository.tags(testUser)
             assertContains(tags, Tag("Tags", 1))

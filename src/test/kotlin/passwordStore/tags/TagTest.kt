@@ -72,7 +72,7 @@ class TagTests() {
     @Test
     fun `on click on tag should remove the entry`() {
         runBlocking(Dispatchers.Main) {
-            val collectedTags = mutableListOf<String>("tags")
+            val collectedTags = mutableListOf("tags")
             rule.setContent {
                 val tags = remember {
                     mutableStateOf(collectedTags.toSet())

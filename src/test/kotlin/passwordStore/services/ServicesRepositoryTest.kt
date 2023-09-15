@@ -44,7 +44,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("Some tag"),
+            tags = setOf("Some tag"),
             score = 1.0,
             url = "http://example.com"
         )
@@ -62,7 +62,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("Some tag"),
+            tags = setOf("Some tag"),
             score = 1.0,
             url = "http://example.com"
         )
@@ -86,7 +86,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("Some tag"),
+            tags = setOf("Some tag"),
             score = 1.0,
             url = "http://example.com"
         )
@@ -111,7 +111,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("tag"),
+            tags = setOf("tag"),
             score = 1.0,
             url = "http://example.com"
         )
@@ -132,7 +132,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("tag"),
+            tags = setOf("tag"),
             score = 1.0,
             url = "http://example.com"
         )
@@ -155,7 +155,7 @@ class ServicesRepositoryTest() {
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = listOf("tag"),
+            tags = setOf("tag"),
             score = 1.0,
             url = "abc"
         )

@@ -31,18 +31,17 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import passwordStore.LOGGER
+import passwordStore.crypto.CryptExtension
 import passwordStore.services.audit.Action
 import passwordStore.services.audit.AuditMessage
 import passwordStore.services.audit.Event
 import passwordStore.services.audit.EventBus
-import passwordStore.crypto.CryptExtension
 import passwordStore.sql.performTransaction
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate
 import passwordStore.sql.singleRow
 import passwordStore.users.User
 import passwordStore.utils.*
-import java.lang.IllegalArgumentException
 import java.net.URL
 import java.sql.Connection
 import java.sql.ResultSet
@@ -65,7 +64,7 @@ class ServicesRepository(
     private fun asService(rs: ResultSet, mode: Mode = Mode.FETCH): Service {
         val tags = when (mode) {
             Mode.FETCH -> fetchTags(rs.getLong("id"))
-            Mode.SPLIT -> rs.getString("tags")?.split(",") ?: listOf()
+            Mode.SPLIT -> rs.getString("tags")?.split(",")?.toSet() ?: setOf()
         }
         return Service(
             rs.getString("service"),
@@ -81,16 +80,16 @@ class ServicesRepository(
         )
     }
 
-    private fun fetchTags(serviceId: Long): List<String> =
+    private fun fetchTags(serviceId: Long): Set<String> =
         datasource.query(
             """select tag 
                     from tags t, service_tags st 
                     where t.id = st.id_tag 
                     and st.id_service = :serviceId""".trimIndent(), mapOf("serviceId" to serviceId)
-        ) { it.getString(1) }
+        ) { it.getString(1) }.toSet()
 
 
-    suspend fun search(user: User, pattern: String = "", tag: String = ""): List<Service> {
+    fun search(user: User, pattern: String = "", tag: String = ""): List<Service> {
         fun score(s: Service): Double =
             if (pattern.isBlank()) {
                 1.0
@@ -340,7 +339,7 @@ data class Service(
     var updateTime: LocalDateTime = Clock.System.currentDateTime(),
     var userid: String = "",
     var score: Double = 0.0,
-    var tags: List<String> = listOf(),
+    var tags: Set<String> = setOf(),
     var url: String = ""
 ) {
     fun trim(): Service =
@@ -358,7 +357,7 @@ data class Service(
                 "Password must be present"
             }
             runCatching {
-                if(url.isNotEmpty()) {
+                if (url.isNotEmpty()) {
                     URL(url).toURI()
                 }
             }.getOrElse {
