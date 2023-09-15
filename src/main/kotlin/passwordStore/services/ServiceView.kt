@@ -30,10 +30,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -42,6 +46,9 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
+import passwordStore.services.ServicesSM.State.Loading
+import passwordStore.services.ServicesSM.State.Services
+import passwordStore.services.ShowServiceSM.State.*
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
 import passwordStore.users.User
@@ -54,30 +61,26 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.writer
 
 @Composable
-fun servicesTable(serviceSM: ServiceSM) {
+fun servicesTable(serviceSM: ServicesSM) {
 
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
-
-    val services = remember {
-        serviceSM.services
+    val state by serviceSM.state.collectAsState()
+    val serviceDisplay = remember {
+        MutableStateFlow<ShowServiceSM.State>(NoService)
     }
-
-    val editService = remember {
-        mutableStateOf(false)
-    }
-
-    val selectedService = remember {
-        mutableStateOf(Service())
-    }
-
     val user = LocalUser.currentOrThrow
 
+    val (services, tags) = when (state) {
+        is Services -> (state as Services).services to (state as Services).tags
+        is Loading -> listOf<Service>() to (state as Loading).tags
+
+    }
     Column(modifier = Modifier.padding(LARGE).fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField(serviceSM)
             Spacer(Modifier.width(XL))
-            tagView(serviceSM.tags, serviceSM.tag) { tag ->
+            tagView(tags, serviceSM.tag) { tag ->
                 coroutineScope.launch(Dispatchers.IO) {
                     serviceSM.searchWithTags(tag?.name.orEmpty(), user = user)
                 }
@@ -86,21 +89,33 @@ fun servicesTable(serviceSM: ServiceSM) {
 
         Spacer(Modifier.height(LARGE))
         Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)) {
-            Table(modifier = Modifier.fillMaxSize(),
-                headers = listOf("Service", "Username", "Password", "Url", "Tags", "Note"),
-                values = services,
-                beforeRow = { service ->
-                    serviceButton(service, editService, selectedService) {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            serviceSM.delete(service, user)
+            if (state is Loading) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(32.dp).align(Alignment.CenterHorizontally),
+                        color = MaterialTheme.colors.surface,
+
+                        backgroundColor = MaterialTheme.colors.secondary,
+                    )
+                }
+            } else {
+                Table(modifier = Modifier.fillMaxSize(),
+                    headers = listOf("Service", "Username", "Password", "Url", "Tags", "Note"),
+                    values = services,
+                    beforeRow = { service ->
+                        serviceButton(service, serviceDisplay) {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                serviceSM.delete(service, user)
+                            }
                         }
-                    }
-                },
-                onClickRow = { row ->
-                    editService.value = false
-                    selectedService.value = row
-                }) { columnIndex, service ->
-                cell(service, columnIndex)
+                    },
+                    onClickRow = { row ->
+                        coroutineScope.launch {
+                            serviceDisplay.emit(ShowService(row))
+                        }
+                    }) { columnIndex, service ->
+                    cell(service, columnIndex)
+                }
             }
         }
 
@@ -119,44 +134,22 @@ fun servicesTable(serviceSM: ServiceSM) {
             )
         }
     }
-
-    if (selectedService.value.service.isNotEmpty()) {
-        EditorCard(onCloseRequest = {
-            selectedService.value = Service()
-        }) {
-            if (editService.value) {
-                newService(serviceSM.saveError, selectedService = selectedService.value, onCancel = {
-                    close()
-                }) { service ->
-                    coroutineScope.launch {
-                        if (service.dirty) {
-                            serviceSM.update(service, user).onSuccess {
-                                close()
-                            }
-                        }
-                    }
-                }
-            } else {
-                showService(selectedService = selectedService.value) {
-                    close()
-                }
-            }
-        }
-    }
+    ShowServiceScreen(serviceDisplay) { serviceSM.fetchAll(user) }.Content()
 }
 
 
 @Composable
 private fun serviceButton(
-    service: Service, editService: MutableState<Boolean>, selectedService: MutableState<Service>, onDelete: () -> Unit
+    service: Service, serviceDisplay: MutableStateFlow<ShowServiceSM.State>, onDelete: () -> Unit
 ) {
     val navController = LocalNavigator.currentOrThrow
-
+    val coroutineScope = rememberCoroutineScope()
     Row {
         IconButton(
             onClick = {
-                editService.value = false
-                selectedService.value = service
+                coroutineScope.launch {
+                    serviceDisplay.emit(ShowService(service))
+                }
             }, modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
@@ -177,8 +170,9 @@ private fun serviceButton(
         Spacer(Modifier.width(XS))
         IconButton(
             onClick = {
-                editService.value = true
-                selectedService.value = service
+                coroutineScope.launch {
+                    serviceDisplay.emit(EditService(service))
+                }
             }, modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
@@ -515,7 +509,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 }
 
 @Composable
-private fun RowScope.searchField(serviceSM: ServiceSM) {
+private fun RowScope.searchField(serviceSM: ServicesSM) {
     val user = LocalUser.currentOrThrow
 
     val search = remember {
@@ -538,7 +532,7 @@ private fun RowScope.searchField(serviceSM: ServiceSM) {
 
 suspend fun upload(di: DI, statusHolder: StatusHolder, user: User) {
     withContext(Dispatchers.Main) {
-        val serviceSM by di.instance<ServiceSM>()
+        val export by di.instance<ExportService>()
         val home = System.getProperty("user.home")
         val fileChooser = JFileChooser(home)
         fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
@@ -549,11 +543,11 @@ suspend fun upload(di: DI, statusHolder: StatusHolder, user: User) {
                     withContext(Dispatchers.Main) {
                         statusHolder.closeDrawer()
                     }
-                    serviceSM.readFile(path, user).onSuccess {
+                    export.readFile(path, user).onSuccess {
                         statusHolder.sendMessage("CSV imported")
+                        KPasswordScreen.Home.reload()
                     }.onFailure {
                         statusHolder.sendMessage("Error importing CSV: ${it.localizedMessage}")
-
                     }
                 }
             }
@@ -583,3 +577,52 @@ fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
 }
 
 private fun JFileChooser.selectedPath() = selectedFile.toPath()
+
+
+class ShowServiceScreen(private val serviceDisplay: MutableStateFlow<ShowServiceSM.State>,
+                        private val onChange: suspend () -> Unit
+) : Screen {
+
+    @Composable
+    override fun Content() {
+        val screenModel = rememberScreenModel<ShowServiceSM>()
+        val state by screenModel.state.collectAsState()
+        val user = LocalUser.currentOrThrow
+        val coroutineScope = rememberCoroutineScope()
+        val requestedDisplay by serviceDisplay.collectAsState()
+        screenModel.display(requestedDisplay)
+
+        when (state) {
+            is NoService -> {}
+            is EditService -> EditorCard(onCloseRequest = {
+                coroutineScope.launch {
+                    serviceDisplay.emit(NoService)
+                    onChange()
+                }
+            }) {
+                newService(screenModel.saveError, selectedService = (state as EditService).service, onCancel = {
+                    close()
+                }) { service ->
+                    coroutineScope.launch {
+                        if (service.dirty) {
+                            screenModel.update(service, user).onSuccess {
+                                close()
+                            }
+                        }
+                    }
+                }
+            }
+
+            is ShowService -> EditorCard(onCloseRequest = {
+                coroutineScope.launch {
+                    serviceDisplay.emit(NoService)
+                }
+
+            }) {
+                showService(selectedService = (state as ShowService).service) {
+                    close()
+                }
+            }
+        }
+    }
+}

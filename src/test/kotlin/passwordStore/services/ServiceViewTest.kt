@@ -36,7 +36,7 @@ class ServiceViewTest {
 
     @get:Rule
     val rule = createComposeRule()
-    private val serviceModel by di.instance<ServiceSM>()
+    private val serviceModel by di.instance<ServicesSM>()
 
     @BeforeTest
     fun setUp() = runBlocking {

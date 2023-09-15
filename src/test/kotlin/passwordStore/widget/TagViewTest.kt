@@ -19,7 +19,7 @@ import org.kodein.di.compose.localDI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.DiInjection
-import passwordStore.services.ServiceSM
+import passwordStore.services.ServicesSM
 import passwordStore.services.ServicesRepository
 import passwordStore.tags.TagRepository
 import passwordStore.testService
@@ -68,7 +68,7 @@ class TagViewTest {
         rule.setContent {
             withLogin(user) {
                 withDI(di) {
-                    val serviceModel by localDI().instance<ServiceSM>()
+                    val serviceModel by localDI().instance<ServicesSM>()
                     val cs = rememberCoroutineScope()
                     cs.launch {
                         serviceModel.fetchAll(user)
@@ -86,7 +86,7 @@ class TagViewTest {
         var service = testService().copy(tags = setOf("Tags"))
         service = servicesRepository.store(service)
         servicesRepository.store(testService(service = "test2"))
-        val serviceModel by di.instance<ServiceSM>()
+        val serviceModel by di.instance<ServicesSM>()
 
         serviceModel.fetchAll(user)
         await.atMost(Duration.ofSeconds(1)).until {

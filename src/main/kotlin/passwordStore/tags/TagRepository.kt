@@ -22,10 +22,10 @@ class TagRepository(private val dataSource: DataSource) {
             Tag(it.getString(1), it.getInt(2))
         }.filter { (key, _) ->
             key.isNotEmpty()
-        }
+        }.toSet()
     }
 }
 
-typealias TagElement = List<Tag>
+typealias TagElement = Set<Tag>
 
 data class Tag(val name: String, val occurrence: Int = 0)

@@ -1,16 +1,17 @@
 package passwordStore.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.kodein.di.compose.rememberInstance
-import passwordStore.config.ConfigVM
 import passwordStore.config.configView
 import passwordStore.loginPane
 import passwordStore.services.*
@@ -47,16 +48,31 @@ sealed interface KPasswordScreen {
         override val name: String
             get() = "Home"
 
+        private val reload = MutableStateFlow(false)
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
-                val serviceSM = rememberScreenModel<ServiceSM>()
+                val serviceSM = rememberScreenModel<ServicesSM>()
                 val user = LocalUser.currentOrThrow
+                val shouldReload by reload.collectAsState()
+                if (shouldReload) {
+                    coroutineScope.launch(Dispatchers.Main) {
+                        reload.emit(false)
+                    }
+                }
                 serviceSM.resetSearch()
                 servicesTable(serviceSM)
                 coroutineScope.launch(Dispatchers.Main) {
                     serviceSM.fetchAll(user)
+                }
+            }
+        }
+
+        fun reload() {
+            runBlocking {
+                launch {
+                    reload.emit(true)
                 }
             }
         }
@@ -71,7 +87,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             val navController = LocalNavigator.currentOrThrow
-            val serviceModel by rememberInstance<ServiceSM>()
+            val serviceModel by rememberInstance<ServicesSM>()
             val loginSM = rememberScreenModel<LoginSM>()
             val setUser = LocalSetUser.current
             loginPane(loginFunction = { currentUsername, pwd ->

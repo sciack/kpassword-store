@@ -19,7 +19,7 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.Service
-import passwordStore.services.ServiceSM
+import passwordStore.services.ServicesSM
 import passwordStore.services.ServicesRepository
 import passwordStore.users.UserRepository
 import passwordStore.users.UserVM
@@ -39,7 +39,7 @@ class AppTest {
     private val user = testUser()
     private val clock: Clock by di.instance()
     private val servicesRepository by di.instance<ServicesRepository>()
-    private val serviceModel by di.instance<ServiceSM>()
+    private val serviceModel by di.instance<ServicesSM>()
     private val faker = Faker()
     private val userRepository by di.instance<UserRepository>()
     private val userVM = UserVM(userRepository)

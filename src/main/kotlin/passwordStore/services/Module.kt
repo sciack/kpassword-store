@@ -8,8 +8,15 @@ val services = DI.Module("services") {
             ServicesRepository(instance(), instance(), instance())
         }
     }
+
+    bind<ExportService> {
+        singleton {
+            ExportService(instance())
+        }
+    }
+
     bindProvider {
-        ServiceSM(instance(), instance())
+        ServicesSM(instance(), instance())
     }
 
     bindProvider {
@@ -18,5 +25,9 @@ val services = DI.Module("services") {
 
     bindProvider {
         CreateServiceSM(instance())
+    }
+
+    bindProvider {
+        ShowServiceSM(instance())
     }
 }

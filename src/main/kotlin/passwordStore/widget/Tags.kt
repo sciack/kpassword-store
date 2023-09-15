@@ -121,10 +121,7 @@ private fun assignTag(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun tagView(inputTag: List<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
-    val tags = remember {
-        inputTag
-    }
+fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
     val selected = remember {
         mutableStateOf(selectedTag)
     }
