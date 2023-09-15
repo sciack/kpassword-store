@@ -51,7 +51,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2.6.0
         with:
-          arguments: test
+          arguments: test --stacktrace
       - name: Install rpm
         uses: ConorMacBride/install-package@v1
         with:
@@ -92,7 +92,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2.6.0
       - name: package
-        run: ./gradlew packageMsi -i
+        run: ./gradlew packageMsi -i --stacktrace
 
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1

@@ -58,7 +58,6 @@ sealed interface KPasswordScreen {
                 coroutineScope.launch(Dispatchers.Main) {
                     serviceSM.fetchAll(user)
                 }
-
             }
         }
     }

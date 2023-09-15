@@ -35,7 +35,7 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.6.0 # v2.6.0
       with:
-        arguments: test koverXmlReport
+        arguments: test koverXmlReport --stacktrace
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
