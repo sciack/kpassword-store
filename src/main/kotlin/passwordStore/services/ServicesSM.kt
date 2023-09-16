@@ -19,6 +19,8 @@ import passwordStore.tags.TagRepository
 import passwordStore.users.User
 import java.nio.file.Path
 import java.sql.SQLException
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.LongAdder
 import kotlin.io.path.bufferedReader
 
 
@@ -92,7 +94,7 @@ class ServicesSM(
     }
 
     companion object {
-        val HEADERS = arrayOf("Service", "Username", "Password", "Notes", "Tags", "Last Update")
+
     }
 }
 
@@ -197,39 +199,3 @@ class ShowServiceSM(private val servicesRepository: ServicesRepository) :
     }
 }
 
-class ExportService(private val servicesRepository: ServicesRepository) {
-    suspend fun readFile(path: Path, user: User): Result<Unit> {
-
-        fun convert(tagString: String): Set<String> {
-            val tag = tagString.substringAfter('[').substringBeforeLast(']').split(',')
-            return tag.map { it.trim() }.toSet()
-        }
-
-        return withContext(Dispatchers.IO) {
-            val csvFormat: CSVFormat =
-                CSVFormat.EXCEL.builder().setHeader(*ServicesSM.HEADERS).setSkipHeaderRecord(true).build()
-
-            runCatching {
-                path.bufferedReader().use {
-                    csvFormat.parse(it).map { record ->
-                        Service(
-                            service = record[ServicesSM.HEADERS[0]],
-                            username = record[ServicesSM.HEADERS[1]],
-                            password = record[ServicesSM.HEADERS[2]],
-                            note = record[ServicesSM.HEADERS[3]],
-                            tags = convert(record[ServicesSM.HEADERS[4]]),
-                            updateTime = LocalDateTime.parse(record[ServicesSM.HEADERS[5]]),
-                            userid = user.userid
-                        )
-                    }.forEach { service ->
-                        servicesRepository.store(service)
-                    }
-                }
-            }.onSuccess {
-
-            }.onFailure {
-                LOGGER.warn(it) { "Error loading csv" }
-            }
-        }
-    }
-}

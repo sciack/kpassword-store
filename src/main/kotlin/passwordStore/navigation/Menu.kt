@@ -18,7 +18,6 @@ import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import passwordStore.LOGGER
 import passwordStore.services.download
-import passwordStore.services.upload
 import passwordStore.users.LocalSetUser
 import passwordStore.users.LocalUser
 import passwordStore.users.admin
@@ -93,7 +92,8 @@ fun menu() {
     menuItem(
         onClick = {
             coroutineScope.launch {
-                upload(di, statusHolder, user!!)
+                navController.push(KPasswordScreen.LoadCsv)
+                statusHolder.closeDrawer()
             }
         },
         title = "Import CSV",

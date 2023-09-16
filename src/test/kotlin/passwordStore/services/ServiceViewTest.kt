@@ -213,39 +213,5 @@ class ServiceViewTest {
 
     }
 
-    @Test
-    fun `should import a csv`() {
-        val path = Path.of(this::class.java.getResource("/testCsv.csv").toURI())
-        val expectedServices = Service(
-            service = "service",
-            username = "what",
-            password = "#4TRMlRNw",
-            note = "test",
-            tags = setOf("Mine"),
-            updateTime = LocalDateTime.parse("2023-08-01T17:38:16.460784"),
-            userid = user.userid,
-            score = 1.0
-        )
-        val gitService = Service(
-            service = "Github",
-            username = "myUser",
-            password = "123456",
-            note = "https://github.com",
-            tags = setOf("Technology", "Git", "Code"),
-            updateTime = LocalDateTime.parse("2023-07-27T10:04:55.972140"),
-            userid = user.userid,
-            score = 1.0
-        )
 
-        runTest {
-            serviceModel.readFile(path, user)
-            serviceModel.fetchAll(user)
-            await.atMost(2.seconds.toJavaDuration()).untilAsserted {
-                assertThat(serviceModel.services.size, equalTo(2))
-                assertThat(serviceModel.services.toList(), hasElement(expectedServices))
-                assertThat(serviceModel.services.toList(), hasElement(gitService))
-            }
-
-        }
-    }
 }

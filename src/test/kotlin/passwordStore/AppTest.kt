@@ -19,8 +19,8 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.Service
-import passwordStore.services.ServicesSM
 import passwordStore.services.ServicesRepository
+import passwordStore.services.ServicesSM
 import passwordStore.users.UserRepository
 import passwordStore.users.UserVM
 import passwordStore.users.UserVM.Companion.NONE
@@ -129,11 +129,9 @@ class AppTest {
         insertService(service)
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
-            runBlocking {
-                serviceModel.fetchAll(currentUser)
-                serviceModel.services.size == 1
-            }
+            servicesRepository.search(currentUser, "").size == 1
         }
+        rule.awaitIdle()
         rule.onNodeWithTag("Search field").assertExists()
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
     }
@@ -169,10 +167,7 @@ class AppTest {
         rule.awaitIdle()
         await.atMost(Duration.ofSeconds(1)).until {
             //waiting that the system is able to read the new data, if not the visualization is flaky
-            runBlocking {
-                serviceModel.fetchAll(currentUser)
-                serviceModel.services.size == 1
-            }
+            servicesRepository.search(currentUser, "").size == 1
         }
         rule.onNodeWithTag("Search field").assertExists()
         navigator?.push(KPasswordScreen.NewService)
@@ -223,16 +218,14 @@ class AppTest {
 
             await.atMost(Duration.ofSeconds(1)).until {
                 //waiting that the system is able to read the new data, if not the visualization is flaky
-                runBlocking {
-                    serviceModel.fetchAll(currentUser)
-                    serviceModel.services.size == it
-                }
+                val loadedServices  =servicesRepository.search(currentUser)
+                loadedServices.size == it
             }
             services.add(service)
         }
         rule.onNodeWithTag("Search field").assertExists()
         LOGGER.warn { "Check if service are displayed" }
-        assert(serviceModel.services.size == 5)
+        assert(servicesRepository.search(currentUser, "").size == 5)
 
         val service = services[2]
         LOGGER.warn { "Try to edit a service" }

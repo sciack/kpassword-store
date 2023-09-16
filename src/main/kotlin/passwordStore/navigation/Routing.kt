@@ -17,6 +17,7 @@ import passwordStore.loginPane
 import passwordStore.services.*
 import passwordStore.users.*
 import passwordStore.utils.LocalStatusHolder
+import java.nio.file.Path
 
 
 @Composable
@@ -78,6 +79,20 @@ sealed interface KPasswordScreen {
         }
     }
 
+
+    data object LoadCsv: Screen, KPasswordScreen {
+
+        override val name: String
+            get() = "Load Csv"
+
+        override val allowBack: Boolean
+            get() = false
+
+        @Composable
+        override fun Content() {
+            upload(rememberScreenModel())
+        }
+    }
 
     data object Login : Screen, KPasswordScreen {
         private fun readResolve(): Any = Login

@@ -9,9 +9,9 @@ val services = DI.Module("services") {
         }
     }
 
-    bind<ExportService> {
+    bind<ImportSM> {
         singleton {
-            ExportService(instance())
+            ImportSM(instance())
         }
     }
 
