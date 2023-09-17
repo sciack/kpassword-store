@@ -83,7 +83,7 @@ class ExportSM(private val servicesRepository: ServicesRepository) : StateScreen
                                     service.updateTime
                                 )
                                 mutableState.emit(State.Exporting(index + 1, services.size))
-                                Thread.sleep(200)
+                                Thread.sleep(100)
                             }
                         }
                     }
