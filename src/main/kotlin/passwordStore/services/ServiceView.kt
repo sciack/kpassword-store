@@ -34,12 +34,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.LOGGER
@@ -52,15 +50,12 @@ import passwordStore.services.ServicesSM.State.Services
 import passwordStore.services.ShowServiceSM.State.*
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
-import passwordStore.users.User
 import passwordStore.utils.LocalStatusHolder
-import passwordStore.utils.StatusHolder
 import passwordStore.utils.currentDateTime
 import passwordStore.utils.obfuscate
 import passwordStore.widget.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
-import kotlin.io.path.writer
 
 @Composable
 fun servicesTable(serviceSM: ServicesSM) {
@@ -541,9 +536,19 @@ fun upload(screenModel: ImportSM) {
         is ImportSM.State.Loading -> loadCsvView(state as ImportSM.State.Loading)
         is Loaded -> {
             val csvFile = (state as Loaded).csvFile
-            confirmUpload("Successfully uploaded file: $csvFile")
+            val statusHolder = LocalStatusHolder.currentOrThrow
+            val navigator = LocalNavigator.currentOrThrow
+            val successMessage = "Successfully uploaded file: $csvFile"
+            confirmUpload(successMessage) {
+                statusHolder.sendMessage(successMessage)
+                navigator.popUntil { it == KPasswordScreen.Home }
+            }
         }
-        is ImportSM.State.Error -> error((state as ImportSM.State.Error).errorMsg)
+
+        is ImportSM.State.Error -> {
+            val errorMsg = (state as ImportSM.State.Error).errorMsg
+            displayError(errorMsg)
+        }
     }
 }
 
@@ -644,9 +649,20 @@ fun download(screenModel: ExportSM) {
         is Exporting -> exportStatus(state as Exporting)
         is Exported -> {
             val csvFile = (state as Exported).csvFile
-            confirmUpload("Successfully created file: $csvFile")
+
+            val statusHolder = LocalStatusHolder.currentOrThrow
+            val navigator = LocalNavigator.currentOrThrow
+            val successMessage = "Successfully created file: $csvFile"
+            confirmUpload(successMessage) {
+                statusHolder.sendMessage(successMessage)
+                navigator.popUntil { it == KPasswordScreen.Home }
+            }
         }
-        is Error -> error((state as Error).errorMsg)
+
+        is Error -> {
+            val errorMsg = (state as Error).errorMsg
+            displayError(errorMsg)
+        }
     }
 }
 
