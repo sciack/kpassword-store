@@ -14,11 +14,12 @@ import passwordStore.DiInjection
 import passwordStore.LOGGER
 import passwordStore.testUser
 import passwordStore.users.UserVM
-import java.io.StringWriter
+import java.io.File
 import java.nio.file.Path
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import kotlin.io.path.readText
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -62,11 +63,15 @@ class CsvDownloadKtTest {
             score = 1.0
         )
         val storedService = servicesRepository.store(service)
-        val writer = StringWriter()
+        val exportSM by di.instance<ExportSM>()
 
-        writer.performDownload(di, user)
+        val path = File.createTempFile("test", ".csv").also {
+            it.deleteOnExit()
+        }.toPath()
+        exportSM.performDownload(path, user)
+
         await.atMost(Duration.ofSeconds(2)).untilAsserted {
-            val result = writer.toString()
+            val result = path.readText()
             assertThat(result.lines()[0], equalTo("Service,Username,Password,Notes,Tags,Url,Last Update"))
             assertThat(result, containsSubstring(storedService.service))
             assertThat(result, containsSubstring(storedService.username))
@@ -77,7 +82,7 @@ class CsvDownloadKtTest {
 
     @Test
     fun `should import a csv`() {
-        val path = Path.of(this::class.java.getResource("/testCsv.csv").toURI())
+        val path = Path.of(this::class.java.getResource("/testCsv.csv")!!.toURI())
         val expectedServices = Service(
             service = "service",
             username = "what",

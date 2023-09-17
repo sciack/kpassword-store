@@ -669,26 +669,6 @@ fun exportCsv(screenModel: ExportSM) {
 
 }
 
-fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
-    val exportPath = exportPath()
-    val fileChooser = JFileChooser(exportPath.toFile())
-    fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
-    fileChooser.showSaveDialog(null).let { result ->
-        if (result == JFileChooser.APPROVE_OPTION) {
-            val path = fileChooser.selectedPath()
-            launch(Dispatchers.IO) {
-                LOGGER.info { "Writing in directory: $path" }
-                statusHolder.closeDrawer()
-                path?.writer()?.use {
-                    it.performDownload(di, user)
-                }
-                statusHolder.sendMessage("Download completed: $path")
-            }
-        }
-
-    }
-}
-
 private fun JFileChooser.selectedPath() = selectedFile?.toPath()
 
 
