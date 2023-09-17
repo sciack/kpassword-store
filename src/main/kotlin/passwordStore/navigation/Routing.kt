@@ -1,23 +1,20 @@
 package passwordStore.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.config.configView
 import passwordStore.loginPane
 import passwordStore.services.*
 import passwordStore.users.*
 import passwordStore.utils.LocalStatusHolder
-import java.nio.file.Path
 
 
 @Composable
@@ -49,19 +46,13 @@ sealed interface KPasswordScreen {
         override val name: String
             get() = "Home"
 
-        private val reload = MutableStateFlow(false)
+
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val coroutineScope = rememberCoroutineScope()
                 val serviceSM = rememberScreenModel<ServicesSM>()
                 val user = LocalUser.currentOrThrow
-                val shouldReload by reload.collectAsState()
-                if (shouldReload) {
-                    coroutineScope.launch(Dispatchers.Main) {
-                        reload.emit(false)
-                    }
-                }
                 serviceSM.resetSearch()
                 servicesTable(serviceSM)
                 coroutineScope.launch(Dispatchers.Main) {
@@ -70,17 +61,26 @@ sealed interface KPasswordScreen {
             }
         }
 
-        fun reload() {
-            runBlocking {
-                launch {
-                    reload.emit(true)
-                }
-            }
+
+    }
+
+    data object ExportCsv : Screen, KPasswordScreen {
+        private fun readResolve(): Any = ExportCsv
+
+        override val name: String
+            get() = "Export Csv"
+
+        override val allowBack: Boolean
+            get() = false
+
+        @Composable
+        override fun Content() {
+            download(rememberScreenModel())
         }
     }
 
-
-    data object LoadCsv: Screen, KPasswordScreen {
+    data object LoadCsv : Screen, KPasswordScreen {
+        private fun readResolve(): Any = LoadCsv
 
         override val name: String
             get() = "Load Csv"
@@ -158,7 +158,7 @@ sealed interface KPasswordScreen {
                 val user = LocalUser.currentOrThrow
                 historyTable(historySM)
                 coroutineScope.launch(Dispatchers.IO) {
-                    if(service == null) {
+                    if (service == null) {
                         historySM.history("", exactMatch = false, user)
                     } else {
                         historySM.history(service.service, exactMatch = true, user)

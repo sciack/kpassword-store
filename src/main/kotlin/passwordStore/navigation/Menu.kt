@@ -77,7 +77,10 @@ fun menu() {
     Divider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
-            coroutineScope.download(di, statusHolder, user!!)
+            coroutineScope.launch {
+                navController.push(KPasswordScreen.ExportCsv)
+                statusHolder.closeDrawer()
+            }
         },
         title = "Export CSV",
         testTag = "ExportCsv",

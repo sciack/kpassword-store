@@ -38,13 +38,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.kodein.di.DI
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
+import passwordStore.services.ExportSM.State.*
+import passwordStore.services.ImportSM.State.Import
+import passwordStore.services.ImportSM.State.Loaded
 import passwordStore.services.ServicesSM.State.Loading
 import passwordStore.services.ServicesSM.State.Services
 import passwordStore.services.ShowServiceSM.State.*
@@ -535,17 +537,13 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
 fun upload(screenModel: ImportSM) {
     val state by screenModel.state.collectAsState()
     when (state) {
-        is ImportSM.State.Import -> importCsv(screenModel)
+        is Import -> importCsv(screenModel)
         is ImportSM.State.Loading -> loadCsvView(state as ImportSM.State.Loading)
-        is ImportSM.State.Loaded -> {
-            val csvFile = (state as ImportSM.State.Loaded).csvFile
-            val statusHolder = LocalStatusHolder.currentOrThrow
-            val navigator = LocalNavigator.currentOrThrow
-            navigator.popUntil { it == KPasswordScreen.Home }
-            rememberCoroutineScope().launch {
-                statusHolder.sendMessage("File uploaded: $csvFile")
-            }
+        is Loaded -> {
+            val csvFile = (state as Loaded).csvFile
+            confirmUpload("Successfully uploaded file: $csvFile")
         }
+        is ImportSM.State.Error -> error((state as ImportSM.State.Error).errorMsg)
     }
 }
 
@@ -559,7 +557,7 @@ fun importCsv(screenModel: ImportSM) {
         fileChooser.showOpenDialog(null) to fileChooser.selectedPath()
     }
 
-    if (result == JFileChooser.APPROVE_OPTION) {
+    if (result == JFileChooser.APPROVE_OPTION && path != null) {
         screenModel.startLoading(path, user)
     } else {
         LocalNavigator.currentOrThrow.popUntil { it == KPasswordScreen.Home }
@@ -582,9 +580,11 @@ fun loadCsvView(state: ImportSM.State.Loading) {
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             val annotatedString = buildAnnotatedString {
-                withStyle( SpanStyle(
-                    fontWeight = FontWeight.Bold,
-                )) {
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
                     append("Progress: ")
                 }
                 append("$current/$total")
@@ -594,7 +594,7 @@ fun loadCsvView(state: ImportSM.State.Loading) {
                     append(" Correct")
                 }
                 append("    ")
-                append("$fail" )
+                append("$fail")
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("Failed")
                 }
@@ -603,6 +603,70 @@ fun loadCsvView(state: ImportSM.State.Loading) {
             Text(annotatedString)
         }
     }
+}
+
+
+@Composable
+fun exportStatus(state: Exporting) {
+    val (current, total) = state
+    Column(Modifier.fillMaxWidth()) {
+        Spacer(Modifier.height(XL))
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            LinearProgressIndicator(
+                progress = current.toFloat() / total.toFloat(),
+                modifier = Modifier.width(300.dp).height(XL)
+            )
+        }
+        Spacer(Modifier.height(XL))
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            val annotatedString = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
+                    append("Progress: ")
+                }
+                append("$current/$total")
+
+                toAnnotatedString()
+            }
+            Text(annotatedString)
+        }
+    }
+}
+
+@Composable
+fun download(screenModel: ExportSM) {
+    val state by screenModel.state.collectAsState()
+    when (state) {
+        is Export -> exportCsv(screenModel)
+        is Exporting -> exportStatus(state as Exporting)
+        is Exported -> {
+            val csvFile = (state as Exported).csvFile
+            confirmUpload("Successfully created file: $csvFile")
+        }
+        is Error -> error((state as Error).errorMsg)
+    }
+}
+
+
+@Composable
+fun exportCsv(screenModel: ExportSM) {
+    val exportPath = exportPath()
+    val user = LocalUser.currentOrThrow
+    val (result, path) = remember {
+        val fileChooser = JFileChooser(exportPath.toFile())
+        fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
+        fileChooser.showSaveDialog(null) to fileChooser.selectedPath()
+    }
+
+    if (result == JFileChooser.APPROVE_OPTION && path != null) {
+        screenModel.startExport(path, user)
+    } else {
+        LocalNavigator.currentOrThrow.popUntil { it == KPasswordScreen.Home }
+    }
+
 }
 
 fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
@@ -615,7 +679,7 @@ fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
             launch(Dispatchers.IO) {
                 LOGGER.info { "Writing in directory: $path" }
                 statusHolder.closeDrawer()
-                path.writer().use {
+                path?.writer()?.use {
                     it.performDownload(di, user)
                 }
                 statusHolder.sendMessage("Download completed: $path")
@@ -625,7 +689,7 @@ fun CoroutineScope.download(di: DI, statusHolder: StatusHolder, user: User) {
     }
 }
 
-private fun JFileChooser.selectedPath() = selectedFile.toPath()
+private fun JFileChooser.selectedPath() = selectedFile?.toPath()
 
 
 class ShowServiceScreen(

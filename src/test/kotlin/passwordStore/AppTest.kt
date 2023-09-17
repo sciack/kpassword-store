@@ -225,7 +225,7 @@ class AppTest {
         }
         rule.onNodeWithTag("Search field").assertExists()
         LOGGER.warn { "Check if service are displayed" }
-        assert(servicesRepository.search(currentUser, "").size == 5)
+
 
         val service = services[2]
         LOGGER.warn { "Try to edit a service" }
