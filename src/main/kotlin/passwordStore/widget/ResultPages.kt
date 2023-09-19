@@ -6,6 +6,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -43,5 +44,24 @@ fun displayError(errorMsg: String) {
     error(errorMsg) {
         statusHolder.sendMessage(errorMsg)
         navigator.popUntil { it == KPasswordScreen.Home }
+    }
+}
+
+
+@Composable
+fun confirmUpload(text: String, afterEffect: suspend () -> Unit = {}) {
+
+
+    Row(Modifier.fillMaxSize()) {
+        Icon(Icons.Default.Info, "Success", Modifier.size(XL * 2).align(Alignment.CenterVertically))
+        Spacer(Modifier.width(XXL))
+        Text(
+            text,
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
+    }
+    LaunchedEffect("CSV processing confirmation") {
+        afterEffect()
     }
 }
