@@ -7,8 +7,6 @@ import cafe.adriel.voyager.core.model.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDateTime
-import org.apache.commons.csv.CSVFormat
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.services.ShowServiceSM.State.*
@@ -17,11 +15,7 @@ import passwordStore.tags.Tag
 import passwordStore.tags.TagElement
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
-import java.nio.file.Path
 import java.sql.SQLException
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.LongAdder
-import kotlin.io.path.bufferedReader
 
 
 class ServicesSM(
@@ -98,16 +92,20 @@ class ServicesSM(
     }
 }
 
-class HistorySM(private val servicesRepository: ServicesRepository) : ScreenModel {
-    val historyEvents = mutableStateOf(listOf<Event>())
+class HistorySM(private val servicesRepository: ServicesRepository) : StateScreenModel<HistorySM.State>(State.First) {
+
+    sealed interface State {
+        data object First : State
+
+        data class Loaded(val history: List<Event>) : State
+    }
 
     val saveError = mutableStateOf("")
 
     suspend fun history(pattern: String, exactMatch: Boolean, user: User) {
         val result = servicesRepository.history(pattern, exactMatch, user)
-        withContext(Dispatchers.Main) {
-            historyEvents.value = result
-        }
+        LOGGER.warn  {"Found ${result.size} history events"}
+        mutableState.emit(State.Loaded(result))
     }
 
     suspend fun store(service: Service) = runCatching {
@@ -118,10 +116,16 @@ class HistorySM(private val servicesRepository: ServicesRepository) : ScreenMode
         saveError.value = processError(it, service)
     }
 
-    fun resetHistory() {
-        historyEvents.value = listOf()
-    }
+    fun loadHistory(service: String?, user: User) {
+        coroutineScope.launch(Dispatchers.IO) {
+            if (service.isNullOrEmpty()) {
+                history("", false, user)
+            } else {
+                history(service, true, user)
+            }
+        }
 
+    }
 }
 
 class CreateServiceSM(private val servicesRepository: ServicesRepository) : ScreenModel {

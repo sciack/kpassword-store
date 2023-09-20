@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -33,7 +30,29 @@ import passwordStore.widget.showOk
 
 
 @Composable
-fun historyTable(historySM: HistorySM) {
+fun history(historySM: HistorySM, service: Service?) {
+    val state by historySM.state.collectAsState()
+    val user = LocalUser.currentOrThrow
+    when(state) {
+        HistorySM.State.First -> {
+            Column(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(32.dp).align(Alignment.CenterHorizontally),
+                    color = MaterialTheme.colors.surface,
+
+                    backgroundColor = MaterialTheme.colors.secondary,
+                )
+            }
+            LaunchedEffect("after circular") {
+                historySM.loadHistory(service?.service, user)
+            }
+        }
+        is HistorySM.State.Loaded -> historyTable(historySM, (state as HistorySM.State.Loaded).history)
+    }
+}
+
+@Composable
+fun historyTable(historySM: HistorySM, history: List<Event>) {
     val coroutineScope = rememberCoroutineScope()
     val navController = LocalNavigator.currentOrThrow
     val headers = listOf("Action", "Action Date", "Service", "Username", "Password", "Url", "Tags", "Note")
@@ -45,7 +64,7 @@ fun historyTable(historySM: HistorySM) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Table(modifier = Modifier.fillMaxSize(),
                 headers = headers,
-                values = historySM.historyEvents.value,
+                values = history,
                 cellContent = { columnIndex, event ->
                     displayHistService(event, columnIndex)
                 },

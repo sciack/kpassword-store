@@ -178,7 +178,6 @@ fun main() {
                                 LocalUser provides user,
                                 LocalSetUser provides setUser,
                                 LocalVersion provides version["version"]!!
-
                             ) {
                                 app()
                                 appTitle(state, onClose = ::exitApplication)

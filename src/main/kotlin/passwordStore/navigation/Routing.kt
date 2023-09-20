@@ -153,18 +153,7 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                val coroutineScope = rememberCoroutineScope()
-                val historySM = rememberScreenModel<HistorySM>()
-                val user = LocalUser.currentOrThrow
-                historyTable(historySM)
-                coroutineScope.launch(Dispatchers.IO) {
-                    if (service == null) {
-                        historySM.history("", exactMatch = false, user)
-                    } else {
-                        historySM.history(service.service, exactMatch = true, user)
-                    }
-
-                }
+                history(rememberScreenModel<HistorySM>(), service)
             }
         }
     }
