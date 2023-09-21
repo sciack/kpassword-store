@@ -128,19 +128,18 @@ compose.desktop {
                 Implemented in Kotlin and JCompose
             """.trimIndent()
 
-
-
             linux {
                 menuGroup = "Password Store"
                 rpmLicenseType = "UNLICENSE"
                 iconFile.set(File("src/main/resources/icons/lockoverlay.png"))
                 this.shortcut = true
+
             }
             windows {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"
                 menuGroup = "Password Store"
                 vendor = "Mirko Sciachero"
-                console = false
+                console = true
                 iconFile.set(File("lockoverlay.ico"))
             }
         }
