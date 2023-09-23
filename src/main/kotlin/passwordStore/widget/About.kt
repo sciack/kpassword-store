@@ -65,8 +65,9 @@ fun showAbout(show: MutableState<Boolean>) {
                             appendLine()
                             withStyle(
                                 SpanStyle(
-                                    fontFamily = FontFamily.Cursive,
+                                    fontFamily = FontFamily.SansSerif,
                                     fontStyle = FontStyle.Italic,
+                                    fontWeight = FontWeight.Medium
                                 )
                             ) {
                                 append("Author: Mirko Sciachero<m.sciachero@gmail.com>")
@@ -78,7 +79,8 @@ fun showAbout(show: MutableState<Boolean>) {
                 }
             },
             title = {
-                Text("About")
+
+                Text("About", style = MaterialTheme.typography.h5)
             },
             onDismissRequest = {
                 show.value = false

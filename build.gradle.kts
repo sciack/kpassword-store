@@ -1,11 +1,7 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import java.nio.file.Path
-import java.nio.file.Paths
 
 plugins {
     kotlin("jvm")
