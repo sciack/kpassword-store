@@ -178,7 +178,7 @@ class ShowServiceSM(private val servicesRepository: ServicesRepository) :
         }
     }
 
-    suspend fun update(service: Service, user: User) = runCatching {
+    suspend fun update(service: Service) = runCatching {
         servicesRepository.update(service.trim())
 
     }.onFailure {

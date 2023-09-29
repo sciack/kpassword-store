@@ -715,7 +715,7 @@ class ShowServiceScreen(
                 }) { service ->
                     coroutineScope.launch {
                         if (service.dirty) {
-                            screenModel.update(service, user).onSuccess {
+                            screenModel.update(service).onSuccess {
                                 close()
                             }
                         }

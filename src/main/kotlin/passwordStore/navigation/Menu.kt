@@ -32,7 +32,6 @@ import kotlin.system.exitProcess
 fun menu() {
     val navController = LocalNavigator.currentOrThrow
     val statusHolder = LocalStatusHolder.currentOrThrow
-    val di: DI = localDI()
     val coroutineScope = rememberCoroutineScope()
 
     val user = LocalUser.current
