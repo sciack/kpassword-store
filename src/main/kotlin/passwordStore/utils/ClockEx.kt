@@ -16,5 +16,5 @@ fun Timestamp.toKotlinDateTime(): LocalDateTime = this.toLocalDateTime().toKotli
 
 fun LocalDateTime.toTimestamp(timezone: TimeZone): Timestamp = Timestamp.from(this.toInstant(timezone).toJavaInstant())
 
-val shortFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-fun LocalDateTime.short() = this.toJavaLocalDateTime().format(shortFormatter)
+private val shortFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+fun LocalDateTime.short(): String = this.toJavaLocalDateTime().format(shortFormatter)

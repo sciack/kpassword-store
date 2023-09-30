@@ -82,7 +82,10 @@ class AuditEventDeque(
                 repository.track(event.event)
             }
         }
+    }
 
+    override fun accept(event: Any): Boolean {
+        return event is AuditMessage
     }
 
     companion object {

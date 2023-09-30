@@ -5,17 +5,18 @@ import kotlinx.coroutines.flow.*
 
 class EventBus(private val coroutineScope: CoroutineScope) {
 
-    private val channel = MutableSharedFlow<AuditMessage>()
+    private val channel = MutableSharedFlow<Any>()
 
-    suspend fun send(message: AuditMessage) {
+    suspend fun send(message: Any) {
         channel.emit(message)
     }
 
-    fun subscribe(listener: EventListener<AuditMessage>): Job {
+    fun <T> subscribe(listener: EventListener<T>): Job {
         return coroutineScope.launch {
             channel.collect { message ->
-                listener.onEvent(message)
-
+                if( listener.accept(message)) {
+                    listener.onEvent(message as T)
+                }
             }
         }
     }
@@ -23,4 +24,6 @@ class EventBus(private val coroutineScope: CoroutineScope) {
 
 interface EventListener<T> {
     suspend fun onEvent(event: T)
+
+    fun accept(event: Any): Boolean
 }

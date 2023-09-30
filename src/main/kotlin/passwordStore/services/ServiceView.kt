@@ -45,9 +45,9 @@ import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.ExportSM.State.*
 import passwordStore.services.ImportSM.State.Import
 import passwordStore.services.ImportSM.State.Loaded
+import passwordStore.services.ServiceSM.State.*
 import passwordStore.services.ServicesSM.State.Loading
 import passwordStore.services.ServicesSM.State.Services
-import passwordStore.services.ServiceSM.State.*
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
 import passwordStore.utils.LocalStatusHolder
@@ -243,18 +243,16 @@ private fun cell(service: Service, columnIndex: Int) {
         3 -> ClickableText(buildAnnotatedString {
             withStyle(
                 style = SpanStyle(
-                    color = MaterialTheme.colors.secondary,
-                    textDecoration = TextDecoration.Underline
+                    color = MaterialTheme.colors.secondary, textDecoration = TextDecoration.Underline
                 )
             ) {
                 append(service.url)
             }
             toAnnotatedString()
-        },
-            onClick = {
-                LOGGER.warn("Try to open url ${service.url}")
-                localUrl.openUri(service.url)
-            })
+        }, onClick = {
+            LOGGER.warn("Try to open url ${service.url}")
+            localUrl.openUri(service.url)
+        })
 
         4 -> Text(service.tags.joinToString(", "))
         5 -> Text(
@@ -304,8 +302,7 @@ fun newService(
 
     Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(INPUT_LARGE)) {
-            OutlinedTextField(
-                label = { Text("Service") },
+            OutlinedTextField(label = { Text("Service") },
                 onValueChange = { value ->
                     dirty.value = dirty.value || service.value.service != value
                     service.value = service.value.copy(service = value)
@@ -323,8 +320,7 @@ fun newService(
                 service.value = service.value.copy(tags = values)
             })
 
-            OutlinedTextField(
-                label = { Text("Username") },
+            OutlinedTextField(label = { Text("Username") },
                 value = service.value.username,
                 onValueChange = {
                     dirty.value = dirty.value || service.value.username != it
@@ -339,8 +335,7 @@ fun newService(
                 mutableStateOf(false)
             }
 
-            OutlinedTextField(
-                label = { Text("Password") },
+            OutlinedTextField(label = { Text("Password") },
                 value = service.value.password,
                 onValueChange = {
                     dirty.value = dirty.value || service.value.password != it
@@ -360,19 +355,13 @@ fun newService(
                 dirty.value = true
             }
 
-            OutlinedTextField(
-                label = { Text("Url") },
-                value = service.value.url,
-                singleLine = true,
-                onValueChange = {
-                    dirty.value = dirty.value || service.value.url != it
-                    service.value = service.value.copy(url = it)
-                },
-                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("url")
+            OutlinedTextField(label = { Text("Url") }, value = service.value.url, singleLine = true, onValueChange = {
+                dirty.value = dirty.value || service.value.url != it
+                service.value = service.value.copy(url = it)
+            }, modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("url")
             )
 
-            OutlinedTextField(
-                label = { Text("Note") },
+            OutlinedTextField(label = { Text("Note") },
                 value = service.value.note,
                 minLines = 5,
                 maxLines = 10,
@@ -446,8 +435,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 
             tagViewer(tags)
 
-            OutlinedTextField(
-                label = { Text("Username") },
+            OutlinedTextField(label = { Text("Username") },
                 value = service.username,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("username"),
@@ -455,8 +443,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 readOnly = true
             )
 
-            OutlinedTextField(
-                label = { Text("Password") },
+            OutlinedTextField(label = { Text("Password") },
                 value = service.password,
                 onValueChange = {},
                 trailingIcon = {},
@@ -465,27 +452,22 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 readOnly = true
             )
 
-            ClickableText(
-                buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colors.secondary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
-                        append(service.url)
-                    }
-                    toAnnotatedString()
-                },
-                onClick = {
-                    LOGGER.warn("Try to open url ${service.url}")
-                    localUrl.openUri(service.url)
-                },
-                modifier = Modifier.padding(LARGE)
+            ClickableText(buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colors.secondary, textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(service.url)
+                }
+                toAnnotatedString()
+            }, onClick = {
+                LOGGER.warn("Try to open url ${service.url}")
+                localUrl.openUri(service.url)
+            }, modifier = Modifier.padding(LARGE)
             )
 
-            OutlinedTextField(
-                label = { Text("Note") },
+            OutlinedTextField(label = { Text("Note") },
                 value = service.note,
                 minLines = 5,
                 maxLines = 10,
@@ -578,8 +560,7 @@ fun loadCsvView(state: ImportSM.State.Loading) {
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(),
-                modifier = Modifier.width(300.dp).height(XL)
+                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
             )
         }
         Spacer(Modifier.height(XL))
@@ -618,8 +599,7 @@ fun exportStatus(state: Exporting) {
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(),
-                modifier = Modifier.width(300.dp).height(XL)
+                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
             )
         }
         Spacer(Modifier.height(XL))
@@ -689,8 +669,7 @@ private fun JFileChooser.selectedPath() = selectedFile?.toPath()
 
 
 class ShowServiceScreen(
-    private val action: MutableStateFlow<ServiceAction>,
-    private val onChange: suspend () -> Unit
+    private val action: MutableStateFlow<ServiceAction>, private val onChange: suspend () -> Unit
 ) : Screen {
 
     @Composable
