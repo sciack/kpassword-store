@@ -2,10 +2,11 @@ package passwordStore
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedCard
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -59,15 +61,16 @@ fun loginPane(loginFunction: LoginFunction) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         OutlinedCard  (
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).padding(XXL),
             //elevation = CardDefaults.cardElevation(defaultElevation = SMALL)
         ) {
             Text("Login",
                 style = MaterialTheme.typography.h5,
                 color = MaterialTheme.colors.secondary,
-                modifier = Modifier.padding(MEDIUM),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(XXL),
             )
-            Column(Modifier.padding(XXL), Arrangement.spacedBy(5.dp)) {
+            Column(Modifier.padding(start = XXL, end= XXL, bottom = XXL), Arrangement.spacedBy(5.dp)) {
                 OutlinedTextField(
                     label = { Text("Username") },
                     value = username.value,
@@ -76,12 +79,16 @@ fun loginPane(loginFunction: LoginFunction) {
                     isError = failed.value,
                     modifier = Modifier.focusable(true).align(Alignment.CenterHorizontally).testTag("username"),
                 )
+                val (passwordVisualTransformation, setVisualTransformation) = remember {
+                    mutableStateOf<VisualTransformation>(PasswordVisualTransformation())
+                }
                 OutlinedTextField(
                     label = { Text("Password") },
+                    placeholder = { Text("Password")},
                     value = password.value,
                     singleLine = true,
                     onValueChange = { password.value = it },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = passwordVisualTransformation,
                     isError = failed.value,
                     modifier = Modifier.focusable(true).align(Alignment.CenterHorizontally).testTag("password").onKeyEvent {
                         event ->
@@ -90,6 +97,25 @@ fun loginPane(loginFunction: LoginFunction) {
                             false
                         } else {
                             true
+                        }
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                setVisualTransformation( if(passwordVisualTransformation == VisualTransformation.None ) {
+                                    PasswordVisualTransformation()
+                                } else {
+                                    VisualTransformation.None
+                                }
+                                )
+                            }
+                        ) {
+                            val icon = if (passwordVisualTransformation == VisualTransformation.None) {
+                                Icons.Default.VisibilityOff
+                            } else {
+                                Icons.Default.Visibility
+                            }
+                            Icon(icon, null)
                         }
                     }
                 )
