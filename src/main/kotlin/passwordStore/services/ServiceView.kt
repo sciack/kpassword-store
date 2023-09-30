@@ -1,16 +1,16 @@
 package passwordStore.services
 
-import androidx.compose.foundation.ContextMenuDataProvider
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -221,6 +221,7 @@ fun withMenu(service: Service, content: @Composable () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
 
@@ -255,15 +256,32 @@ private fun cell(service: Service, columnIndex: Int) {
         })
 
         4 -> Text(service.tags.joinToString(", "))
-        5 -> Text(
-            text = service.note,
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            minLines = 1,
-            maxLines = 5,
-            modifier = Modifier.widthIn(max = 350.dp)
-        )
+        5 -> TooltipArea(tooltip = {
+                Row(
+                    Modifier.background(MaterialTheme.colors.surface)
+                        .border(1.dp, color = MaterialTheme.colors.onSurface, shape = RoundedCornerShape(4.dp))
+                ) {
+                    Text(
+                        text = service.note,
+                        softWrap = true,
+                        overflow = TextOverflow.Ellipsis,
+                        minLines = 1,
+                        maxLines = 5,
+                        modifier = Modifier.widthIn(max = 350.dp).padding(LARGE)
+                    )
+                }
+            }
+        ) {
 
+            Text(
+                text = service.note,
+                softWrap = true,
+                overflow = TextOverflow.Ellipsis,
+                minLines = 1,
+                maxLines = 2,
+                modifier = Modifier.widthIn(max = 350.dp)
+            )
+        }
         else -> Text("")
 
     }
