@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
-import passwordStore.services.ShowServiceSM.State.*
+import passwordStore.services.ServiceSM.State.*
 import passwordStore.services.audit.Event
 import passwordStore.tags.Tag
 import passwordStore.tags.TagElement
@@ -150,8 +150,8 @@ private fun processError(exception: Throwable, service: Service): String {
 }
 
 
-class ShowServiceSM(private val servicesRepository: ServicesRepository) :
-    StateScreenModel<ShowServiceSM.State>(NoService) {
+class ServiceSM(private val servicesRepository: ServicesRepository) :
+    StateScreenModel<ServiceSM.State>(NoService) {
     sealed class State {
         data object NoService : State()
         data class EditService(val service: Service) : State()
@@ -185,21 +185,31 @@ class ShowServiceSM(private val servicesRepository: ServicesRepository) :
         saveError.value = processError(it, service)
     }
 
-    fun display(serviceDisplay: State) {
+    fun display(serviceDisplay: ServiceAction) {
 
         when (serviceDisplay) {
-            is NoService -> {
+            is ServiceAction.Hide -> {
                 hide()
             }
 
-            is EditService -> {
+            is ServiceAction.Edit -> {
                 editService(serviceDisplay.service)
             }
 
-            is ShowService -> {
+            is ServiceAction.Show -> {
                 showService(serviceDisplay.service)
             }
         }
     }
+}
+
+sealed interface ServiceAction {
+
+    data object Hide: ServiceAction
+
+    data class Edit(val service: Service): ServiceAction
+
+    data class Show(val service: Service): ServiceAction
+
 }
 

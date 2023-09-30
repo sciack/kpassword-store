@@ -103,7 +103,6 @@ private fun contentRowModifier(event: Event) = when (event.action) {
     Action.update -> MaterialTheme.colors.primary
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun displayHistService(event: Event, columnIndex: Int) {
     val service = event.service

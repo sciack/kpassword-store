@@ -47,7 +47,7 @@ import passwordStore.services.ImportSM.State.Import
 import passwordStore.services.ImportSM.State.Loaded
 import passwordStore.services.ServicesSM.State.Loading
 import passwordStore.services.ServicesSM.State.Services
-import passwordStore.services.ShowServiceSM.State.*
+import passwordStore.services.ServiceSM.State.*
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
 import passwordStore.utils.LocalStatusHolder
@@ -63,8 +63,8 @@ fun servicesTable(serviceSM: ServicesSM) {
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
     val state by serviceSM.state.collectAsState()
-    val serviceDisplay = remember {
-        MutableStateFlow<ShowServiceSM.State>(NoService)
+    val action = remember {
+        MutableStateFlow<ServiceAction>(ServiceAction.Hide)
     }
     val user = LocalUser.currentOrThrow
 
@@ -100,7 +100,7 @@ fun servicesTable(serviceSM: ServicesSM) {
                     headers = listOf("Service", "Username", "Password", "Url", "Tags", "Note"),
                     values = services,
                     beforeRow = { service ->
-                        serviceButton(service, serviceDisplay) {
+                        serviceButton(service, action) {
                             coroutineScope.launch(Dispatchers.IO) {
                                 serviceSM.delete(service, user)
                             }
@@ -108,7 +108,7 @@ fun servicesTable(serviceSM: ServicesSM) {
                     },
                     onClickRow = { row ->
                         coroutineScope.launch {
-                            serviceDisplay.emit(ShowService(row))
+                            action.emit(ServiceAction.Show(row))
                         }
                     }) { columnIndex, service ->
                     cell(service, columnIndex)
@@ -131,13 +131,13 @@ fun servicesTable(serviceSM: ServicesSM) {
             )
         }
     }
-    ShowServiceScreen(serviceDisplay) { serviceSM.fetchAll(user) }.Content()
+    ShowServiceScreen(action) { serviceSM.fetchAll(user) }.Content()
 }
 
 
 @Composable
 private fun serviceButton(
-    service: Service, serviceDisplay: MutableStateFlow<ShowServiceSM.State>, onDelete: () -> Unit
+    service: Service, action: MutableStateFlow<ServiceAction>, onDelete: () -> Unit
 ) {
     val navController = LocalNavigator.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
@@ -145,7 +145,7 @@ private fun serviceButton(
         IconButton(
             onClick = {
                 coroutineScope.launch {
-                    serviceDisplay.emit(ShowService(service))
+                    action.emit(ServiceAction.Show(service))
                 }
             }, modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
@@ -168,7 +168,7 @@ private fun serviceButton(
         IconButton(
             onClick = {
                 coroutineScope.launch {
-                    serviceDisplay.emit(EditService(service))
+                    action.emit(ServiceAction.Edit(service))
                 }
             }, modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
         ) {
@@ -689,24 +689,23 @@ private fun JFileChooser.selectedPath() = selectedFile?.toPath()
 
 
 class ShowServiceScreen(
-    private val serviceDisplay: MutableStateFlow<ShowServiceSM.State>,
+    private val action: MutableStateFlow<ServiceAction>,
     private val onChange: suspend () -> Unit
 ) : Screen {
 
     @Composable
     override fun Content() {
-        val screenModel = rememberScreenModel<ShowServiceSM>()
+        val screenModel = rememberScreenModel<ServiceSM>()
         val state by screenModel.state.collectAsState()
-        val user = LocalUser.currentOrThrow
         val coroutineScope = rememberCoroutineScope()
-        val requestedDisplay by serviceDisplay.collectAsState()
+        val requestedDisplay by action.collectAsState()
         screenModel.display(requestedDisplay)
 
         when (state) {
             is NoService -> {}
             is EditService -> EditorCard(onCloseRequest = {
                 coroutineScope.launch {
-                    serviceDisplay.emit(NoService)
+                    action.emit(ServiceAction.Hide)
                     onChange()
                 }
             }) {
@@ -725,7 +724,7 @@ class ShowServiceScreen(
 
             is ShowService -> EditorCard(onCloseRequest = {
                 coroutineScope.launch {
-                    serviceDisplay.emit(NoService)
+                    action.emit(ServiceAction.Hide)
                 }
 
             }) {
