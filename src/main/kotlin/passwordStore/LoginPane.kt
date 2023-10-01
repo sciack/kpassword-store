@@ -77,7 +77,7 @@ fun loginPane(loginFunction: LoginFunction) {
                     singleLine = true,
                     onValueChange = { username.value = it },
                     isError = failed.value,
-                    modifier = Modifier.focusable(true).align(Alignment.CenterHorizontally).testTag("username"),
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("username"),
                 )
                 val (passwordVisualTransformation, setVisualTransformation) = remember {
                     mutableStateOf<VisualTransformation>(PasswordVisualTransformation())
@@ -90,7 +90,7 @@ fun loginPane(loginFunction: LoginFunction) {
                     onValueChange = { password.value = it },
                     visualTransformation = passwordVisualTransformation,
                     isError = failed.value,
-                    modifier = Modifier.focusable(true).align(Alignment.CenterHorizontally).testTag("password").onKeyEvent {
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("password").onKeyEvent {
                         event ->
                         if(event.key == Key.Enter) {
                             onLogin()
