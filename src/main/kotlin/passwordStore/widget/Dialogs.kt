@@ -2,6 +2,8 @@ package passwordStore.widget
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -14,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.zIndex
 import passwordStore.ui.theme.LARGE
+import passwordStore.ui.theme.MEDIUM
+import passwordStore.ui.theme.SMALL
 import kotlin.random.Random
 
 @Composable
@@ -93,7 +97,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
         )
     }
     if (showDialog.value) {
-        Column(Modifier.zIndex(99f)) {
+        Column(Modifier.zIndex(99f).padding(MEDIUM)) {
             Row {
                 Text("Password: ")
                 Text(
@@ -126,10 +130,26 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                             )
                     }
                 },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            password.value =
+                                generatePassword(
+                                    length.value.toIntOrNull() ?: 0,
+                                    useUpperLowerCase.value,
+                                    useNumber.value,
+                                    useSymbols.value
+                                )
+                        }
+                    ) {
+                        Icon(Icons.Default.Refresh, null)
+                    }
+
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.align(Alignment.Start)
             )
-            Row(Modifier.align(Alignment.Start)) {
+            Row(Modifier.align(Alignment.Start).padding(top = SMALL)) {
                 Checkbox(
                     useNumber.value,
                     onCheckedChange = {
@@ -150,7 +170,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
-            Row(Modifier.align(Alignment.Start)) {
+            Row(Modifier.align(Alignment.Start).padding(top = SMALL)) {
                 Checkbox(
                     useSymbols.value,
                     onCheckedChange = {
@@ -171,7 +191,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
-            Row(Modifier.align(Alignment.Start)) {
+            Row(Modifier.align(Alignment.Start).padding(top = SMALL)) {
                 Checkbox(
                     useUpperLowerCase.value,
                     onCheckedChange = {
@@ -193,7 +213,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                 )
             }
 
-            Row {
+            Row(Modifier.padding(top= SMALL)) {
                 Button(onClick = {
                     showDialog.value = false
                     onSelect(password.value)

@@ -54,7 +54,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        newService(error, service, {}) {
+                        editService(error, service, {}) {
                             service = it
                         }
                     }
@@ -106,7 +106,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        newService(error, service, {}) {
+                        editService(error, service, {}) {
                             service = it
                         }
                     }
@@ -147,7 +147,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        newService(error, service, {}) {
+                        editService(error, service, {}) {
                             service = it
                         }
                     }
@@ -190,7 +190,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        newService(error, service, {}) {
+                        editService(error, service, {}) {
                             service = it
                         }
                     }

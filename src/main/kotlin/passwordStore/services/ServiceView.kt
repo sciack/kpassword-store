@@ -35,25 +35,20 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.navigation.KPasswordScreen
-import passwordStore.services.ExportSM.State.*
-import passwordStore.services.ImportSM.State.Import
-import passwordStore.services.ImportSM.State.Loaded
 import passwordStore.services.ServiceSM.State.*
 import passwordStore.services.ServicesSM.State.Loading
 import passwordStore.services.ServicesSM.State.Services
 import passwordStore.ui.theme.*
 import passwordStore.users.LocalUser
-import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.currentDateTime
 import passwordStore.utils.obfuscate
 import passwordStore.widget.*
-import javax.swing.JFileChooser
-import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
 fun servicesTable(serviceSM: ServicesSM) {
@@ -287,7 +282,39 @@ private fun cell(service: Service, columnIndex: Int) {
 
 
 @Composable
-fun newService(
+fun newNewService(createServiceSM: CreateServiceSM) {
+    val navController = LocalNavigator.currentOrThrow
+
+    val coroutineScope = rememberCoroutineScope()
+    Box(
+        Modifier.fillMaxSize()
+    ) {
+        ElevatedCard(
+            Modifier.align(Alignment.Center)
+        ) {
+            Text(
+                "New service",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(MEDIUM)
+            )
+            editService(createServiceSM.saveError, onCancel = { navController.pop() }) {
+                coroutineScope.launch(Dispatchers.IO) {
+                    createServiceSM.store(it).onSuccess {
+                        withContext(Dispatchers.Main) {
+                            navController.push(KPasswordScreen.Home)
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun editService(
     saveError: MutableState<String>,
     selectedService: Service = Service(),
     onCancel: () -> Unit,
@@ -532,164 +559,6 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
 }
 
 
-@Composable
-fun upload(screenModel: ImportSM) {
-    val state by screenModel.state.collectAsState()
-    when (state) {
-        is Import -> importCsv(screenModel)
-        is ImportSM.State.Loading -> loadCsvView(state as ImportSM.State.Loading)
-        is Loaded -> {
-            val csvFile = (state as Loaded).csvFile
-            val statusHolder = LocalStatusHolder.currentOrThrow
-            val navigator = LocalNavigator.currentOrThrow
-            val successMessage = "Successfully uploaded file: $csvFile"
-            confirmUpload(successMessage) {
-                statusHolder.sendMessage(successMessage)
-                navigator.popUntil { it == KPasswordScreen.Home }
-            }
-        }
-
-        is ImportSM.State.Error -> {
-            val errorMsg = (state as ImportSM.State.Error).errorMsg
-            displayError(errorMsg)
-        }
-    }
-}
-
-@Composable
-fun importCsv(screenModel: ImportSM) {
-    val home = System.getProperty("user.home")
-    val user = LocalUser.currentOrThrow
-    val (result, path) = remember {
-        val fileChooser = JFileChooser(home)
-        fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
-        fileChooser.showOpenDialog(null) to fileChooser.selectedPath()
-    }
-
-    if (result == JFileChooser.APPROVE_OPTION && path != null) {
-        screenModel.startLoading(path, user)
-    } else {
-        LocalNavigator.currentOrThrow.popUntil { it == KPasswordScreen.Home }
-    }
-
-}
-
-
-@Composable
-fun loadCsvView(state: ImportSM.State.Loading) {
-    val (correct, fail, current, total) = state
-    Column(Modifier.fillMaxWidth()) {
-        Spacer(Modifier.height(XL))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
-            )
-        }
-        Spacer(Modifier.height(XL))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            val annotatedString = buildAnnotatedString {
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                    )
-                ) {
-                    append("Progress: ")
-                }
-                append("$current/$total")
-                append("    ")
-                append("$correct")
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(" Correct")
-                }
-                append("    ")
-                append("$fail")
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("Failed")
-                }
-                toAnnotatedString()
-            }
-            Text(annotatedString)
-        }
-    }
-}
-
-
-@Composable
-fun exportStatus(state: Exporting) {
-    val (current, total) = state
-    Column(Modifier.fillMaxWidth()) {
-        Spacer(Modifier.height(XL))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
-            )
-        }
-        Spacer(Modifier.height(XL))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            val annotatedString = buildAnnotatedString {
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                    )
-                ) {
-                    append("Progress: ")
-                }
-                append("$current/$total")
-
-                toAnnotatedString()
-            }
-            Text(annotatedString)
-        }
-    }
-}
-
-@Composable
-fun download(screenModel: ExportSM) {
-    val state by screenModel.state.collectAsState()
-    when (state) {
-        is Export -> exportCsv(screenModel)
-        is Exporting -> exportStatus(state as Exporting)
-        is Exported -> {
-            val csvFile = (state as Exported).csvFile
-
-            val statusHolder = LocalStatusHolder.currentOrThrow
-            val navigator = LocalNavigator.currentOrThrow
-            val successMessage = "Successfully created file: $csvFile"
-            confirmUpload(successMessage) {
-                statusHolder.sendMessage(successMessage)
-                navigator.popUntil { it == KPasswordScreen.Home }
-            }
-        }
-
-        is Error -> {
-            val errorMsg = (state as Error).errorMsg
-            displayError(errorMsg)
-        }
-    }
-}
-
-
-@Composable
-fun exportCsv(screenModel: ExportSM) {
-    val exportPath = exportPath()
-    val user = LocalUser.currentOrThrow
-    val (result, path) = remember {
-        val fileChooser = JFileChooser(exportPath.toFile())
-        fileChooser.fileFilter = FileNameExtensionFilter("Comma Separated File", "csv")
-        fileChooser.showSaveDialog(null) to fileChooser.selectedPath()
-    }
-
-    if (result == JFileChooser.APPROVE_OPTION && path != null) {
-        screenModel.startExport(path, user)
-    } else {
-        LocalNavigator.currentOrThrow.popUntil { it == KPasswordScreen.Home }
-    }
-
-}
-
-private fun JFileChooser.selectedPath() = selectedFile?.toPath()
-
-
 class ShowServiceScreen(
     private val action: MutableStateFlow<ServiceAction>, private val onChange: suspend () -> Unit
 ) : Screen {
@@ -710,7 +579,14 @@ class ShowServiceScreen(
                     onChange()
                 }
             }) {
-                newService(screenModel.saveError, selectedService = (state as EditService).service, onCancel = {
+                Text(
+                    "Edit service",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(MEDIUM)
+                )
+                editService(screenModel.saveError, selectedService = (state as EditService).service, onCancel = {
                     close()
                 }) { service ->
                     coroutineScope.launch {
@@ -729,6 +605,13 @@ class ShowServiceScreen(
                 }
 
             }) {
+                Text(
+                    "Service",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(MEDIUM)
+                )
                 showService(selectedService = (state as ShowService).service) {
                     close()
                 }
