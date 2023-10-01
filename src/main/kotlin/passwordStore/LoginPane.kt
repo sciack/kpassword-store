@@ -58,8 +58,6 @@ fun loginPane(loginFunction: LoginFunction) {
     Box(modifier = Modifier.fillMaxSize()) {
         ElevatedCard(
             modifier = Modifier.align(Alignment.Center).padding(XXL),
-            colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = XS)
         ) {
             Text(
                 "Login",

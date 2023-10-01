@@ -10,7 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
-import passwordStore.ui.theme.XS
+import androidx.compose.ui.unit.dp
+
 
 
 @Composable
@@ -28,10 +29,7 @@ fun EditorCard(onCloseRequest: () -> Unit, content: @Composable EditorCardScope.
             }
         }.clickable {
             // just do nothing but avoid propagate the click to the box
-        },
-            elevation = CardDefaults.elevatedCardElevation(XS),
-            colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surface)
-        ) {
+        }) {
             withScope(onCloseRequest) {
                 content()
             }
