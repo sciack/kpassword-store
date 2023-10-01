@@ -1,7 +1,7 @@
 package passwordStore.users
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
@@ -72,7 +72,7 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
             Text(
                 errorMsg.value,
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("New User errorMsg"),
-                color = MaterialTheme.colors.error,
+                color = MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )
@@ -276,7 +276,7 @@ fun createUser(createUserSM: CreateUserSM) {
             Text(
                 errorMsg.value,
                 modifier = Modifier.align(Alignment.CenterHorizontally).testTag("New User errorMsg"),
-                color = MaterialTheme.colors.error,
+                color = MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )

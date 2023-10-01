@@ -3,25 +3,19 @@ package passwordStore
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import cafe.adriel.voyager.navigator.CurrentScreen
@@ -46,7 +40,6 @@ import passwordStore.users.isAuthenticated
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
-import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
 
 
@@ -55,32 +48,31 @@ val LOGGER = configureLog()
 @Composable
 fun app() {
     val statusHolder = LocalStatusHolder.currentOrThrow
-    Scaffold(Modifier.then(
-        Modifier.fillMaxSize().border(
-            1.dp, color = MaterialTheme.colors.primary, shape = RectangleShape
-        )
-    ), scaffoldState = statusHolder.scaffoldState, topBar = {
-        TopAppBar(
-            modifier = Modifier.height(APP_BAR_HEIGHT)
-        ) {}
-    }) {
-        ModalDrawer(
-            drawerState = statusHolder.scaffoldState.drawerState,
-            drawerContent = {
-                menu()
-            },
-            drawerShape = customShape(),
-        ) {
-            CurrentScreen()
-        }
-    }
-}
 
-fun customShape() = object : Shape {
-    override fun createOutline(
-        size: Size, layoutDirection: LayoutDirection, density: Density
-    ): Outline {
-        return Outline.Rectangle(Rect(0f, 0f, 400f, size.height))
+    Scaffold(
+        Modifier.then(
+            Modifier.fillMaxSize().border(
+                1.dp, color = MaterialTheme.colorScheme.primary, shape = RectangleShape
+            ),
+        ),
+        snackbarHost = { SnackbarHost(statusHolder.snackbarHostState) },
+    ) {
+        ModalNavigationDrawer(
+            drawerState = statusHolder.drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    menu()
+                }
+            },
+
+            ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .padding(top = it.calculateTopPadding() + XL, bottom = it.calculateBottomPadding())
+            ) {
+                CurrentScreen()
+            }
+        }
     }
 }
 
@@ -101,7 +93,7 @@ fun menuDrawer() {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colors.onPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(XXL)
                 )
             }
@@ -111,7 +103,7 @@ fun menuDrawer() {
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        if (statusHolder.scaffoldState.drawerState.isClosed) {
+                        if (statusHolder.drawerState.isClosed) {
                             statusHolder.openDrawer()
                         } else {
                             statusHolder.closeDrawer()
@@ -120,7 +112,7 @@ fun menuDrawer() {
                 }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
             ) {
                 Icon(
-                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colors.onPrimary,
+                    Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(XXL)
                 )
             }
@@ -172,9 +164,10 @@ fun main() {
                     ) {
                         LOGGER.info { "Building the app" }
                         Navigator(KPasswordScreen.Login) {
-                            val scaffoldState = rememberScaffoldState()
+                            val snackbarHostState = remember { SnackbarHostState() }
+                            val drawerState = remember { DrawerState(DrawerValue.Closed) }
                             CompositionLocalProvider(
-                                LocalStatusHolder provides StatusHolder(scaffoldState),
+                                LocalStatusHolder provides StatusHolder(snackbarHostState, drawerState),
                                 LocalUser provides user,
                                 LocalSetUser provides setUser,
                                 LocalVersion provides version["version"]!!
@@ -209,7 +202,7 @@ private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
         title = {
             Text(
                 title.value,
-                color = MaterialTheme.colors.onPrimary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.CenterVertically),
                 fontWeight = FontWeight.Bold
             )
@@ -217,7 +210,7 @@ private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
                 Spacer(Modifier.width(SMALL))
                 Text(
                     user?.fullName.orEmpty(),
-                    color = MaterialTheme.colors.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.align(Alignment.CenterVertically),
                     fontWeight = FontWeight.Bold
                 )

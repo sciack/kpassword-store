@@ -1,32 +1,33 @@
 package passwordStore.utils
 
-import androidx.compose.material.ScaffoldState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StatusHolder(val scaffoldState: ScaffoldState) {
+class StatusHolder(val snackbarHostState: SnackbarHostState, val drawerState: DrawerState) {
 
     suspend fun sendMessage(message: String) {
         withContext(Dispatchers.Default) {
-            scaffoldState.snackbarHostState.showSnackbar(message)
+            snackbarHostState.showSnackbar(message)
 
         }
     }
 
     suspend fun openDrawer() {
-        withContext(Dispatchers.Default) {
-            if (scaffoldState.drawerState.isClosed) {
-                scaffoldState.drawerState.open()
+        withContext(Dispatchers.Main) {
+            if (drawerState.isClosed) {
+                drawerState.open()
             }
         }
     }
 
     suspend fun closeDrawer() {
-        withContext(Dispatchers.Default) {
-            if (scaffoldState.drawerState.isOpen) {
-                scaffoldState.drawerState.close()
+        withContext(Dispatchers.Main) {
+            if (drawerState.isOpen) {
+                drawerState.close()
             }
         }
     }

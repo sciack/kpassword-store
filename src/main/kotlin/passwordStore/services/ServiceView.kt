@@ -6,11 +6,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,9 +88,7 @@ fun servicesTable(serviceSM: ServicesSM) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     CircularProgressIndicator(
                         modifier = Modifier.width(32.dp).align(Alignment.CenterHorizontally),
-                        color = MaterialTheme.colors.surface,
-
-                        backgroundColor = MaterialTheme.colors.secondary,
+                        color = MaterialTheme.colorScheme.surface,
                     )
                 }
             } else {
@@ -125,9 +121,9 @@ fun servicesTable(serviceSM: ServicesSM) {
             Icon(
                 Icons.Default.Add,
                 KPasswordScreen.NewService.name,
-                tint = MaterialTheme.colors.onPrimary,
-                modifier = Modifier.size(XL * 2).clip(CircleShape).background(color = MaterialTheme.colors.primary)
-                    .border(2.dp, color = MaterialTheme.colors.onPrimary, shape = CircleShape)
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(XL * 2).clip(CircleShape).background(color = MaterialTheme.colorScheme.primary)
+                    .border(2.dp, color = MaterialTheme.colorScheme.onPrimary, shape = CircleShape)
             )
         }
     }
@@ -150,7 +146,7 @@ private fun serviceButton(
             }, modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.KeyboardArrowRight, "Show", tint = MaterialTheme.colors.secondary
+                Icons.Default.KeyboardArrowRight, "Show", tint = MaterialTheme.colorScheme.secondary
 
             )
         }
@@ -161,7 +157,7 @@ private fun serviceButton(
             }, modifier = Modifier.testTag("History ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                painterResource("/icons/history.svg"), "History", tint = MaterialTheme.colors.secondary
+                painterResource("/icons/history.svg"), "History", tint = MaterialTheme.colorScheme.secondary
             )
         }
         Spacer(Modifier.width(XS))
@@ -173,7 +169,7 @@ private fun serviceButton(
             }, modifier = Modifier.testTag("Edit ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.Edit, "Edit", tint = MaterialTheme.colors.secondary
+                Icons.Default.Edit, "Edit", tint = MaterialTheme.colorScheme.secondary
             )
         }
         val showAlert = remember {
@@ -185,7 +181,7 @@ private fun serviceButton(
             modifier = Modifier.testTag("Delete ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.Delete, "Delete", tint = MaterialTheme.colors.error
+                Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error
 
             )
         }
@@ -221,7 +217,7 @@ fun withMenu(service: Service, content: @Composable () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
 
@@ -244,7 +240,7 @@ private fun cell(service: Service, columnIndex: Int) {
         3 -> ClickableText(buildAnnotatedString {
             withStyle(
                 style = SpanStyle(
-                    color = MaterialTheme.colors.secondary, textDecoration = TextDecoration.Underline
+                    color = MaterialTheme.colorScheme.secondary, textDecoration = TextDecoration.Underline
                 )
             ) {
                 append(service.url)
@@ -257,20 +253,20 @@ private fun cell(service: Service, columnIndex: Int) {
 
         4 -> Text(service.tags.joinToString(", "))
         5 -> TooltipArea(tooltip = {
-                Row(
-                    Modifier.background(MaterialTheme.colors.surface)
-                        .border(1.dp, color = MaterialTheme.colors.onSurface, shape = RoundedCornerShape(4.dp))
-                ) {
-                    Text(
-                        text = service.note,
-                        softWrap = true,
-                        overflow = TextOverflow.Ellipsis,
-                        minLines = 1,
-                        maxLines = 5,
-                        modifier = Modifier.widthIn(max = 350.dp).padding(LARGE)
-                    )
-                }
+            Row(
+                Modifier.background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, color = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(4.dp))
+            ) {
+                Text(
+                    text = service.note,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    minLines = 1,
+                    maxLines = 5,
+                    modifier = Modifier.widthIn(max = 350.dp).padding(LARGE)
+                )
             }
+        }
         ) {
 
             Text(
@@ -282,6 +278,7 @@ private fun cell(service: Service, columnIndex: Int) {
                 modifier = Modifier.widthIn(max = 350.dp)
             )
         }
+
         else -> Text("")
 
     }
@@ -320,7 +317,8 @@ fun newService(
 
     Row(Modifier.padding(LARGE)) {
         Column(modifier = Modifier.width(INPUT_LARGE)) {
-            OutlinedTextField(label = { Text("Service") },
+            OutlinedTextField(
+                label = { Text("Service") },
                 onValueChange = { value ->
                     dirty.value = dirty.value || service.value.service != value
                     service.value = service.value.copy(service = value)
@@ -338,7 +336,8 @@ fun newService(
                 service.value = service.value.copy(tags = values)
             })
 
-            OutlinedTextField(label = { Text("Username") },
+            OutlinedTextField(
+                label = { Text("Username") },
                 value = service.value.username,
                 onValueChange = {
                     dirty.value = dirty.value || service.value.username != it
@@ -353,7 +352,8 @@ fun newService(
                 mutableStateOf(false)
             }
 
-            OutlinedTextField(label = { Text("Password") },
+            OutlinedTextField(
+                label = { Text("Password") },
                 value = service.value.password,
                 onValueChange = {
                     dirty.value = dirty.value || service.value.password != it
@@ -379,7 +379,8 @@ fun newService(
             }, modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("url")
             )
 
-            OutlinedTextField(label = { Text("Note") },
+            OutlinedTextField(
+                label = { Text("Note") },
                 value = service.value.note,
                 minLines = 5,
                 maxLines = 10,
@@ -393,7 +394,7 @@ fun newService(
                 Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                     Text(
                         errorMsg.value,
-                        color = MaterialTheme.colors.error,
+                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold,
                         fontSize = TextUnit(0.8f, TextUnitType.Em),
                         modifier = Modifier.testTag("ErrorMsg")
@@ -453,7 +454,8 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
 
             tagViewer(tags)
 
-            OutlinedTextField(label = { Text("Username") },
+            OutlinedTextField(
+                label = { Text("Username") },
                 value = service.username,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).testTag("username"),
@@ -461,7 +463,8 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
                 readOnly = true
             )
 
-            OutlinedTextField(label = { Text("Password") },
+            OutlinedTextField(
+                label = { Text("Password") },
                 value = service.password,
                 onValueChange = {},
                 trailingIcon = {},
@@ -473,7 +476,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
             ClickableText(buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.colors.secondary, textDecoration = TextDecoration.Underline
+                        color = MaterialTheme.colorScheme.secondary, textDecoration = TextDecoration.Underline
                     )
                 ) {
                     append(service.url)
@@ -485,7 +488,8 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
             }, modifier = Modifier.padding(LARGE)
             )
 
-            OutlinedTextField(label = { Text("Note") },
+            OutlinedTextField(
+                label = { Text("Note") },
                 value = service.note,
                 minLines = 5,
                 maxLines = 10,

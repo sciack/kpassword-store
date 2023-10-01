@@ -1,12 +1,11 @@
 package passwordStore.widget
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -17,10 +16,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import passwordStore.ui.theme.XS
 import passwordStore.tags.Tag
+import passwordStore.ui.theme.XS
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> Unit) {
     val currentTag = remember {
@@ -37,7 +36,7 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
 
             ) {
             tags.value.forEach { value ->
-                Chip(onClick = {
+                InputChip(onClick = {
                     tags.value -= value
                     onValueChange(tags.value)
                 }, leadingIcon = {
@@ -46,13 +45,12 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
                         "Delete",
                     )
                 },
-                    colors = ChipDefaults.outlinedChipColors(),
-                    border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS)
-                ) {
-                    Text(value)
-                }
-
+                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS),
+                    label = {
+                        Text(value)
+                    },
+                    selected = false
+                )
             }
         }
         OutlinedTextField(
@@ -78,7 +76,7 @@ fun tagEditor(tags: MutableState<Set<String>>, onValueChange: (Set<String>) -> U
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun tagViewer(tags: MutableState<Set<String>>, tagsPerRow: Int = 10) {
 
@@ -92,14 +90,14 @@ fun tagViewer(tags: MutableState<Set<String>>, tagsPerRow: Int = 10) {
 
             ) {
             tags.value.forEach { value ->
-                Chip(
+                FilterChip(
                     onClick = {},
-                    colors = ChipDefaults.outlinedChipColors(),
-                    border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS)
-                ) {
-                    Text(value)
-                }
+                    modifier = Modifier.padding(top = XS, start = 0.dp, end = XS),
+                    label = {
+                        Text(value)
+                    },
+                    selected = false
+                )
                 Spacer(Modifier.width(XS))
             }
         }
@@ -119,7 +117,7 @@ private fun assignTag(
     onValueChange(tags.value)
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
     val selected = remember {
@@ -131,12 +129,12 @@ fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
         modifier = Modifier
             .focusable(false)
             .padding(top = XS, bottom = XS)
-            .border(width = 1.dp, color = MaterialTheme.colors.primary),
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.primary),
 
         ) {
         tags.forEach { tag ->
 
-            Chip(
+            FilterChip(
                 onClick = {
                     if (selected.value != tag) {
                         selected.value = tag
@@ -145,16 +143,12 @@ fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
                     }
                     searchFn(selected.value)
                 },
-                colors = if (selected.value != tag) {
-                    ChipDefaults.outlinedChipColors()
-                } else {
-                    ChipDefaults.chipColors()
-                },
-                border = BorderStroke(1.dp, MaterialTheme.colors.primary),
-                modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS)
-            ) {
-                Text(tag.name)
-            }
+                modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS),
+                selected = selected.value == tag,
+                label = {
+                    Text(tag.name)
+                }
+            )
         }
     }
 }

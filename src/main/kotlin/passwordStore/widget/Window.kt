@@ -3,9 +3,9 @@ package passwordStore.widget
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Maximize
@@ -19,6 +19,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
 import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
 import passwordStore.ui.theme.XXL
 
 
@@ -34,7 +35,7 @@ fun WindowScope.AppWindowTitleBar(
     onClose: () -> Unit,
     navigationIcon: @Composable () -> Unit
 ) {
-    Box(Modifier.background(MaterialTheme.colors.primary).width(MENU_WIDTH).height(XXL)) {
+    Box(Modifier.background(MaterialTheme.colorScheme.primary).width(MENU_WIDTH).height(XXL)) {
         Row {
             navigationIcon()
         }
@@ -44,38 +45,38 @@ fun WindowScope.AppWindowTitleBar(
         Row(Modifier.align(Alignment.TopEnd).padding(horizontal = SMALL)) {
             IconButton(
                 onClick = onMinimize,
-                modifier = Modifier.padding(end = SMALL)
+                modifier = Modifier.padding()
             ) {
                 Icon(
-                    Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL)
+                    Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(XL)
                 )
             }
             IconButton(
                 onClick = onMaximize,
-                modifier = Modifier.padding(end = SMALL)
+                modifier = Modifier.padding()
             ) {
                 if (state.placement == WindowPlacement.Maximized) {
                     Icon(
                         painterResource("/icons/window-restore.svg"),
                         "Restore",
-                        tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.size(XXL)
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(XL)
                     )
                 } else {
                     Icon(
-                        Icons.Default.Maximize, "Windows", tint = MaterialTheme.colors.onPrimary,
-                        modifier = Modifier.size(XXL)
+                        Icons.Default.Maximize, "Windows", tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(XL)
                     )
                 }
             }
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.padding(end = SMALL)
+                modifier = Modifier.padding()
             ) {
                 Icon(
-                    Icons.Default.Close, "Close", tint = MaterialTheme.colors.onPrimary,
-                    modifier = Modifier.size(XXL)
+                    Icons.Default.Close, "Close", tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(XL)
                 )
             }
         }
@@ -89,7 +90,7 @@ fun WindowScope.AppDraggableArea(title: @Composable RowScope.() -> Unit) =
         Box(
             Modifier.fillMaxWidth().height(APP_BAR_HEIGHT)
                 //.shadow(4.dp, RoundedCornerShape(4.dp, 4.dp, 12.dp, 12.dp), ambientColor = MaterialTheme.colors.background)
-                .background(MaterialTheme.colors.primary)
+                .background(MaterialTheme.colorScheme.primary)
         ) {
             Row(modifier = Modifier.align(Alignment.TopCenter).height(XXL).padding(end = MENU_WIDTH)) {
                 title()

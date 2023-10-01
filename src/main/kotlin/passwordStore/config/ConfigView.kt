@@ -1,7 +1,7 @@
 package passwordStore.config
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -113,7 +113,7 @@ fun configView(configVM: ConfigVM) {
                 "Changing the secret could make the database not usable anymore and require a reload of all the data, should be done with an empty database",
                 fontWeight = FontWeight.Light,
                 fontStyle = FontStyle.Italic,
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.bodySmall
             )
         }
         Spacer(Modifier.height(XL))
@@ -139,7 +139,7 @@ fun configView(configVM: ConfigVM) {
                 "Must be 16 byte string",
                 fontWeight = FontWeight.Light,
                 fontStyle = FontStyle.Italic,
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.bodySmall
             )
         }
         Spacer(Modifier.height(XL))

@@ -1,8 +1,7 @@
 package passwordStore.services
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -16,9 +15,9 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import passwordStore.navigation.KPasswordScreen
 import passwordStore.services.audit.Action
 import passwordStore.services.audit.Event
-import passwordStore.navigation.KPasswordScreen
 import passwordStore.ui.theme.INPUT_MEDIUM
 import passwordStore.ui.theme.LARGE
 import passwordStore.users.LocalUser
@@ -38,9 +37,7 @@ fun history(historySM: HistorySM, service: Service?) {
             Column(Modifier.fillMaxSize()) {
                 CircularProgressIndicator(
                     modifier = Modifier.width(32.dp).align(Alignment.CenterHorizontally),
-                    color = MaterialTheme.colors.surface,
-
-                    backgroundColor = MaterialTheme.colors.secondary,
+                    color = MaterialTheme.colorScheme.surface
                 )
             }
             LaunchedEffect("after circular") {
@@ -98,9 +95,9 @@ fun historyTable(historySM: HistorySM, history: List<Event>) {
 
 @Composable
 private fun contentRowModifier(event: Event) = when (event.action) {
-    Action.delete -> MaterialTheme.colors.error
-    Action.insert -> MaterialTheme.colors.primary
-    Action.update -> MaterialTheme.colors.primary
+    Action.delete -> MaterialTheme.colorScheme.error
+    Action.insert -> MaterialTheme.colorScheme.primary
+    Action.update -> MaterialTheme.colorScheme.tertiary
 }
 
 @Composable

@@ -2,7 +2,7 @@ package passwordStore.widget
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +16,6 @@ import androidx.compose.ui.zIndex
 import passwordStore.ui.theme.LARGE
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun showOkCancel(
     title: String = "Alert", message: String, show: MutableState<Boolean>, onConfirm: () -> Unit = {}
@@ -46,7 +45,6 @@ fun showOkCancel(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun showOk(
     title: String = "Error", message: String, show: MutableState<Boolean>
@@ -108,7 +106,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                 value = length.value,
                 onValueChange = { value ->
                     runCatching {
-                        if (value.isNullOrEmpty()) {
+                        if (value.isEmpty()) {
                             null
                         } else {
                             value.toInt()

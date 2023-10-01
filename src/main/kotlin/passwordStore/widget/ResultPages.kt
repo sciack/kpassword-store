@@ -1,9 +1,9 @@
 package passwordStore.widget
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
@@ -26,8 +26,8 @@ fun error(errorMsg: String, afterEffect: suspend () -> Unit = {}) {
         Spacer(Modifier.width(XL))
         Text(
             errorMsg,
-            style = MaterialTheme.typography.h5,
-            color = MaterialTheme.colors.error,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.error,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
@@ -57,7 +57,7 @@ fun confirmUpload(text: String, afterEffect: suspend () -> Unit = {}) {
         Spacer(Modifier.width(XXL))
         Text(
             text,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
