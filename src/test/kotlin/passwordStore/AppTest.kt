@@ -1,8 +1,12 @@
 package passwordStore
 
-import androidx.compose.material.rememberScaffoldState
+
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -218,7 +222,7 @@ class AppTest {
 
             await.atMost(Duration.ofSeconds(1)).until {
                 //waiting that the system is able to read the new data, if not the visualization is flaky
-                val loadedServices  =servicesRepository.search(currentUser)
+                val loadedServices = servicesRepository.search(currentUser)
                 loadedServices.size == it
             }
             services.add(service)
@@ -286,9 +290,10 @@ class AppTest {
     ) {
         Navigator(screen) {
             navigator = it
-            val scaffoldState = rememberScaffoldState()
+            val snackbarHostState = remember { SnackbarHostState() }
+            val drawerState = remember { DrawerState(DrawerValue.Closed) }
             CompositionLocalProvider(
-                LocalStatusHolder provides StatusHolder(scaffoldState)
+                LocalStatusHolder provides StatusHolder(snackbarHostState, drawerState)
             ) {
                 content()
             }
