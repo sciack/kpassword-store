@@ -22,13 +22,13 @@ import passwordStore.utils.LocalStatusHolder
 fun error(errorMsg: String, afterEffect: suspend () -> Unit = {}) {
 
     Row(Modifier.padding(XXL).fillMaxSize()) {
-        Icon(Icons.Default.Error, "Error", Modifier.size(XL * 2).align(Alignment.CenterVertically))
+        Icon(Icons.Default.Error, "Error", Modifier.size(XL * 2).align(Alignment.Top))
         Spacer(Modifier.width(XL))
         Text(
             errorMsg,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.Top)
         )
     }
     LaunchedEffect("CSV processing confirmation") {
@@ -53,12 +53,12 @@ fun confirmUpload(text: String, afterEffect: suspend () -> Unit = {}) {
 
 
     Row(Modifier.fillMaxSize()) {
-        Icon(Icons.Default.Info, "Success", Modifier.size(XL * 2).align(Alignment.CenterVertically))
+        Icon(Icons.Default.Info, "Success", Modifier.size(XL * 2).align(Alignment.Top))
         Spacer(Modifier.width(XXL))
         Text(
             text,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.Top)
         )
     }
     LaunchedEffect("CSV processing confirmation") {
