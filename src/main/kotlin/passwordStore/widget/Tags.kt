@@ -1,6 +1,5 @@
 package passwordStore.widget
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import passwordStore.tags.Tag
+import passwordStore.ui.theme.MEDIUM
 import passwordStore.ui.theme.XS
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -124,31 +124,32 @@ fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
         mutableStateOf(selectedTag)
     }
 
-    FlowRow(
-        maxItemsInEachRow = 12,
-        modifier = Modifier
-            .focusable(false)
-            .padding(top = XS, bottom = XS)
-            .border(width = 1.dp, color = MaterialTheme.colorScheme.primary),
+    ElevatedCard {
+        FlowRow(
+            maxItemsInEachRow = 12,
+            modifier = Modifier
+                .focusable(false)
+                .padding(MEDIUM),
 
-        ) {
-        tags.forEach { tag ->
+            ) {
+            tags.forEach { tag ->
 
-            FilterChip(
-                onClick = {
-                    if (selected.value != tag) {
-                        selected.value = tag
-                    } else {
-                        selected.value = null
+                FilterChip(
+                    onClick = {
+                        if (selected.value != tag) {
+                            selected.value = tag
+                        } else {
+                            selected.value = null
+                        }
+                        searchFn(selected.value)
+                    },
+                    modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS),
+                    selected = selected.value == tag,
+                    label = {
+                        Text(tag.name)
                     }
-                    searchFn(selected.value)
-                },
-                modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS),
-                selected = selected.value == tag,
-                label = {
-                    Text(tag.name)
-                }
-            )
+                )
+            }
         }
     }
 }

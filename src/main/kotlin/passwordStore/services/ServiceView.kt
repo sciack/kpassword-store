@@ -554,7 +554,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
         coroutineScope.launch {
             serviceSM.searchPattern(it.text, user)
         }
-    }, modifier = Modifier.testTag("Search field").align(Alignment.Bottom).width(INPUT_MEDIUM)
+    }, modifier = Modifier.testTag("Search field").align(Alignment.CenterVertically).width(INPUT_MEDIUM)
     )
 }
 
