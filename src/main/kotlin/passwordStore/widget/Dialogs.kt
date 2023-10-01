@@ -213,7 +213,7 @@ fun passwordDialog(showDialog: MutableState<Boolean>, onSelect: (String) -> Unit
                 )
             }
 
-            Row(Modifier.padding(top= SMALL)) {
+            Row(Modifier.padding(top = SMALL)) {
                 Button(onClick = {
                     showDialog.value = false
                     onSelect(password.value)

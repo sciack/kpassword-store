@@ -92,8 +92,6 @@ fun appTheme(
     ) {
         CompositionLocalProvider(
             LocalMinimumInteractiveComponentEnforcement provides false,
-            androidx.compose.material.LocalContentColor provides MaterialTheme.colorScheme.primary,
-            LocalContentColor provides MaterialTheme.colorScheme.primary,
             content = content
         )
     }
