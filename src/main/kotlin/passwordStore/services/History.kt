@@ -1,9 +1,9 @@
 package passwordStore.services
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +32,7 @@ import passwordStore.widget.showOk
 fun history(historySM: HistorySM, service: Service?) {
     val state by historySM.state.collectAsState()
     val user = LocalUser.currentOrThrow
-    when(state) {
+    when (state) {
         HistorySM.State.First -> {
             Column(Modifier.fillMaxSize()) {
                 CircularProgressIndicator(
@@ -44,6 +44,7 @@ fun history(historySM: HistorySM, service: Service?) {
                 historySM.loadHistory(service?.service, user)
             }
         }
+
         is HistorySM.State.Loaded -> historyTable(historySM, (state as HistorySM.State.Loaded).history)
     }
 }

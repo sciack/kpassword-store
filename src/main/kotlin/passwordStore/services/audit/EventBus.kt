@@ -1,7 +1,9 @@
 package passwordStore.services.audit
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
 class EventBus(private val coroutineScope: CoroutineScope) {
 
@@ -14,7 +16,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
     fun <T> subscribe(listener: EventListener<T>): Job {
         return coroutineScope.launch {
             channel.collect { message ->
-                if( listener.accept(message)) {
+                if (listener.accept(message)) {
                     listener.onEvent(message as T)
                 }
             }

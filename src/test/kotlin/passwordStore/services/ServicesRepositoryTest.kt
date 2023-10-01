@@ -11,7 +11,6 @@ import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.nowWithMicro
 import passwordStore.testUser
-import java.lang.IllegalArgumentException
 import java.sql.SQLException
 import kotlin.test.AfterTest
 import kotlin.test.Test

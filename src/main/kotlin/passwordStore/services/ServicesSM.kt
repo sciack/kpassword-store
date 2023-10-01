@@ -104,7 +104,7 @@ class HistorySM(private val servicesRepository: ServicesRepository) : StateScree
 
     suspend fun history(pattern: String, exactMatch: Boolean, user: User) {
         val result = servicesRepository.history(pattern, exactMatch, user)
-        LOGGER.warn  {"Found ${result.size} history events"}
+        LOGGER.warn { "Found ${result.size} history events" }
         mutableState.emit(State.Loaded(result))
     }
 
@@ -205,11 +205,11 @@ class ServiceSM(private val servicesRepository: ServicesRepository) :
 
 sealed interface ServiceAction {
 
-    data object Hide: ServiceAction
+    data object Hide : ServiceAction
 
-    data class Edit(val service: Service): ServiceAction
+    data class Edit(val service: Service) : ServiceAction
 
-    data class Show(val service: Service): ServiceAction
+    data class Show(val service: Service) : ServiceAction
 
 }
 

@@ -4,16 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
-import passwordStore.ui.theme.LARGE
-import passwordStore.ui.theme.MEDIUM
-import passwordStore.ui.theme.SMALL
 import passwordStore.ui.theme.XS
 
 
@@ -30,7 +26,7 @@ fun EditorCard(onCloseRequest: () -> Unit, content: @Composable EditorCardScope.
             layout(width = placeable.width, height = placeable.height) {
                 placeable.place(x, 10)
             }
-        }.clickable  {
+        }.clickable {
             // just do nothing but avoid propagate the click to the box
         },
             elevation = CardDefaults.elevatedCardElevation(XS),
@@ -48,7 +44,7 @@ interface EditorCardScope {
 }
 
 
-private class CurrentEditorCardScope(private val onClose: ()->Unit): EditorCardScope {
+private class CurrentEditorCardScope(private val onClose: () -> Unit) : EditorCardScope {
 
     override fun close() {
         onClose()

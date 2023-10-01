@@ -6,13 +6,10 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.hasElement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import org.awaitility.kotlin.await
 import org.junit.Rule
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -21,12 +18,9 @@ import passwordStore.testUser
 import passwordStore.users.UserVM
 import passwordStore.utils.currentDateTime
 import passwordStore.withLogin
-import java.nio.file.Path
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 
 class ServiceViewTest {

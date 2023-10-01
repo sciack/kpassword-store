@@ -9,8 +9,6 @@ import androidx.compose.ui.unit.dp
 import passwordStore.config.DarkModes
 
 
-
-
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -77,7 +75,7 @@ private val DarkColors = darkColorScheme(
 )
 
 
-@OptIn( ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun appTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),

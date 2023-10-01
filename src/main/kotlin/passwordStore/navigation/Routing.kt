@@ -60,8 +60,6 @@ sealed interface KPasswordScreen {
                 }
             }
         }
-
-
     }
 
     data object ExportCsv : Screen, KPasswordScreen {

@@ -57,6 +57,7 @@ fun app() {
         ),
         snackbarHost = { SnackbarHost(statusHolder.snackbarHostState) },
     ) {
+
         ModalNavigationDrawer(
             drawerState = statusHolder.drawerState,
             drawerContent = {
@@ -64,14 +65,10 @@ fun app() {
                     menu()
                 }
             },
-
-            ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-                    .padding(top = it.calculateTopPadding() + XL, bottom = it.calculateBottomPadding())
-            ) {
-                CurrentScreen()
-            }
+            modifier = Modifier.fillMaxSize()
+                .padding(top = it.calculateTopPadding() + XL, bottom = it.calculateBottomPadding())
+        ) {
+            CurrentScreen()
         }
     }
 }

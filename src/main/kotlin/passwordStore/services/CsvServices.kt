@@ -7,11 +7,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import org.apache.commons.csv.CSVFormat
-import org.kodein.di.DI
-import org.kodein.di.instance
 import passwordStore.LOGGER
 import passwordStore.users.User
-import java.io.Writer
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.LongAdder
@@ -31,7 +28,7 @@ class ExportSM(private val servicesRepository: ServicesRepository) : StateScreen
         data object Export : State()
         data class Exporting(val rows: Int, val totalRow: Int) : State()
         data class Exported(val csvFile: Path) : State()
-        data class Error(val errorMsg: String): State()
+        data class Error(val errorMsg: String) : State()
     }
 
     fun startExport(path: Path, user: User) {
@@ -84,7 +81,7 @@ class ImportSM(private val servicesRepository: ServicesRepository) : StateScreen
 
         data class Loaded(val csvFile: Path) : State()
 
-        data class Error(val errorMsg: String): State()
+        data class Error(val errorMsg: String) : State()
     }
 
     fun startLoading(path: Path, user: User) {

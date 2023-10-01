@@ -28,7 +28,6 @@
 
 package passwordStore.sql
 
-import kotlinx.coroutines.handleCoroutineException
 import mu.KotlinLogging
 import passwordStore.sql.Parameters.Companion.parse
 import java.sql.Connection
@@ -149,7 +148,7 @@ fun DataSource.performTransaction(tx: Connection.() -> Unit) {
         runCatching {
             c.autoCommit = false
             c.tx()
-        }.onSuccess  {
+        }.onSuccess {
             LOGGER.debug { "Transaction successful, start commit" }
             runCatching {
                 c.commit()
@@ -162,7 +161,7 @@ fun DataSource.performTransaction(tx: Connection.() -> Unit) {
             LOGGER.warn(it) { "Error in transaction" }
             runCatching {
                 c.rollback()
-            }.onFailure {failure ->
+            }.onFailure { failure ->
                 LOGGER.warn(failure) { "Fail to rollback" }
             }
             c.autoCommit = isAutocommit

@@ -1,5 +1,6 @@
 package passwordStore.navigation
 
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
@@ -26,7 +27,7 @@ import kotlin.system.exitProcess
 
 
 @Composable
-fun menu() {
+fun ColumnScope.menu() {
     val navController = LocalNavigator.currentOrThrow
     val statusHolder = LocalStatusHolder.currentOrThrow
     val coroutineScope = rememberCoroutineScope()
@@ -39,6 +40,7 @@ fun menu() {
         onClick = { navController.push(KPasswordScreen.Home) },
         title = KPasswordScreen.Home.name,
         testTag = "Home",
+        selected = navController.lastItem is KPasswordScreen.Home,
         icon = {
             Icon(
                 Icons.Default.Home, contentDescription = KPasswordScreen.Home.name,
@@ -49,6 +51,7 @@ fun menu() {
         onClick = { navController.push(KPasswordScreen.NewService) },
         title = KPasswordScreen.NewService.name,
         testTag = "New Service",
+        selected = navController.lastItem is KPasswordScreen.NewService,
         icon = {
             Icon(
                 Icons.Default.Add, contentDescription = KPasswordScreen.NewService.name,
@@ -62,6 +65,7 @@ fun menu() {
         onClick = { navController.push(serviceHistory) },
         title = serviceHistory.name,
         testTag = "History",
+        selected = navController.lastItem is KPasswordScreen.ServiceHistory,
         icon = {
             Icon(
                 painterResource("/icons/history.svg"),
@@ -80,6 +84,7 @@ fun menu() {
         },
         title = "Export CSV",
         testTag = "ExportCsv",
+        selected = navController.lastItem is KPasswordScreen.ExportCsv,
         icon = {
             Icon(
                 painterResource("/icons/file_csv.svg"),
@@ -97,6 +102,7 @@ fun menu() {
         },
         title = "Import CSV",
         testTag = "ImportCsv",
+        selected = navController.lastItem is KPasswordScreen.LoadCsv,
         icon = {
             Icon(
                 painterResource("/icons/upload.svg"),
@@ -111,6 +117,7 @@ fun menu() {
         },
         title = "Users",
         testTag = "Users",
+        selected = navController.lastItem is KPasswordScreen.Users,
         icon = {
             Icon(
                 Icons.Default.People,
@@ -125,6 +132,7 @@ fun menu() {
             },
             title = "Create User",
             testTag = "CreateUser",
+            selected = navController.lastItem is KPasswordScreen.CreateUser,
             icon = {
                 Icon(
                     Icons.Default.PersonAdd,
@@ -141,6 +149,7 @@ fun menu() {
         },
         title = "Configure",
         testTag = "Configure App",
+        selected = navController.lastItem is KPasswordScreen.ConfigureApp,
         icon = {
             Icon(
                 Icons.Default.Settings,
@@ -155,6 +164,7 @@ fun menu() {
             },
             title = "User Settings",
             testTag = "User Settings App",
+            selected = navController.lastItem is KPasswordScreen.UserSettings,
             icon = {
                 Icon(Icons.Default.Person, "Settings")
             }
@@ -171,6 +181,7 @@ fun menu() {
         },
         title = "About",
         testTag = "About",
+        selected = false,
         icon = {
             Icon(Icons.Default.QuestionMark, "About")
         }
