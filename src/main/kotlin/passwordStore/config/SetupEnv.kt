@@ -39,19 +39,25 @@ fun configureEnvironment(): Path {
         val dir = configDir()
         dir.createDirectories()
         dir.resolve("config.properties").also { path ->
-            if (path.notExists()) {
-                val template =
-                    Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText()
-                        .orEmpty()
-                Files.writeString(path, template)
-            }
+            createIfNotExists(path)
         }
     } else {
-        Path.of(".env")
+        Path.of(".env").also {path ->
+            createIfNotExists(path)
+        }
     }
     LOGGER.info { "Reading configuration for file ${configFile.toAbsolutePath()}" }
     SetupEnv.configure(configFile)
     return configFile
+}
+
+private fun createIfNotExists(path: Path) {
+    if (path.notExists()) {
+        val template =
+            Thread.currentThread().contextClassLoader.getResource("/config.properties.template")?.readText()
+                .orEmpty()
+        Files.writeString(path, template)
+    }
 }
 
 fun getMode(): MODE {

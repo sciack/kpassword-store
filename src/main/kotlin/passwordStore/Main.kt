@@ -42,7 +42,6 @@ import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
 import passwordStore.widget.AppWindowTitleBar
 
-
 val LOGGER = configureLog()
 
 @Composable
@@ -118,6 +117,51 @@ fun menuDrawer() {
 }
 
 
+@Composable
+private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
+
+    val user = LocalUser.current
+    val title = remember {
+        val prefix = buildString {
+            append("Password Store")
+            if (getMode() == MODE.TEST) {
+                append(" - ")
+                append(getMode())
+            }
+        }
+        mutableStateOf(prefix)
+    }
+
+    AppWindowTitleBar(
+        title = {
+            Text(
+                title.value,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                fontWeight = FontWeight.Bold
+            )
+            if (user.isAuthenticated()) {
+                Spacer(Modifier.width(SMALL))
+                Text(
+                    user?.fullName.orEmpty(),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        state = state,
+        onMinimize = { state.isMinimized = state.isMinimized.not() },
+        onMaximize = {
+            state.placement =
+                if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
+        },
+        onClose = onClose
+    ) {
+        menuDrawer()
+    }
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val di = di()
@@ -180,48 +224,4 @@ fun main() {
     }
 }
 
-@Composable
-private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
-
-    val user = LocalUser.current
-    val title = remember {
-        val prefix = buildString {
-            append("Password Store")
-            if (getMode() == MODE.TEST) {
-                append(" - ")
-                append(getMode())
-            }
-        }
-        mutableStateOf(prefix)
-    }
-
-    AppWindowTitleBar(
-        title = {
-            Text(
-                title.value,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.align(Alignment.CenterVertically),
-                fontWeight = FontWeight.Bold
-            )
-            if (user.isAuthenticated()) {
-                Spacer(Modifier.width(SMALL))
-                Text(
-                    user?.fullName.orEmpty(),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        state = state,
-        onMinimize = { state.isMinimized = state.isMinimized.not() },
-        onMaximize = {
-            state.placement =
-                if (state.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized
-        },
-        onClose = onClose
-    ) {
-        menuDrawer()
-    }
-}
 

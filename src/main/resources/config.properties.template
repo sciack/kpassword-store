@@ -1,3 +1,5 @@
-secret=ChangeMe
 logLevel=INFO
 dbPassword=ChangeMe
+IV_STRING=Q2hhbmdlIHRoaXMgc3RyaQ\=\=
+logLevel=INFO
+secret=VGhpcyBpcyBhIHNwZWNpYWwgc2VjcmV0IGtleQ\=\=
