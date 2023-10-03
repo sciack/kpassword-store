@@ -91,9 +91,8 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2.6.0
-      - name: package
-        run: ./gradlew packageMsi -i --stacktrace
-
+        with:
+          arguments: clean writeVersion packageMsi --stacktrace
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
         with:

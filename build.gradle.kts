@@ -67,7 +67,7 @@ tasks {
         setNoTag(false)
     }
 
-    compileKotlin {
+    processResources {
         dependsOn(versionTask)
     }
 }
