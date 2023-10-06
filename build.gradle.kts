@@ -90,7 +90,6 @@ dependencies {
     implementation(libs.dataTable)
 
     testImplementation(compose.desktop.uiTestJUnit4)
-    testImplementation(compose.desktop.currentOs)
 
     testImplementation(kotlin("test-junit"))
     testImplementation(kotlin("reflect"))
