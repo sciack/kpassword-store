@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import passwordStore.ui.theme.MEDIUM
-import passwordStore.ui.theme.XS
 import passwordStore.ui.theme.XXL
 import passwordStore.users.User
 

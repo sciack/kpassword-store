@@ -42,7 +42,7 @@ fun configureEnvironment(): Path {
             createIfNotExists(path)
         }
     } else {
-        Path.of(".env").also {path ->
+        Path.of(".env").also { path ->
             createIfNotExists(path)
         }
     }

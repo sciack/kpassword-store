@@ -66,17 +66,17 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
     ScrollableView(
         modifier = Modifier.padding(XL),
         onOk = {
-        if (dirty.value) {
-            coroutineScope.launch {
-                userVM.updateUser(user.value).onSuccess { newUser ->
-                    if (currentUser.userid == newUser.userid) {
-                        setUser(newUser)
+            if (dirty.value) {
+                coroutineScope.launch {
+                    userVM.updateUser(user.value).onSuccess { newUser ->
+                        if (currentUser.userid == newUser.userid) {
+                            setUser(newUser)
+                        }
+                        back()
                     }
-                    back()
                 }
             }
-        }
-    },
+        },
         okEnabled = passwordConfirmation.value.text == user.value.password,
         onCancel = {
             errorMsg.value = ""
