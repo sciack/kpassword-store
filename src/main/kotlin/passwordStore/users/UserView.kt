@@ -21,10 +21,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import passwordStore.ui.theme.*
 import passwordStore.utils.LocalStatusHolder
-import passwordStore.widget.EditorCard
-import passwordStore.widget.Table
-import passwordStore.widget.passwordDialog
-import passwordStore.widget.showOkCancel
+import passwordStore.widget.*
 
 @Composable
 fun userSettings(userVM: UserVM) {
@@ -66,7 +63,25 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
         userVM.errorMsg
     }
 
-    Column(Modifier.padding(XXL)) {
+    ScrollableView(
+        modifier = Modifier.padding(XL),
+        onOk = {
+        if (dirty.value) {
+            coroutineScope.launch {
+                userVM.updateUser(user.value).onSuccess { newUser ->
+                    if (currentUser.userid == newUser.userid) {
+                        setUser(newUser)
+                    }
+                    back()
+                }
+            }
+        }
+    },
+        okEnabled = passwordConfirmation.value.text == user.value.password,
+        onCancel = {
+            errorMsg.value = ""
+            back()
+        }) {
         userFields(user, dirty, passwordConfirmation)
         if (errorMsg.value.isNotEmpty()) {
             Text(
@@ -76,37 +91,6 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
                 fontWeight = FontWeight.Bold,
                 fontSize = TextUnit(0.8f, TextUnitType.Em)
             )
-        }
-        Spacer(Modifier.height(LARGE))
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Button(
-                onClick = {
-                    if (dirty.value) {
-                        coroutineScope.launch {
-                            userVM.updateUser(user.value).onSuccess { newUser ->
-                                if (currentUser.userid == newUser.userid) {
-                                    setUser(newUser)
-                                }
-                                back()
-                            }
-                        }
-                    }
-                },
-                enabled = passwordConfirmation.value.text == user.value.password,
-                modifier = Modifier.testTag("submit")
-            ) {
-                Text("Submit")
-            }
-            Spacer(Modifier.width(XL))
-            Button(
-                onClick = {
-                    errorMsg.value = ""
-                    back()
-                },
-                modifier = Modifier.testTag("cancel")
-            ) {
-                Text("Cancel")
-            }
         }
     }
 }

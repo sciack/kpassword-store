@@ -38,15 +38,15 @@ koverReport {
 }
 
 tasks {
-    val jacocoTestReport = register("jacocoTestReport") {
-
+    val jacocoTestReport by register("jacocoTestReport") {
+        dependsOn(koverXmlReport)
     }
-    jacocoTestReport.get().dependsOn(koverXmlReport)
+
     val versionTask = register("writeVersion") {
 
         doLast {
             val generatedResourceDir = sourceSets.main.get().output.resourcesDir!!
-            if (generatedResourceDir.exists() == false) {
+            if (!generatedResourceDir.exists()) {
                 generatedResourceDir.mkdirs()
             }
             logger.warn("GeneratedResourceDir: $generatedResourceDir")
@@ -56,10 +56,6 @@ tasks {
             logger.warn("Version: $versionJson")
             versionFile?.writeText(versionJson)
         }
-    }
-
-    test {
-        //useJUnitPlatform()
     }
 
     releaseVersion {
@@ -128,7 +124,6 @@ compose.desktop {
                 rpmLicenseType = "UNLICENSE"
                 iconFile.set(File("src/main/resources/icons/lockoverlay.png"))
                 this.shortcut = true
-
             }
             windows {
                 upgradeUuid = "89c4e09f-40e5-4542-9396-934cca615a63"

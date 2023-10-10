@@ -1,7 +1,13 @@
 package passwordStore.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -124,7 +130,7 @@ sealed interface KPasswordScreen {
         override fun Content() = withCloseDrawer {
             withAuthentication {
                 val createServiceSM = rememberScreenModel<CreateServiceSM>()
-                newNewService(createServiceSM)
+                newService(createServiceSM)
             }
         }
     }
@@ -156,7 +162,16 @@ sealed interface KPasswordScreen {
         @Composable
         override fun Content() = withCloseDrawer {
             withAuthentication {
-                userSettings(rememberScreenModel())
+                Box(
+                    Modifier.fillMaxSize()
+                ) {
+                    ElevatedCard(
+                        Modifier.align(Alignment.Center)
+                            .fillMaxHeight(0.8f)
+                    ) {
+                        userSettings(rememberScreenModel())
+                    }
+                }
             }
         }
     }

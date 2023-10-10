@@ -1,17 +1,19 @@
 package passwordStore.widget
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-
+import passwordStore.ui.theme.MEDIUM
+import passwordStore.ui.theme.SMALL
 
 
 @Composable
@@ -30,10 +32,13 @@ fun EditorCard(onCloseRequest: () -> Unit, content: @Composable EditorCardScope.
         }.clickable {
             // just do nothing but avoid propagate the click to the box
         }) {
-            withScope(onCloseRequest) {
+
+            with(CurrentEditorCardScope(onCloseRequest)) {
                 content()
             }
+
         }
+
     }
 }
 
@@ -49,9 +54,40 @@ private class CurrentEditorCardScope(private val onClose: () -> Unit) : EditorCa
     }
 }
 
+
 @Composable
-fun withScope(onClose: () -> Unit, content: @Composable EditorCardScope.() -> Unit) {
-    with(CurrentEditorCardScope(onClose)) {
-        content()
+fun ScrollableView(
+    modifier: Modifier = Modifier,
+    onOk: () -> Unit,
+    okEnabled: Boolean,
+    onCancel: () -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Box(Modifier.then(modifier).fillMaxHeight().width(IntrinsicSize.Min)) {
+        val scrollState = rememberScrollState()
+        Column(Modifier.align(Alignment.TopCenter).fillMaxHeight(0.9f).verticalScroll(scrollState)) {
+            content()
+        }
+
+        Row(Modifier.align(Alignment.BottomCenter).fillMaxHeight(0.1f).padding(top = SMALL)) {
+            Column {
+                Divider(thickness = 2.dp)
+                Row(Modifier.align(Alignment.CenterHorizontally).padding(top = MEDIUM)) {
+
+                    Button(modifier = Modifier.testTag("submit"), enabled = okEnabled, onClick = onOk) {
+                        Text("Submit")
+                    }
+                    Spacer(Modifier.width(SMALL))
+                    Button(onClick = onCancel) {
+                        Text("Cancel")
+                    }
+                }
+            }
+
+        }
+        VerticalScrollbar(
+            rememberScrollbarAdapter(scrollState),
+            Modifier.align(Alignment.TopEnd).fillMaxHeight(0.9f)
+        )
     }
 }

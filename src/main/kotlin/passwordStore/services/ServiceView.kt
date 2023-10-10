@@ -282,7 +282,7 @@ private fun cell(service: Service, columnIndex: Int) {
 
 
 @Composable
-fun newNewService(createServiceSM: CreateServiceSM) {
+fun newService(createServiceSM: CreateServiceSM) {
     val navController = LocalNavigator.currentOrThrow
 
     val coroutineScope = rememberCoroutineScope()
@@ -291,6 +291,7 @@ fun newNewService(createServiceSM: CreateServiceSM) {
     ) {
         ElevatedCard(
             Modifier.align(Alignment.Center)
+                .fillMaxHeight(0.8f)
         ) {
             Text(
                 "New service",
@@ -342,7 +343,19 @@ fun editService(
     }
     val clock: Clock by localDI().instance()
 
-    Row(Modifier.padding(LARGE)) {
+    ScrollableView(onOk = {
+        if (dirty.value) {
+
+            val newService = service.value.copy(
+                userid = user.userid, dirty = dirty.value, updateTime = clock.currentDateTime()
+            ).trim()
+            newService.validate().onSuccess {
+                onSubmit(newService)
+            }.onFailure {
+                errorMsg.value = it.localizedMessage
+            }
+        }
+    }, okEnabled = dirty.value, onCancel = onCancel) {
         Column(modifier = Modifier.width(INPUT_LARGE)) {
             OutlinedTextField(
                 label = { Text("Service") },
@@ -426,29 +439,6 @@ fun editService(
                         fontSize = TextUnit(0.8f, TextUnitType.Em),
                         modifier = Modifier.testTag("ErrorMsg")
                     )
-                }
-            }
-            Row(Modifier.align(Alignment.CenterHorizontally).padding(top = SMALL)) {
-                Button(modifier = Modifier.testTag("submit"), enabled = dirty.value, onClick = {
-                    if (dirty.value) {
-
-                        val newService = service.value.copy(
-                            userid = user.userid, dirty = dirty.value, updateTime = clock.currentDateTime()
-                        ).trim()
-                        newService.validate().onSuccess {
-                            onSubmit(newService)
-                        }.onFailure {
-                            errorMsg.value = it.localizedMessage
-                        }
-                    }
-                }) {
-                    Text("Submit")
-                }
-                Spacer(Modifier.width(SMALL))
-                Button(onClick = {
-                    onCancel()
-                }) {
-                    Text("Cancel")
                 }
             }
         }
