@@ -89,10 +89,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Building Windows Version
+      - name: Test & Write version
         uses: gradle/gradle-build-action@v2.6.0
         with:
-          arguments: clean writeVersion packageMsi --stacktrace
+          arguments: writeVersion compileKotlin check
+      - name: Package for Windows
+        uses: gradle/gradle-build-action@v2.6.0
+        with:
+          arguments: packageMsi --stacktrace
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
         with:

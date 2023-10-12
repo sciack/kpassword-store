@@ -47,16 +47,15 @@ tasks {
     val versionTask = register("writeVersion") {
 
         doLast {
+            val versionObj = mapOf("version" to semver.version)
+            val versionJson = Json.Default.encodeToString(versionObj)
+            logger.warn("Version: $versionJson")
             val generatedResourceDir = sourceSets.main.get().output.resourcesDir!!
             if (!generatedResourceDir.exists()) {
                 generatedResourceDir.mkdirs()
             }
             logger.warn("GeneratedResourceDir: $generatedResourceDir")
             val versionFile = generatedResourceDir.resolve("version.json")
-            val versionObj = mapOf("version" to semver.version)
-
-            val versionJson = Json.Default.encodeToString(versionObj)
-            logger.warn("Version: $versionJson")
             versionFile.writeText(versionJson)
         }
     }

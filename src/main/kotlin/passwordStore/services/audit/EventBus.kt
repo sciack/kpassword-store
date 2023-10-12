@@ -17,6 +17,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
         return coroutineScope.launch {
             channel.collect { message ->
                 if (listener.accept(message)) {
+                    @Suppress("UNCHECKED_CAST")
                     listener.onEvent(message as T)
                 }
             }
