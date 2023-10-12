@@ -2,18 +2,17 @@ package passwordStore.widget
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import passwordStore.ui.theme.MEDIUM
 import passwordStore.ui.theme.SMALL
+import passwordStore.ui.theme.XL
 
 
 @Composable
@@ -58,6 +57,7 @@ private class CurrentEditorCardScope(private val onClose: () -> Unit) : EditorCa
 @Composable
 fun ScrollableView(
     modifier: Modifier = Modifier,
+    title: String = "",
     onOk: () -> Unit,
     okEnabled: Boolean,
     onCancel: () -> Unit = {},
@@ -65,7 +65,21 @@ fun ScrollableView(
 ) {
     Box(Modifier.then(modifier).fillMaxHeight().width(IntrinsicSize.Min)) {
         val scrollState = rememberScrollState()
-        Column(Modifier.align(Alignment.TopCenter).fillMaxHeight(0.9f).verticalScroll(scrollState)) {
+        Row(Modifier.align(Alignment.TopStart).fillMaxHeight(0.1f).padding(top = SMALL)) {
+            Column {
+                Row(Modifier.align(Alignment.Start).padding(top = MEDIUM, bottom = XL)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Divider(thickness = 2.dp)
+            }
+
+        }
+        Column(Modifier.align(Alignment.Center).fillMaxHeight(0.8f).verticalScroll(scrollState).padding(end= MEDIUM)) {
             content()
         }
 
@@ -87,7 +101,7 @@ fun ScrollableView(
         }
         VerticalScrollbar(
             rememberScrollbarAdapter(scrollState),
-            Modifier.align(Alignment.TopEnd).fillMaxHeight(0.9f)
+            Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.8f).width(MEDIUM)
         )
     }
 }

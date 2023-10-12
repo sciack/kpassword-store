@@ -293,14 +293,7 @@ fun newService(createServiceSM: CreateServiceSM) {
             Modifier.align(Alignment.Center)
                 .fillMaxHeight(0.8f)
         ) {
-            Text(
-                "New service",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(MEDIUM)
-            )
-            editService(createServiceSM.saveError, onCancel = { navController.pop() }) {
+            editService(createServiceSM.saveError, title = "New service", onCancel = { navController.pop() }) {
                 coroutineScope.launch(Dispatchers.IO) {
                     createServiceSM.store(it).onSuccess {
                         withContext(Dispatchers.Main) {
@@ -317,6 +310,7 @@ fun newService(createServiceSM: CreateServiceSM) {
 @Composable
 fun editService(
     saveError: MutableState<String>,
+    title: String,
     selectedService: Service = Service(),
     onCancel: () -> Unit,
     onSubmit: (Service) -> Unit
@@ -343,7 +337,9 @@ fun editService(
     }
     val clock: Clock by localDI().instance()
 
-    ScrollableView(onOk = {
+    ScrollableView(
+        title = title,
+        onOk = {
         if (dirty.value) {
 
             val newService = service.value.copy(
@@ -569,14 +565,7 @@ class ShowServiceScreen(
                     onChange()
                 }
             }) {
-                Text(
-                    "Edit service",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(MEDIUM)
-                )
-                editService(screenModel.saveError, selectedService = (state as EditService).service, onCancel = {
+                editService(screenModel.saveError, title = "Edit service", selectedService = (state as EditService).service, onCancel = {
                     close()
                 }) { service ->
                     coroutineScope.launch {

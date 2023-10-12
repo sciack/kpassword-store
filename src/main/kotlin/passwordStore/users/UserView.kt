@@ -39,14 +39,14 @@ fun userSettings(userVM: UserVM) {
         )
     }
 
-    editUser(userVM, user) {
+    editUser(userVM, "User settings", user) {
         navController.pop()
     }
 
 }
 
 @Composable
-fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit) {
+fun editUser(userVM: UserVM, title: String, user: MutableState<EditableUser>, back: () -> Unit) {
     val dirty = remember {
         mutableStateOf(false)
     }
@@ -65,6 +65,7 @@ fun editUser(userVM: UserVM, user: MutableState<EditableUser>, back: () -> Unit)
 
     ScrollableView(
         modifier = Modifier.padding(XL),
+        title = title,
         onOk = {
             if (dirty.value) {
                 coroutineScope.launch {
@@ -376,7 +377,7 @@ fun users(userVM: UserVM) {
             selectedUser.value = EditableUser()
         }) {
 
-            editUser(userVM, selectedUser) {
+            editUser(userVM, "Edit User", selectedUser) {
                 coroutineScope.launch {
                     userVM.loadUsers()
                 }
