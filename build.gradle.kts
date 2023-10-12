@@ -1,4 +1,5 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
@@ -37,6 +38,7 @@ koverReport {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 tasks {
     val jacocoTestReport by register("jacocoTestReport") {
         dependsOn(koverXmlReport)
@@ -52,9 +54,10 @@ tasks {
             logger.warn("GeneratedResourceDir: $generatedResourceDir")
             val versionFile = generatedResourceDir.resolve("version.json")
             val versionObj = mapOf("version" to semver.version)
+
             val versionJson = Json.Default.encodeToString(versionObj)
             logger.warn("Version: $versionJson")
-            versionFile?.writeText(versionJson)
+            versionFile.writeText(versionJson)
         }
     }
 

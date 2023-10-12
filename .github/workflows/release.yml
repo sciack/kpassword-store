@@ -56,7 +56,7 @@ jobs:
         uses: ConorMacBride/install-package@v1
         with:
           apt: rpm
-      - name: Build release
+      - name: Building RPM Version
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: packageRpm
@@ -89,7 +89,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Setup Gradle
+      - name: Building Windows Version
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: clean writeVersion packageMsi --stacktrace
