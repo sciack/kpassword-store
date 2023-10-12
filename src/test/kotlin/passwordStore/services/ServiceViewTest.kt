@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.github.javafaker.Faker
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import kotlinx.coroutines.CoroutineScope
@@ -48,13 +49,14 @@ class ServiceViewTest {
         runTest {
             val clock by di.instance<Clock>()
             var service = Service()
+            var title = Faker.instance().twinPeaks().character()
             rule.setContent {
                 val error = remember {
                     mutableStateOf("")
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, service, {}) {
+                        editService(error, title=title, service, {}) {
                             service = it
                         }
                     }
@@ -72,6 +74,7 @@ class ServiceViewTest {
                 score = 0.0,
                 updateTime = clock.currentDateTime()
             )
+            rule.onNodeWithText(title).assertExists()
             rule.onNodeWithTag("service").performTextInput(expectedService.service)
             rule.onNodeWithTag("username").performTextInput(expectedService.username)
             rule.onNodeWithTag("password").performTextInput(expectedService.password)
@@ -106,7 +109,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, service, {}) {
+                        editService(error, title="Test service", service, {}) {
                             service = it
                         }
                     }
@@ -147,7 +150,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, service, {}) {
+                        editService(error, title="Test service", service, {}) {
                             service = it
                         }
                     }
@@ -190,7 +193,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, service, {}) {
+                        editService(error, title="Test service", service, {}) {
                             service = it
                         }
                     }

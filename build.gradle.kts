@@ -50,7 +50,7 @@ tasks {
                 generatedResourceDir.mkdirs()
             }
             logger.warn("GeneratedResourceDir: $generatedResourceDir")
-            val versionFile = generatedResourceDir?.resolve("version.json")
+            val versionFile = generatedResourceDir.resolve("version.json")
             val versionObj = mapOf("version" to semver.version)
             val versionJson = Json.Default.encodeToString(versionObj)
             logger.warn("Version: $versionJson")
