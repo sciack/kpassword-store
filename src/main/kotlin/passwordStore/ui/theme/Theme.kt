@@ -102,7 +102,7 @@ val SMALL = 8.dp
 val MEDIUM = 12.dp
 val LARGE = 16.dp
 val XL = 24.dp
-val XXL = 32.dp
+val XXL = 48.dp
 
 
 val INPUT_MEDIUM = 350.dp

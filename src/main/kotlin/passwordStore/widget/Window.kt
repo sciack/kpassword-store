@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
-import passwordStore.ui.theme.SMALL
+
 import passwordStore.ui.theme.XL
 import passwordStore.ui.theme.XXL
 
@@ -42,10 +42,10 @@ fun WindowScope.AppWindowTitleBar(
     }
     AppDraggableArea(title)
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.align(Alignment.TopEnd).padding(horizontal = SMALL)) {
+        Row(Modifier.align(Alignment.TopEnd).padding()) {
             IconButton(
                 onClick = onMinimize,
-                modifier = Modifier.padding()
+                modifier = Modifier.padding().align(Alignment.CenterVertically)
             ) {
                 Icon(
                     Icons.Default.Minimize, "Minimize", tint = MaterialTheme.colorScheme.onPrimary,
@@ -54,7 +54,7 @@ fun WindowScope.AppWindowTitleBar(
             }
             IconButton(
                 onClick = onMaximize,
-                modifier = Modifier.padding()
+                modifier = Modifier.padding().align(Alignment.CenterVertically)
             ) {
                 if (state.placement == WindowPlacement.Maximized) {
                     Icon(
@@ -72,7 +72,7 @@ fun WindowScope.AppWindowTitleBar(
             }
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.padding()
+                modifier = Modifier.padding().align(Alignment.CenterVertically)
             ) {
                 Icon(
                     Icons.Default.Close, "Close", tint = MaterialTheme.colorScheme.onPrimary,

@@ -65,7 +65,7 @@ fun app() {
                 }
             },
             modifier = Modifier.fillMaxSize()
-                .padding(top = it.calculateTopPadding() + XL, bottom = it.calculateBottomPadding())
+                .padding(top = it.calculateTopPadding() + XXL, bottom = it.calculateBottomPadding())
         ) {
             CurrentScreen()
         }
@@ -90,7 +90,7 @@ fun menuDrawer() {
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(XXL)
+                    //modifier = Modifier.size(XXL)
                 )
             }
         }
@@ -105,11 +105,11 @@ fun menuDrawer() {
                             statusHolder.closeDrawer()
                         }
                     }
-                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL).size(XXL)
+                }, modifier = Modifier.testTag("Drawer").padding(start = SMALL)
             ) {
                 Icon(
                     Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(XXL)
+                    //modifier = Modifier.size(XXL)
                 )
             }
         }
