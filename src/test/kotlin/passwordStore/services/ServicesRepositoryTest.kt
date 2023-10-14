@@ -1,5 +1,6 @@
 package passwordStore.services
 
+import com.github.javafaker.Faker
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
 import kotlinx.coroutines.runBlocking
@@ -100,25 +101,52 @@ class ServicesRepositoryTest() {
 
     }
 
-    @Test
-    fun `should be able to search for a tag`(): Unit = runTest {
+    private suspend fun storeService(tags: Set<String> = setOf()): Service {
+        val faker = Faker.instance()
         val service = Service(
-            service = "Test service",
-            username = "My username",
-            password = "a password",
-            note = "Some very long notes",
+            service = faker.name().firstName(),
+            username = faker.name().username(),
+            password = faker.internet().password(),
+            note = faker.dune().quote(),
             dirty = true,
             updateTime = LocalDateTime.nowWithMicro(),
             userid = user.userid,
-            tags = setOf("tag"),
+            tags = tags,
             score = 1.0,
-            url = "http://example.com"
+            url = "https://${faker.internet().url()}"
         )
-        servicesRepository.store(service)
-        val result = servicesRepository.search(user, "", "Tag")
-        assertThat(result, isEmpty.not())
-        assertThat(result[0].service, equalTo("Test service"))
+        return servicesRepository.store(service)
+    }
 
+    @Test
+    fun `should be able to search for a tag`(): Unit = runTest {
+        val service = storeService(setOf("Tag"))
+        val result = servicesRepository.search(user, "", setOf("Tag"))
+        assertThat(result, isEmpty.not())
+        assertThat(result[0].service, equalTo(service.service))
+
+    }
+
+    @Test
+    fun `should be able to search for multiple tags`(): Unit = runTest {
+        val service = storeService(setOf("Tag"))
+        val service2 = storeService(setOf("Tag", "Another Tag"))
+        val result = servicesRepository.search(user, "", setOf("Tag", "Another Tag"))
+        assertThat(result.size, equalTo(1))
+        assertThat(result, !hasElement(service))
+        assertThat(result, hasElement(service2))
+    }
+
+    @Test
+    fun `should exclude services not matching the tags`(): Unit = runTest {
+        val service = storeService(setOf("Tag"))
+        val service2 = storeService(setOf("Tag", "Another Tag"))
+        val service3 = storeService(setOf("unrelated"))
+        val result = servicesRepository.search(user, "", service2.tags)
+        assertThat(result.size, equalTo(1))
+        assertThat(result, !hasElement(service))
+        assertThat(result, hasElement(service2))
+        assertThat(result, !hasElement(service3))
     }
 
     @Test

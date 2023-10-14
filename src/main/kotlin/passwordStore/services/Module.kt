@@ -19,7 +19,7 @@ val services = DI.Module("services") {
     }
 
     bindProvider {
-        ServicesSM(instance(), instance())
+        ServicesSM(instance(), instance(), instance())
     }
 
     bindProvider {

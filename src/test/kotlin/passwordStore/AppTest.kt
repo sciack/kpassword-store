@@ -233,8 +233,12 @@ class AppTest {
 
         val service = services[2]
         LOGGER.warn { "Try to edit a service" }
-        rule.onNodeWithTag("Edit ${service.service}").assertExists().performClick()
         rule.awaitIdle()
+        await.atMost(Duration.ofSeconds(1)).untilAsserted {
+            // the display has a delay for slow down typing, this impact on testing.
+            rule.onNodeWithTag("Edit ${service.service}").assertExists().performClick()
+        }
+
         System.err.println("Waiting for the service")
         rule.waitUntilAtLeastOneExists(hasTestTag("service"))
         rule.onNodeWithTag("service").assertTextContains(service.service)
@@ -245,7 +249,7 @@ class AppTest {
         fillService(service)
         rule.waitUntil(timeoutMillis = 1000) {
             runBlocking {
-                servicesRepository.search(currentUser, "", "").any {
+                servicesRepository.search(currentUser, "", setOf()).any {
                     it.service == service.service
                 }
             }

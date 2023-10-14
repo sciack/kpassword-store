@@ -21,7 +21,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -34,6 +33,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.publish
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -70,9 +70,13 @@ fun servicesTable(serviceSM: ServicesSM) {
         Row(modifier = Modifier.fillMaxWidth()) {
             searchField(serviceSM)
             Spacer(Modifier.width(XL))
-            tagView(tags, serviceSM.tag) { tag ->
+            val (selectedTags, setTags) = remember {
+                serviceSM.tags
+            }
+            tagView(tags, selectedTags) { tag ->
+                setTags(tag)
                 coroutineScope.launch(Dispatchers.IO) {
-                    serviceSM.searchWithTags(tag?.name.orEmpty(), user = user)
+                    serviceSM.searchWithTags(tag, user = user)
                 }
             }
         }
@@ -527,7 +531,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
     val user = LocalUser.currentOrThrow
 
     val search = remember {
-        mutableStateOf(TextFieldValue(serviceSM.pattern))
+        serviceSM.pattern
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -538,7 +542,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
     }, onValueChange = {
         search.value = it
         coroutineScope.launch {
-            serviceSM.searchPattern(it.text, user)
+            serviceSM.searchPattern(it, user)
         }
     }, modifier = Modifier.testTag("Search field").align(Alignment.CenterVertically).width(INPUT_MEDIUM)
     )

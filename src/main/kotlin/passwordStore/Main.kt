@@ -165,6 +165,7 @@ private fun FrameWindowScope.appTitle(state: WindowState, onClose: () -> Unit) {
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
+    System.setProperty("kotlinx.coroutines.debug", "on")
     val di = di()
     val datasource by di.instance<HikariDataSource>()
     Runtime.getRuntime().addShutdownHook(object : Thread() {

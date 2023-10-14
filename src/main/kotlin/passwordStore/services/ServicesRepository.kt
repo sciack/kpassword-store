@@ -81,7 +81,7 @@ class ServicesRepository(
     }
 
     private fun fetchTags(serviceId: Long): Set<String> =
-        datasource.query(
+        datasource.query<String>(
             """select tag 
                     from tags t, service_tags st 
                     where t.id = st.id_tag 
@@ -89,7 +89,7 @@ class ServicesRepository(
         ) { it.getString(1) }.toSet()
 
 
-    fun search(user: User, pattern: String = "", tag: String = ""): List<Service> {
+    fun search(user: User, pattern: String = "", tags: Set<String> = setOf()): List<Service> {
         fun score(s: Service): Double =
             if (pattern.isBlank()) {
                 1.0
@@ -100,32 +100,42 @@ class ServicesRepository(
                 )
             }
 
-        LOGGER.info("User $user search for $pattern and tag $tag")
-        val result = if (tag.isBlank()) {
+        fun buildTagParams():String = (1..tags.size).map{idx ->
+                ":tag$idx"
+            }.joinToString(",")
+
+
+        val result = if (tags.isEmpty()) {
             datasource.query(
                 """ select * from services
             where userid = :user
             """, mapOf("user" to user.userid)
             ) { rs -> asService(rs, Mode.FETCH) }
         } else {
-            LOGGER.debug("""Query for a tag "$tag" """)
+            LOGGER.debug("""Query for a tag "$tags" """)
             datasource.query(
                 """ select s.* from services s, service_tags st, tags t
             where userid = :user
                 and s.id = st.id_service
                 and st.id_tag = t.id
-                and t.tag = :tag
-            """, mapOf("user" to user.userid, "tag" to tag)
+                and t.tag in (${buildTagParams()})
+            """, mapOf("user" to user.userid) + tags.mapIndexed { idx, tag -> "tag${idx+1}" to tag }
             ) { rs -> asService(rs, Mode.FETCH) }
         }
         LOGGER.debug { "Result is $result" }
         return result
-            .map { s ->
+            .groupBy {service ->
+                service.service
+            }
+            .map {(_, services) ->
+                val tags = services.map {it.tags}.flatten().toSet()
+                services.first().copy(tags = tags)
+            }.map { s ->
                 val rate = score(s)
                 LOGGER.debug("Service $s match a score of $rate")
                 s.copy(score = rate)
             }
-            .filter { it.score >= 0.5 }
+            .filter { it.score >= 0.5 && it.tags.containsAll(tags)}
             .sortedWith { s1, s2 ->
                 s2.score.compareTo(s1.score).let { result ->
                     if (result == 0) {
@@ -146,8 +156,9 @@ class ServicesRepository(
     @Throws(SQLException::class)
     suspend fun store(service: Service): Service {
         LOGGER.debug("Storing service {}", service)
-        check(service.validate().isSuccess) {
-            "Service ${service.service} is not valid"
+        val validationResult = service.validate()
+        check(validationResult.isSuccess) {
+            "Service ${service.service} is not valid: ${validationResult.exceptionOrNull()?.localizedMessage}"
         }
         datasource.performTransaction {
             val insertedRows = this.saveOrUpdate(

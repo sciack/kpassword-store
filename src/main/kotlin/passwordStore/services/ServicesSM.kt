@@ -4,9 +4,10 @@ import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.consumeAsFlow
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.services.ServiceSM.State.*
@@ -16,67 +17,79 @@ import passwordStore.tags.TagElement
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
 import java.sql.SQLException
+import kotlin.time.measureTimedValue
 
 
 class ServicesSM(
     private val servicesRepository: ServicesRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    coroutineScope: CoroutineScope
 ) : StateScreenModel<ServicesSM.State>(State.Loading(setOf())) {
+
+    @JvmInline
+    private value class SearchEvent(val user: User)
 
     sealed class State {
         data class Loading(val tags: TagElement) : State()
         data class Services(val services: List<Service>, val tags: TagElement) : State()
     }
 
-    var pattern: String = ""
+    var pattern: MutableState<String> = mutableStateOf("")
 
-    var tag: Tag? = null
+    var tags: MutableState<Set<Tag>> = mutableStateOf(setOf())
+
 
     private var lastTag: TagElement = setOf()
 
-    fun resetSearch() {
-        tag = null
-        pattern = ""
-    }
+    private val searchChannel = Channel<SearchEvent>(1)
 
-    suspend fun fetchAll(user: User) {
-        resetSearch()
-        mutableState.emit(State.Loading(lastTag))
-        withContext(Dispatchers.IO) {
-            val result = servicesRepository.search(user, pattern, tag?.name.orEmpty())
-            val currentTags = tagRepository.tags(user)
-            lastTag = currentTags
-            //Thread.sleep(5000)
-            withContext(Dispatchers.Main) {
-                LOGGER.warn("Found ${result.size} records")
-                mutableState.emit(State.Services(result, currentTags))
-
+    init {
+        coroutineScope.launch(CoroutineName("Dequeue")) {
+            searchChannel.consumeAsFlow().collectLatest {
+                delay(200)
+                search(it.user)
             }
-
         }
     }
 
-    suspend fun searchWithTags(tag: String, user: User) {
-        this.tag = Tag(tag)
-        search(user)
+    fun resetSearch() {
+        tags.value = setOf()
+        pattern.value = ""
+
+    }
+
+    suspend fun fetchAll(user: User) {
+        mutableState.emit(State.Loading(lastTag))
+        searchChannel.send(SearchEvent(user))
+    }
+
+    suspend fun searchWithTags(tags: Set<Tag>, user: User) {
+        LOGGER.info {
+            "Received tags $tags - current tags: ${this.tags}"
+        }
+        searchChannel.send(SearchEvent(user))
     }
 
     private suspend fun search(user: User) {
-        withContext(Dispatchers.IO) {
-            mutableState.emit(State.Loading(lastTag))
-            val result = servicesRepository.search(user, pattern = pattern, tag = tag?.name.orEmpty())
-            val currentTags = tagRepository.tags(user)
-            lastTag = currentTags
-            //Thread.sleep(2000)
-            withContext(Dispatchers.Main) {
-                mutableState.emit(State.Services(result, currentTags))
+        withContext(Dispatchers.IO + CoroutineName("Search")) {
+            val currentSearch = pattern.value
+            val currentTags = tags.value
+            val (_, elapsed) = measureTimedValue {
+                mutableState.emit(State.Loading(lastTag))
+                val result = servicesRepository.search(user, currentSearch, currentTags.map { it.name }.toSet())
+                val currentTags = tagRepository.tags(user)
+                lastTag = currentTags
+                withContext(Dispatchers.Main) {
+                    mutableState.emit(State.Services(result, currentTags))
+                }
             }
+            LOGGER.info { "Fetch data $currentSearch & $currentTags took: $elapsed" }
         }
     }
 
     suspend fun searchPattern(pattern: String, user: User) {
-        this.pattern = pattern
-        search(user)
+        this.pattern.value = pattern
+        searchChannel.send(SearchEvent(user))
     }
 
 
@@ -87,7 +100,15 @@ class ServicesSM(
         }
     }
 
-    companion object {
+    override fun onDispose() {
+        super.onDispose()
+        LOGGER.info {
+            "Try to close the search channel"
+        }
+        searchChannel.close()
+        LOGGER.info {
+            "Search channel close? ${searchChannel.isClosedForSend}"
+        }
 
     }
 }

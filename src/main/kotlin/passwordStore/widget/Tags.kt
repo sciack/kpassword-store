@@ -119,10 +119,7 @@ private fun assignTag(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
-    val selected = remember {
-        mutableStateOf(selectedTag)
-    }
+fun tagView(tags: Set<Tag>, selectedTag: Set<Tag>, searchFn: (Set<Tag>) -> Unit) {
 
     ElevatedCard {
         FlowRow(
@@ -133,18 +130,18 @@ fun tagView(tags: Set<Tag>, selectedTag: Tag?, searchFn: (Tag?) -> Unit) {
 
             ) {
             tags.forEach { tag ->
-
                 FilterChip(
                     onClick = {
-                        if (selected.value != tag) {
-                            selected.value = tag
+
+                        val selected = if (tag !in selectedTag) {
+                            selectedTag + tag
                         } else {
-                            selected.value = null
+                            selectedTag - tag
                         }
-                        searchFn(selected.value)
+                        searchFn(selected)
                     },
                     modifier = Modifier.padding(top = XS, start = XS, end = XS, bottom = XS),
-                    selected = selected.value == tag,
+                    selected = tag in selectedTag,
                     label = {
                         Text(tag.name)
                     }
