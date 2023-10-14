@@ -5,8 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import passwordStore.config.DarkModes
+import passwordStore.utils.Platform
 
 
 private val LightColors = lightColorScheme(
@@ -96,6 +98,15 @@ fun appTheme(
         )
     }
 }
+
+
+val APP_BAR_SIZE: Dp by lazy {
+    when (Platform.os()) {
+        Platform.OsFamily.LINUX -> 32.dp
+        else -> 48.dp
+    }
+}
+
 
 val XS = 4.dp
 val SMALL = 8.dp

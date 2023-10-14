@@ -40,6 +40,7 @@ import passwordStore.users.isAuthenticated
 import passwordStore.utils.LocalStatusHolder
 import passwordStore.utils.StatusHolder
 import passwordStore.utils.configureLog
+import passwordStore.widget.APP_BAR_HEIGHT
 import passwordStore.widget.AppWindowTitleBar
 
 val LOGGER = configureLog()
@@ -65,7 +66,7 @@ fun app() {
                 }
             },
             modifier = Modifier.fillMaxSize()
-                .padding(top = it.calculateTopPadding() + XXL, bottom = it.calculateBottomPadding())
+                .padding(top = it.calculateTopPadding() + APP_BAR_HEIGHT, bottom = it.calculateBottomPadding())
         ) {
             CurrentScreen()
         }
