@@ -136,7 +136,9 @@ class AppTest {
             servicesRepository.search(currentUser, "").size == 1
         }
         rule.awaitIdle()
-        rule.onNodeWithTag("Search field").assertExists()
+        await.atMost(Duration.ofSeconds(1)).untilAsserted {
+            rule.onNodeWithTag("Search field").assertExists()
+        }
         rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
     }
 
