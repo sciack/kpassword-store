@@ -132,7 +132,6 @@ fun tagView(tags: Set<Tag>, selectedTag: Set<Tag>, searchFn: (Set<Tag>) -> Unit)
             tags.forEach { tag ->
                 FilterChip(
                     onClick = {
-
                         val selected = if (tag !in selectedTag) {
                             selectedTag + tag
                         } else {

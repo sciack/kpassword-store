@@ -33,7 +33,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.publish
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -219,10 +218,7 @@ fun withMenu(service: Service, content: @Composable () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun cell(service: Service, columnIndex: Int) {
-
     val localUrl = LocalUriHandler.current
-
-
     when (columnIndex) {
         0 -> withMenu(service) {
             Text(service.service)
@@ -408,7 +404,7 @@ fun editService(
                 singleLine = true,
                 isError = errorMsg.value.isNotEmpty()
             )
-            passwordDialog(showPasswordDialog) {
+            PasswordGenerationPane(showPasswordDialog) {
                 service.value = service.value.copy(password = it)
                 dirty.value = true
             }

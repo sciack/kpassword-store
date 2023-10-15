@@ -155,7 +155,7 @@ private fun ColumnScope.userFields(
     )
     Spacer(Modifier.height(LARGE))
     Card(Modifier.Companion.align(Alignment.CenterHorizontally).padding(XS)) {
-        passwordDialog(showPasswordDialog) {
+        PasswordGenerationPane(showPasswordDialog) {
             user.value = user.value.copy(password = it)
             passwordConfirmation.value = TextFieldValue(it)
             dirty.value = true
