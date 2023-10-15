@@ -211,6 +211,7 @@ fun PasswordGenerationPane(showDialog: MutableState<Boolean>, onSelect: (String)
 
 
 
+
 fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: Boolean): String {
     if (length == 0) {
         return ""
@@ -224,11 +225,32 @@ fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: 
             append(('0'..'9').joinToString(separator = ""))
         }
         if (symbols) {
-            append("@#$%&_-+,.:;!")
+            append(symbols)
         }
     }
-    return (1..length).map {
-        val pos = Random.nextInt(charString.length)
-        charString[pos]
-    }.joinToString("")
+
+    while(true) {
+        val pwd = (1..length).map {
+            val pos = Random.nextInt(charString.length)
+            charString[pos]
+        }.joinToString("")
+        if (pwd.valid(upperCase, number, symbols)) {
+            return pwd
+        }
+    }
 }
+
+private fun String.valid(upperCase: Boolean, number: Boolean, symbols: Boolean): Boolean {
+    return (!upperCase || this.hasUppercase())
+            && (!number || this.hasNumber())
+            && (!symbols || this.hasSpecialChar())
+            && this.any {it.isLowerCase()}
+}
+
+
+fun String.hasNumber() = this.any { it.isDigit() }
+fun String.hasUppercase() = this.any { it.isUpperCase() }
+
+fun String.hasSpecialChar() = this.any { it in symbols }
+
+private const val symbols = "@#$%&_-+,.:;!"
