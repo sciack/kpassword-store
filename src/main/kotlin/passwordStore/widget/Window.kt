@@ -29,6 +29,7 @@ val MENU_WIDTH = 128.dp
 val APP_BAR_HEIGHT: Dp by lazy {
     when (Platform.os()) {
         Platform.OsFamily.LINUX -> 36.dp
+        Platform.OsFamily.WINDOWS -> 36.dp
         else -> 48.dp
     }
 }
