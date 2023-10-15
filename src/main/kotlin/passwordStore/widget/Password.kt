@@ -92,7 +92,7 @@ fun PasswordGenerationPane(showDialog: MutableState<Boolean>, onSelect: (String)
                             value.toInt()
                         }
                     }.onSuccess {
-                        if (it in 1..30) {
+                        if (it in 1..50) {
                             length.value = value
                         } else {
                             length.value = ""
@@ -210,10 +210,8 @@ fun PasswordGenerationPane(showDialog: MutableState<Boolean>, onSelect: (String)
 }
 
 
-
-
 fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: Boolean): String {
-    if (length == 0) {
+    if (length <= 0) {
         return ""
     }
     val charString = buildString {
@@ -225,32 +223,33 @@ fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: 
             append(('0'..'9').joinToString(separator = ""))
         }
         if (symbols) {
-            append(symbols)
+            append(SYMBOLS)
         }
     }
-
-    while(true) {
-        val pwd = (1..length).map {
+    var pwd = ""
+    (1..100).forEach {idx ->
+        pwd = (1..length).map {
             val pos = Random.nextInt(charString.length)
             charString[pos]
         }.joinToString("")
-        if (pwd.valid(upperCase, number, symbols)) {
-            return pwd
+        if (pwd.valid(upperCase, number, symbols) ) {
+            return@forEach
         }
     }
+    return pwd
 }
 
 private fun String.valid(upperCase: Boolean, number: Boolean, symbols: Boolean): Boolean {
     return (!upperCase || this.hasUppercase())
             && (!number || this.hasNumber())
             && (!symbols || this.hasSpecialChar())
-            && this.any {it.isLowerCase()}
+            && this.any { it.isLowerCase() }
 }
 
 
 fun String.hasNumber() = this.any { it.isDigit() }
 fun String.hasUppercase() = this.any { it.isUpperCase() }
 
-fun String.hasSpecialChar() = this.any { it in symbols }
+fun String.hasSpecialChar() = this.any { it in SYMBOLS }
 
-private const val symbols = "@#$%&_-+,.:;!"
+private const val SYMBOLS = "@#$%&_-+,.:;!"
