@@ -39,7 +39,7 @@ class ServicesSM(
     var tags: MutableState<Set<Tag>> = mutableStateOf(setOf())
 
 
-    private var lastTag: TagElement = setOf()
+    private var lastTags: TagElement = setOf()
 
     private val searchChannel = Channel<SearchEvent>(1)
 
@@ -59,7 +59,7 @@ class ServicesSM(
     }
 
     suspend fun fetchAll(user: User) {
-        mutableState.emit(State.Loading(lastTag))
+        mutableState.emit(State.Loading(lastTags))
         searchChannel.send(SearchEvent(user))
     }
 
@@ -75,10 +75,10 @@ class ServicesSM(
             val currentSearch = pattern.value
             val currentTags = tags.value
             val (_, elapsed) = measureTimedValue {
-                mutableState.emit(State.Loading(lastTag))
+                mutableState.emit(State.Loading(lastTags))
                 val result = servicesRepository.search(user, currentSearch, currentTags.map { it.name }.toSet())
                 val currentTags = tagRepository.tags(user)
-                lastTag = currentTags
+                lastTags = currentTags
                 withContext(Dispatchers.Main) {
                     mutableState.emit(State.Services(result, currentTags))
                 }

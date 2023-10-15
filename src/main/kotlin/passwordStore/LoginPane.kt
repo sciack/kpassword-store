@@ -23,12 +23,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import passwordStore.ui.theme.MEDIUM
 import passwordStore.ui.theme.XXL
 import passwordStore.users.User
 
-typealias LoginFunction = (TextFieldValue, TextFieldValue) -> Result<User>
+typealias LoginFunction = suspend (TextFieldValue, TextFieldValue) -> Result<User>
 
 @Composable
 fun loginPane(loginFunction: LoginFunction) {
@@ -45,7 +46,7 @@ fun loginPane(loginFunction: LoginFunction) {
     val coroutineScope = rememberCoroutineScope()
 
     val onLogin = {
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.IO) {
             loginFunction(username.value, password.value).onFailure {
                 failed.value = true
             }.onSuccess {

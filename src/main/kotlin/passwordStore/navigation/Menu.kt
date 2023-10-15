@@ -35,7 +35,8 @@ fun ColumnScope.menu() {
     val user = LocalUser.current
     val setUser = LocalSetUser.current
 
-    LOGGER.warn { "Current user: $user" }
+    LOGGER.debug { "Current user: $user" }
+
     menuItem(
         onClick = { navController.push(KPasswordScreen.Home) },
         title = KPasswordScreen.Home.name,

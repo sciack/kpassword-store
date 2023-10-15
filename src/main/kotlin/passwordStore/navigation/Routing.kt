@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
 import passwordStore.config.configView
 import passwordStore.loginPane
@@ -110,8 +111,10 @@ sealed interface KPasswordScreen {
             val setUser = LocalSetUser.current
             loginPane(loginFunction = { currentUsername, pwd ->
                 loginSM.login(currentUsername, pwd).onSuccess {
-                    setUser(it)
-                    navController.push(Home)
+                    withContext(Dispatchers.Main) {
+                        setUser(it)
+                        navController.push(Home)
+                    }
                 }
             })
 

@@ -56,7 +56,6 @@ class UserRepository(
 
     private fun String.asSetOfRoles(): Set<Roles> = this.trim().split(",")
         .filterNot(String::isEmpty).map {
-            LOGGER.warn { "Looking for role: $it" }
             Roles.valueOf(it.trim())
         }.toSet()
 
