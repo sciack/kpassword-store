@@ -8,7 +8,7 @@ import org.junit.runners.Parameterized
 import kotlin.test.Test
 
 @RunWith(value = Parameterized::class)
-class DialogsKtTest(private val length: Int) {
+class PasswordGeneratorTest(private val length: Int) {
 
     @Test
     fun `should generate a password with the right length`() {
@@ -18,7 +18,7 @@ class DialogsKtTest(private val length: Int) {
 
     @Test
     fun `should not contains any of the special char and numbers`() {
-        val pwd = generatePassword(length, false, false, false)
+        val pwd = generatePassword(length, upperCase = false, number = false, symbols = false)
         assertThat(pwd, has(String::hasUppercase, equalTo(false)))
         assertThat(pwd, has(String::hasNumber, equalTo(false)))
         assertThat(pwd, has(String::hasSpecialChar, equalTo(false)))
@@ -26,7 +26,7 @@ class DialogsKtTest(private val length: Int) {
 
     @Test
     fun `should contains uppercase`() {
-        val pwd = generatePassword(length, true, false, false)
+        val pwd = generatePassword(length, upperCase = true, number = false, symbols = false)
         assertThat(pwd, has(String::hasUppercase, equalTo(true)))
         assertThat(pwd, has(String::hasNumber, equalTo(false)))
         assertThat(pwd, has(String::hasSpecialChar, equalTo(false)))
@@ -34,7 +34,7 @@ class DialogsKtTest(private val length: Int) {
 
     @Test
     fun `should contains number`() {
-        val pwd = generatePassword(length, false, true, false)
+        val pwd = generatePassword(length, upperCase = false, number = true, symbols = false)
         assertThat(pwd, has(String::hasUppercase, equalTo(false)))
         assertThat(pwd, has(String::hasNumber, equalTo(true)))
         assertThat(pwd, has(String::hasSpecialChar, equalTo(false)))
@@ -43,7 +43,7 @@ class DialogsKtTest(private val length: Int) {
 
     @Test
     fun `should contains special char`() {
-        val pwd = generatePassword(length, false, false, true)
+        val pwd = generatePassword(length, upperCase = false, number = false, symbols = true)
         assertThat(pwd, has(String::hasUppercase, equalTo(false)))
         assertThat(pwd, has(String::hasNumber, equalTo(false)))
         assertThat(pwd, has(String::hasSpecialChar, equalTo(true)))
@@ -54,8 +54,8 @@ class DialogsKtTest(private val length: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{index}: PasswordLength({0})")
-        fun data(): Iterable<Array<Int>> {
-            return (5..16).map { arrayOf(it) }
+        fun data(): Iterable<Int> {
+            return (8..16).map { it }
         }
     }
 }
