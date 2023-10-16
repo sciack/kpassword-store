@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
-    id("com.github.jmongard.git-semver-plugin") version "0.4.2"
+    id("com.github.jmongard.git-semver-plugin") version "0.9.0"
 }
 
 group = "com.github.sciack"

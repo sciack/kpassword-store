@@ -100,6 +100,7 @@ class ServicesSM(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onDispose() {
         super.onDispose()
         LOGGER.info {

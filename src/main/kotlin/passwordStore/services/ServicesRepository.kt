@@ -128,8 +128,8 @@ class ServicesRepository(
                 service.service
             }
             .map {(_, services) ->
-                val tags = services.map {it.tags}.flatten().toSet()
-                services.first().copy(tags = tags)
+                val assignedTags = services.map {it.tags}.flatten().toSet()
+                services.first().copy(tags = assignedTags)
             }.map { s ->
                 val rate = score(s)
                 LOGGER.debug("Service $s match a score of $rate")

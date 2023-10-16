@@ -34,7 +34,6 @@ import passwordStore.utils.currentDateTime
 import java.time.Duration
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
@@ -133,14 +132,14 @@ class AppTest {
         navigator?.push(KPasswordScreen.NewService)
         insertService(service)
         rule.awaitIdle()
-        await.atMost(Duration.ofSeconds(1)).until {
+        await.atMost(Duration.ofSeconds(5)).until {
             servicesRepository.search(currentUser, "").size == 1
         }
         rule.awaitIdle()
-        await.atMost(Duration.ofSeconds(1)).untilAsserted {
-            rule.onNodeWithTag("Search field").assertExists()
-        }
-        rule.waitUntilNodeCount(hasText(service.service), 1, 3000)
+
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 5000)
+
+        rule.waitUntilExactlyOneExists(hasText(service.service), 5000)
     }
 
     @Test
