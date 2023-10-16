@@ -39,7 +39,6 @@ import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTestApi::class)
-@Ignore
 class AppTest {
     private val di = DiInjection.testDi
     private val user = testUser()

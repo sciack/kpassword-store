@@ -77,10 +77,10 @@ class ServicesSM(
             val (_, elapsed) = measureTimedValue {
                 mutableState.emit(State.Loading(lastTags))
                 val result = servicesRepository.search(user, currentSearch, currentTags.map { it.name }.toSet())
-                val currentTags = tagRepository.tags(user)
-                lastTags = currentTags
+                val fetchedTags = tagRepository.tags(user)
+                lastTags = fetchedTags
                 withContext(Dispatchers.Main) {
-                    mutableState.emit(State.Services(result, currentTags))
+                    mutableState.emit(State.Services(result, fetchedTags))
                 }
             }
             LOGGER.info { "Fetch data $currentSearch & $currentTags took: $elapsed" }

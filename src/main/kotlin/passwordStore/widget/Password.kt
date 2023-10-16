@@ -227,7 +227,7 @@ fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: 
         }
     }
     var pwd = ""
-    (1..100).forEach {idx ->
+    (1..1000).forEach {idx ->
         pwd = (1..length).map {
             val pos = Random.nextInt(charString.length)
             charString[pos]
