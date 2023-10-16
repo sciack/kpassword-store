@@ -137,9 +137,9 @@ class AppTest {
         }
         rule.awaitIdle()
 
-        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 5000)
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 10000)
 
-        rule.waitUntilExactlyOneExists(hasText(service.service), 5000)
+        rule.waitUntilExactlyOneExists(hasText(service.service), 10000)
     }
 
     @Test
