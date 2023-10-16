@@ -83,7 +83,7 @@ class AppTest {
         rule.awaitIdle()
         performLogin()
         rule.awaitIdle()
-        rule.onNodeWithTag("Search field").assertExists()
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 3000)
     }
 
     @Test
@@ -128,7 +128,8 @@ class AppTest {
             updateTime = clock.currentDateTime()
         )
         rule.awaitIdle()
-        rule.onNodeWithTag("Search field").assertExists()
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 3000)
+
         navigator?.push(KPasswordScreen.NewService)
         insertService(service)
         rule.awaitIdle()
@@ -137,9 +138,9 @@ class AppTest {
         }
         rule.awaitIdle()
 
-        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 10000)
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 3000)
 
-        rule.waitUntilExactlyOneExists(hasText(service.service), 10000)
+        rule.waitUntilExactlyOneExists(hasText(service.service), 3000)
     }
 
     @Test
@@ -167,7 +168,7 @@ class AppTest {
             updateTime = clock.currentDateTime()
         )
         rule.awaitIdle()
-        rule.onNodeWithTag("Search field").assertExists()
+        rule.waitUntilExactlyOneExists(hasTestTag("Search field"), 3000)
         navigator?.push(KPasswordScreen.NewService)
         insertService(service)
         rule.awaitIdle()
