@@ -13,6 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -523,7 +526,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun RowScope.searchField(serviceSM: ServicesSM) {
     val user = LocalUser.currentOrThrow
@@ -534,6 +537,10 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
     val coroutineScope = rememberCoroutineScope()
     val active = remember {
         mutableStateOf(false)
+    }
+    val cleanSearch = {
+        active.value = false
+        search.value = ""
     }
     SearchBar(
         query = search.value,
@@ -546,10 +553,31 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
             }
         },
         onActiveChange = {},
-        placeholder = { Text("Searc") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-        modifier = Modifier.testTag("Search field"),
+        placeholder = { Text("Search") },
+        leadingIcon = {
+            if (active.value) {
+                IconButton(
+                    onClick = {
+                        cleanSearch()
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            } else {
+                Icon(Icons.Default.Search, contentDescription = null)
+            }
+        },
+        modifier = Modifier.testTag("Search field").onKeyEvent { event ->
+            if (event.key == Key.Escape) {
+                cleanSearch()
+                false
+            } else {
+                true
+            }
+        },
         onSearch = { query ->
             active.value = false
             coroutineScope.launch {
