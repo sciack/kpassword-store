@@ -583,7 +583,6 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
             coroutineScope.launch {
                 serviceSM.searchPattern(query, user)
             }
-
         }) {
         val suggestion = remember { serviceSM.suggestion }
         repeat(suggestion.size) { idx ->
