@@ -340,18 +340,19 @@ fun editService(
     ScrollableView(
         title = title,
         onOk = {
-        if (dirty.value) {
+            if (dirty.value) {
 
-            val newService = service.value.copy(
-                userid = user.userid, dirty = dirty.value, updateTime = clock.currentDateTime()
-            ).trim()
-            newService.validate().onSuccess {
-                onSubmit(newService)
-            }.onFailure {
-                errorMsg.value = it.localizedMessage
+                val newService = service.value.copy(
+                    userid = user.userid, dirty = dirty.value, updateTime = clock.currentDateTime()
+                ).trim()
+                newService.validate().onSuccess {
+                    onSubmit(newService)
+                }.onFailure {
+                    errorMsg.value = it.localizedMessage
+                }
             }
-        }
-    }, okEnabled = dirty.value, onCancel = onCancel) {
+        }, okEnabled = dirty.value, onCancel = onCancel
+    ) {
         Column(modifier = Modifier.width(INPUT_LARGE)) {
             OutlinedTextField(
                 label = { Text("Service") },
@@ -565,9 +566,13 @@ class ShowServiceScreen(
                     onChange()
                 }
             }) {
-                editService(screenModel.saveError, title = "Edit service", selectedService = (state as EditService).service, onCancel = {
-                    close()
-                }) { service ->
+                editService(
+                    screenModel.saveError,
+                    title = "Edit service",
+                    selectedService = (state as EditService).service,
+                    onCancel = {
+                        close()
+                    }) { service ->
                     coroutineScope.launch {
                         if (service.dirty) {
                             screenModel.update(service).onSuccess {

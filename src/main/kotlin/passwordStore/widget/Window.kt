@@ -19,9 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
-
-import passwordStore.ui.theme.XL
-import passwordStore.ui.theme.XXL
 import passwordStore.utils.Platform
 
 

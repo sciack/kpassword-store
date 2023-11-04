@@ -100,9 +100,9 @@ class ServicesRepository(
                 )
             }
 
-        fun buildTagParams():String = (1..tags.size).map{idx ->
-                ":tag$idx"
-            }.joinToString(",")
+        fun buildTagParams(): String = (1..tags.size).map { idx ->
+            ":tag$idx"
+        }.joinToString(",")
 
 
         val result = if (tags.isEmpty()) {
@@ -119,23 +119,23 @@ class ServicesRepository(
                 and s.id = st.id_service
                 and st.id_tag = t.id
                 and t.tag in (${buildTagParams()})
-            """, mapOf("user" to user.userid) + tags.mapIndexed { idx, tag -> "tag${idx+1}" to tag }
+            """, mapOf("user" to user.userid) + tags.mapIndexed { idx, tag -> "tag${idx + 1}" to tag }
             ) { rs -> asService(rs, Mode.FETCH) }
         }
         LOGGER.debug { "Result is $result" }
         return result
-            .groupBy {service ->
+            .groupBy { service ->
                 service.service
             }
-            .map {(_, services) ->
-                val assignedTags = services.map {it.tags}.flatten().toSet()
+            .map { (_, services) ->
+                val assignedTags = services.map { it.tags }.flatten().toSet()
                 services.first().copy(tags = assignedTags)
             }.map { s ->
                 val rate = score(s)
                 LOGGER.debug("Service $s match a score of $rate")
                 s.copy(score = rate)
             }
-            .filter { it.score >= 0.5 && it.tags.containsAll(tags)}
+            .filter { it.score >= 0.5 && it.tags.containsAll(tags) }
             .sortedWith { s1, s2 ->
                 s2.score.compareTo(s1.score).let { result ->
                     if (result == 0) {

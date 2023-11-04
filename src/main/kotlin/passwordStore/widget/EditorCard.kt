@@ -79,7 +79,7 @@ fun ScrollableView(
             }
 
         }
-        Column(Modifier.align(Alignment.Center).fillMaxHeight(0.8f).verticalScroll(scrollState).padding(end= MEDIUM)) {
+        Column(Modifier.align(Alignment.Center).fillMaxHeight(0.8f).verticalScroll(scrollState).padding(end = MEDIUM)) {
             content()
         }
 

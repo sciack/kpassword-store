@@ -227,12 +227,12 @@ fun generatePassword(length: Int, upperCase: Boolean, number: Boolean, symbols: 
         }
     }
     var pwd = ""
-    (1..1000).forEach {_ ->
+    (1..1000).forEach { _ ->
         pwd = (1..length).map {
             val pos = Random.nextInt(charString.length)
             charString[pos]
         }.joinToString("")
-        if (pwd.valid(upperCase, number, symbols) ) {
+        if (pwd.valid(upperCase, number, symbols)) {
             return@forEach
         }
     }

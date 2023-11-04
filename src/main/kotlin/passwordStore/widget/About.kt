@@ -65,10 +65,10 @@ fun showAbout(show: MutableState<Boolean>) {
                                 SpanStyle(
                                     fontFamily = FontFamily.SansSerif,
                                     fontStyle = FontStyle.Italic,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
                                 )
                             ) {
-                                append("Author: Mirko Sciachero<m.sciachero@gmail.com>")
+                                append("Author: Mirko Sciachero <m.sciachero@gmail.com>")
                             }
                             toAnnotatedString()
                         }

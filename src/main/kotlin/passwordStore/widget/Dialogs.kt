@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.text.font.FontWeight
-import kotlin.random.Random
 
 @Composable
 fun showOkCancel(
