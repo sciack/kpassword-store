@@ -549,7 +549,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
         placeholder = { Text("Searc") },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-
+        modifier = Modifier.testTag("Search field"),
         onSearch = { query ->
             active.value = false
             coroutineScope.launch {
