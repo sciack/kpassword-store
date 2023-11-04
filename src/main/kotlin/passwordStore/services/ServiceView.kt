@@ -523,6 +523,7 @@ fun showService(selectedService: Service, onClose: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RowScope.searchField(serviceSM: ServicesSM) {
     val user = LocalUser.currentOrThrow
@@ -531,18 +532,53 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
         serviceSM.pattern
     }
     val coroutineScope = rememberCoroutineScope()
+    val active = remember {
+        mutableStateOf(false)
+    }
+    SearchBar(
+        query = search.value,
+        active = active.value,
+        onQueryChange = { query ->
+            search.value = query
+            active.value = true
+            coroutineScope.launch(Dispatchers.IO) {
+                serviceSM.searchFastPattern(query, user)
+            }
+        },
+        onActiveChange = {},
+        placeholder = { Text("Searc") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
 
-    OutlinedTextField(label = { Text("Search") }, value = search.value, leadingIcon = {
-        Icon(
-            Icons.Default.Search, "Search"
-        )
-    }, onValueChange = {
-        search.value = it
-        coroutineScope.launch {
-            serviceSM.searchPattern(it, user)
+        onSearch = { query ->
+            active.value = false
+            coroutineScope.launch {
+                serviceSM.searchPattern(query, user)
+            }
+
+        }) {
+        val suggestion = remember { serviceSM.suggestion }
+        repeat(suggestion.size) { idx ->
+            val service = suggestion[idx]
+            val pattern = service.service
+            ListItem(
+                headlineContent = { Text(pattern) },
+                supportingContent = { Text(service.username) },
+                leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
+                modifier = Modifier
+                    .clickable {
+                        search.value = pattern
+                        active.value = false
+                        coroutineScope.launch {
+                            serviceSM.searchPattern(pattern, user)
+                        }
+                    }
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            )
         }
-    }, modifier = Modifier.testTag("Search field").align(Alignment.CenterVertically).width(INPUT_MEDIUM)
-    )
+
+    }
 }
 
 

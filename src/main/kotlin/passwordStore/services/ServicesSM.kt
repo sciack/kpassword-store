@@ -38,6 +38,7 @@ class ServicesSM(
 
     var tags: MutableState<Set<Tag>> = mutableStateOf(setOf())
 
+    var suggestion: MutableList<Service> = mutableStateListOf()
 
     private var lastTags: TagElement = setOf()
 
@@ -92,6 +93,13 @@ class ServicesSM(
         searchChannel.send(SearchEvent(user))
     }
 
+    suspend fun searchFastPattern(pattern: String, user: User) {
+        val result = servicesRepository.search(user, pattern, tags.value.map { it.name }.toSet())
+        withContext(Dispatchers.Main) {
+            suggestion.clear()
+            suggestion.addAll(result.subList(0, 4.coerceAtMost(result.size)))
+        }
+    }
 
     suspend fun delete(service: Service, user: User) {
         withContext(Dispatchers.IO) {
