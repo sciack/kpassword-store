@@ -56,7 +56,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, title=title, service, {}) {
+                        editService(error, title = title, service, {}) {
                             service = it
                         }
                     }
@@ -109,7 +109,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, title="Test service", service, {}) {
+                        editService(error, title = "Test service", service, {}) {
                             service = it
                         }
                     }
@@ -150,7 +150,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, title="Test service", service, {}) {
+                        editService(error, title = "Test service", service, {}) {
                             service = it
                         }
                     }
@@ -193,7 +193,7 @@ class ServiceViewTest {
                 }
                 withLogin(user) {
                     withDI(di) {
-                        editService(error, title="Test service", service, {}) {
+                        editService(error, title = "Test service", service, {}) {
                             service = it
                         }
                     }

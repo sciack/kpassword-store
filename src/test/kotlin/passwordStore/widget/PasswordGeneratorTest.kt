@@ -29,7 +29,8 @@ class PasswordGeneratorTest(private val length: Int) {
     fun `should contains at least one of uppercase, number or symbols`() {
         val pwd = generatePassword(length, upperCase = true, number = true, symbols = true)
         //in theory should all 3 present, but because is a probabilistic things, even if only one is present, should be ok
-        assertThat(pwd,
+        assertThat(
+            pwd,
             anyOf(
                 has(String::hasUppercase, equalTo(true)),
                 has(String::hasNumber, equalTo(true)),

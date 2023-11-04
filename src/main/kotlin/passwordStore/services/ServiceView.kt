@@ -585,8 +585,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
             }
         }) {
         val suggestion = remember { serviceSM.suggestion }
-        repeat(suggestion.size) { idx ->
-            val service = suggestion[idx]
+        suggestion.forEach{ service ->
             val pattern = service.service
             ListItem(
                 headlineContent = { Text(pattern) },
