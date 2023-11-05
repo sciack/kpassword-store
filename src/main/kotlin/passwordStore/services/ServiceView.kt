@@ -612,7 +612,6 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
                         serviceSM.searchPattern(pattern, user)
 
                     }
-                    .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp)
             )
         }
