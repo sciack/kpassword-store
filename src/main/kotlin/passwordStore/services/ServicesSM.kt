@@ -9,12 +9,12 @@ import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException
 import passwordStore.LOGGER
 import passwordStore.services.ServiceSM.State.*
 import passwordStore.services.audit.Event
-import passwordStore.utils.EventBus
-import passwordStore.utils.EventListener
 import passwordStore.tags.Tag
 import passwordStore.tags.TagElement
 import passwordStore.tags.TagRepository
 import passwordStore.users.User
+import passwordStore.utils.EventBus
+import passwordStore.utils.EventListener
 import java.sql.SQLException
 import kotlin.time.measureTimedValue
 
@@ -93,8 +93,9 @@ class ServicesSM(
     }
 
     suspend fun searchFastPattern(pattern: String, user: User) {
-        val result = servicesRepository.search(user, pattern, tags.value.map { it.name }.toSet())
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.IO) {
+            val result = servicesRepository.search(user, pattern, tags.value.map { it.name }.toSet())
+
             suggestion.clear()
             suggestion.addAll(result.subList(0, 4.coerceAtMost(result.size)))
         }

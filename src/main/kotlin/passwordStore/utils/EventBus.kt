@@ -3,6 +3,7 @@ package passwordStore.utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import passwordStore.LOGGER
 import kotlin.reflect.KClass
 
 class EventBus(private val coroutineScope: CoroutineScope) {
@@ -27,6 +28,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
     fun <T : Any> subscribe(eventClass: KClass<out T>, listener: EventListener<T>) {
         val eventListeners = listeners.getOrPut(eventClass) { ArrayList() }
         eventListeners.add(listener as EventListener<Any>)
+        LOGGER.info { "Registered subscribers: $listeners" }
     }
 
     inline fun <reified T : Any> subscribe(listener: EventListener<T>) {
@@ -34,6 +36,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
     }
 
     fun <T : Any> unsubscribe(eventClass: KClass<out T>, listener: EventListener<T>) {
+        LOGGER.info { "Unsubscribe listener; $listener" }
         listeners.getOrPut(eventClass) { ArrayList() }.remove(listener as EventListener<Any>)
     }
 
