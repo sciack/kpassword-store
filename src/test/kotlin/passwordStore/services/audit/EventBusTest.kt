@@ -10,6 +10,8 @@ import org.awaitility.kotlin.await
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.services.Service
+import passwordStore.utils.EventBus
+import passwordStore.utils.EventListener
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

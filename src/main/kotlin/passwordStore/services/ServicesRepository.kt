@@ -35,7 +35,7 @@ import passwordStore.crypto.CryptExtension
 import passwordStore.services.audit.Action
 import passwordStore.services.audit.AuditMessage
 import passwordStore.services.audit.Event
-import passwordStore.services.audit.EventBus
+import passwordStore.utils.EventBus
 import passwordStore.sql.performTransaction
 import passwordStore.sql.query
 import passwordStore.sql.saveOrUpdate

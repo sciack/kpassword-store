@@ -33,9 +33,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import passwordStore.crypto.CryptExtension
 import passwordStore.sql.saveOrUpdate
-import passwordStore.utils.asTitle
-import passwordStore.utils.timezone
-import passwordStore.utils.toTimestamp
+import passwordStore.utils.*
 import javax.sql.DataSource
 
 class AuditRepository(
@@ -82,10 +80,6 @@ class AuditEventDeque(
                 repository.track(event.event)
             }
         }
-    }
-
-    override fun accept(event: Any): Boolean {
-        return event is AuditMessage
     }
 
     companion object {
