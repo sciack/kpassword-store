@@ -58,10 +58,10 @@ fun app() {
         snackbarHost = { SnackbarHost(statusHolder.snackbarHostState) },
     ) {
 
-        ModalNavigationDrawer(
+        DismissibleNavigationDrawer(
             drawerState = statusHolder.drawerState,
             drawerContent = {
-                ModalDrawerSheet {
+                DismissibleDrawerSheet {
                     menu()
                 }
             },
@@ -110,7 +110,6 @@ fun menuDrawer() {
             ) {
                 Icon(
                     Icons.Default.Menu, contentDescription = "", tint = MaterialTheme.colorScheme.onPrimary,
-                    //modifier = Modifier.size(XXL)
                 )
             }
         }
