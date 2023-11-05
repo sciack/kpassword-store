@@ -11,9 +11,12 @@ import org.awaitility.kotlin.await
 import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.nowWithMicro
+import passwordStore.services.audit.AuditEventDeque
 import passwordStore.testUser
+import passwordStore.utils.EventBus
 import java.sql.SQLException
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -24,6 +27,12 @@ class ServicesRepositoryTest() {
     private val logger = KotlinLogging.logger {}
     private val user = testUser()
 
+    @BeforeTest
+    fun setUp() {
+        val auditEventDeque by di.instance<AuditEventDeque>()
+        auditEventDeque.register()
+    }
+
     @AfterTest
     fun tearDown() {
         runBlocking {
@@ -32,6 +41,8 @@ class ServicesRepositoryTest() {
                 servicesRepository.delete(it.service, it.userid)
             }
         }
+        val eventBus by di.instance<EventBus>()
+        eventBus.clear()
     }
 
     @Test
@@ -54,9 +65,10 @@ class ServicesRepositoryTest() {
 
     @Test
     fun `when a service is duplicated should throw an exception`(): Unit = runTest {
+        val faker = Faker()
         val service = Service(
-            service = "Test service",
-            username = "My username",
+            service = faker.app().name(),
+            username = faker.app().author(),
             password = "a password",
             note = "Some very long notes",
             dirty = true,
@@ -78,9 +90,10 @@ class ServicesRepositoryTest() {
 
     @Test
     fun `should trace an event on store`(): Unit = runTest {
+        val faker = Faker()
         val service = Service(
-            service = "Test service",
-            username = "My username",
+            service = faker.app().name(),
+            username = faker.app().author(),
             password = "a password",
             note = "Some very long notes",
             dirty = true,

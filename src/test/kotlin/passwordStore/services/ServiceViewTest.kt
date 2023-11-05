@@ -17,6 +17,7 @@ import org.kodein.di.instance
 import passwordStore.DiInjection
 import passwordStore.testUser
 import passwordStore.users.UserVM
+import passwordStore.utils.EventBus
 import passwordStore.utils.currentDateTime
 import passwordStore.withLogin
 import kotlin.test.AfterTest
@@ -41,7 +42,8 @@ class ServiceViewTest {
 
     @AfterTest
     fun tearDown() {
-
+        val eventBus by di.instance<EventBus>()
+        eventBus.clear()
     }
 
     @Test

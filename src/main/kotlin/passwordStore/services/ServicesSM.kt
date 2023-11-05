@@ -22,8 +22,7 @@ import kotlin.time.measureTimedValue
 class ServicesSM(
     private val servicesRepository: ServicesRepository,
     private val tagRepository: TagRepository,
-    private val eventBus: EventBus,
-    coroutineScope: CoroutineScope
+    private val eventBus: EventBus
 ) : StateScreenModel<ServicesSM.State>(State.Loading(setOf())) {
 
     private data class SearchEvent(val user: User)
@@ -58,9 +57,11 @@ class ServicesSM(
 
     }
 
-    suspend fun fetchAll(user: User) {
-        mutableState.emit(State.Loading(lastTags))
-        eventBus.send(SearchEvent(user))
+    fun fetchAll(user: User) {
+        coroutineScope.launch {
+            mutableState.emit(State.Loading(lastTags))
+            eventBus.send(SearchEvent(user))
+        }
     }
 
     suspend fun searchWithTags(tags: Set<Tag>, user: User) {
@@ -87,13 +88,15 @@ class ServicesSM(
         }
     }
 
-    suspend fun searchPattern(pattern: String, user: User) {
+    fun searchPattern(pattern: String, user: User) {
         this.pattern.value = pattern
-        eventBus.send(SearchEvent(user))
+        coroutineScope.launch {
+            eventBus.send(SearchEvent(user))
+        }
     }
 
-    suspend fun searchFastPattern(pattern: String, user: User) {
-        withContext(Dispatchers.IO) {
+    fun searchFastPattern(pattern: String, user: User) {
+        coroutineScope.launch(Dispatchers.IO) {
             val result = servicesRepository.search(user, pattern, tags.value.map { it.name }.toSet())
 
             suggestion.clear()

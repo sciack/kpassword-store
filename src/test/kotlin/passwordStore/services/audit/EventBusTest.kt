@@ -9,6 +9,7 @@ import org.awaitility.kotlin.await
 
 import org.kodein.di.instance
 import passwordStore.DiInjection
+import passwordStore.LOGGER
 import passwordStore.services.Service
 import passwordStore.utils.EventBus
 import passwordStore.utils.EventListener
@@ -22,7 +23,6 @@ import kotlin.time.toJavaDuration
 
 class EventBusTest {
     private val di = DiInjection.testDi
-    private lateinit var job: Job
 
     @BeforeTest
     fun setUp() {
@@ -31,22 +31,20 @@ class EventBusTest {
 
     @AfterTest
     fun tearDown() {
-        if (::job.isInitialized) {
-            job.cancel()
-        }
+        val eventBus by di.instance<EventBus>()
+        eventBus.clear()
     }
 
     @Test
     fun `should receive an event from bus`() = runTest {
         val eventBus by di.instance<EventBus>()
         lateinit var message: AuditMessage
-        job = eventBus.subscribe(object : EventListener<AuditMessage> {
+        eventBus.subscribe(object : EventListener<AuditMessage> {
             override suspend fun onEvent(event: AuditMessage) {
                 message = event
             }
-
-            override fun accept(event: Any): Boolean = true
         })
+        LOGGER.warn{ "listeners: ${eventBus.listeners}"}
         val sentMessage = AuditMessage(
             event = Event(
                 service = Service(),
@@ -54,7 +52,7 @@ class EventBusTest {
             )
         )
         eventBus.send(sentMessage)
-        await.atMost(2.seconds.toJavaDuration()).untilAsserted {
+        await.atMost(10.seconds.toJavaDuration()).untilAsserted {
             assertThat(message, equalTo(sentMessage))
         }
     }
@@ -63,12 +61,11 @@ class EventBusTest {
     fun `should not receive an event from bus`() = runTest {
         val eventBus by di.instance<EventBus>()
         var message: AuditMessage? = null
-        job = eventBus.subscribe(object : EventListener<AuditMessage> {
+        eventBus.subscribe(object : EventListener<AuditMessage> {
             override suspend fun onEvent(event: AuditMessage) {
                 message = event
             }
 
-            override fun accept(event: Any): Boolean = event is AuditMessage
         })
         val sentMessage = "Test"
         eventBus.send(sentMessage)

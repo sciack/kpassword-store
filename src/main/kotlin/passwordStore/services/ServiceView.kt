@@ -534,7 +534,6 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
     val search = remember {
         serviceSM.pattern
     }
-    val coroutineScope = rememberCoroutineScope()
     val active = remember {
         mutableStateOf(false)
     }
@@ -548,9 +547,8 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
         onQueryChange = { query ->
             search.value = query
             active.value = true
-            coroutineScope.launch(Dispatchers.IO) {
-                serviceSM.searchFastPattern(query, user)
-            }
+            serviceSM.searchFastPattern(query, user)
+
         },
         onActiveChange = {},
         placeholder = { Text("Search") },
@@ -570,6 +568,23 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
                 Icon(Icons.Default.Search, contentDescription = null)
             }
         },
+        trailingIcon = {
+            if (search.value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        cleanSearch()
+
+                        serviceSM.fetchAll(user)
+
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Undo,
+                        contentDescription = null
+                    )
+                }
+            }
+        },
         modifier = Modifier.testTag("Search field").onKeyEvent { event ->
             if (event.key == Key.Escape) {
                 cleanSearch()
@@ -580,12 +595,11 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
         },
         onSearch = { query ->
             active.value = false
-            coroutineScope.launch {
-                serviceSM.searchPattern(query, user)
-            }
+            serviceSM.searchPattern(query, user)
+
         }) {
         val suggestion = remember { serviceSM.suggestion }
-        suggestion.forEach{ service ->
+        suggestion.forEach { service ->
             val pattern = service.service
             ListItem(
                 headlineContent = { Text(pattern) },
@@ -595,9 +609,8 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
                     .clickable {
                         search.value = pattern
                         active.value = false
-                        coroutineScope.launch {
-                            serviceSM.searchPattern(pattern, user)
-                        }
+                        serviceSM.searchPattern(pattern, user)
+
                     }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp)

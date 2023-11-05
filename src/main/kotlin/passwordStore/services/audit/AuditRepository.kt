@@ -66,10 +66,14 @@ class AuditRepository(
 
 class AuditEventDeque(
     private val repository: AuditRepository,
-    eventBus: EventBus
+    private val eventBus: EventBus
 ) : EventListener<AuditMessage> {
 
     init {
+        register()
+    }
+
+    fun register() {
         eventBus.subscribe(this)
     }
 
