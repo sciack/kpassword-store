@@ -12,7 +12,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
     val listeners: MutableMap<KClass<out Any>, MutableList<EventListener<Any>>> = HashMap()
 
 
-    private val channel = MutableSharedFlow<Any>()
+    private val channel = MutableSharedFlow<Any>(extraBufferCapacity = 100)
 
     suspend fun send(message: Any) {
         channel.emit(message)
