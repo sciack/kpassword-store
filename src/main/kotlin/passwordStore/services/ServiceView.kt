@@ -7,6 +7,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -147,7 +150,7 @@ private fun serviceButton(
             }, modifier = Modifier.testTag("Show ${service.service}").align(Alignment.CenterVertically)
         ) {
             Icon(
-                Icons.Default.KeyboardArrowRight, "Show", tint = MaterialTheme.colorScheme.secondary
+                Icons.AutoMirrored.Filled.KeyboardArrowRight, "Show", tint = MaterialTheme.colorScheme.secondary
 
             )
         }
@@ -560,7 +563,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
                     }
                 ) {
                     Icon(
-                        Icons.Default.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = null
                     )
                 }
@@ -579,7 +582,7 @@ private fun RowScope.searchField(serviceSM: ServicesSM) {
                     }
                 ) {
                     Icon(
-                        Icons.Default.Undo,
+                        Icons.AutoMirrored.Filled.Undo,
                         contentDescription = null
                     )
                 }

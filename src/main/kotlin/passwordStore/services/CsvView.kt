@@ -76,7 +76,7 @@ fun loadCsvView(state: ImportSM.State.Loading) {
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
+                progress = {current.toFloat() / total.toFloat()}, modifier = Modifier.width(300.dp).height(XL)
             )
         }
         Spacer(Modifier.height(XL))
@@ -115,7 +115,7 @@ fun exportStatus(state: ExportSM.State.Exporting) {
         Spacer(Modifier.height(XL))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             LinearProgressIndicator(
-                progress = current.toFloat() / total.toFloat(), modifier = Modifier.width(300.dp).height(XL)
+                progress = { current.toFloat() / total.toFloat() }, modifier = Modifier.width(300.dp).height(XL)
             )
         }
         Spacer(Modifier.height(XL))

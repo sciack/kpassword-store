@@ -2,8 +2,11 @@ package passwordStore.navigation
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -75,7 +78,7 @@ fun ColumnScope.menu() {
         }
     )
 
-    Divider(color = Color.LightGray, thickness = 1.dp)
+    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
             coroutineScope.launch {
@@ -111,7 +114,7 @@ fun ColumnScope.menu() {
             )
         }
     )
-    Divider(color = Color.LightGray, thickness = 1.dp)
+    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
             navController.push(KPasswordScreen.Users)
@@ -143,7 +146,7 @@ fun ColumnScope.menu() {
         )
 
     }
-    Divider(color = Color.LightGray, thickness = 1.dp)
+    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
     menuItem(
         onClick = {
             navController.push(KPasswordScreen.ConfigureApp)
@@ -171,7 +174,7 @@ fun ColumnScope.menu() {
             }
         )
     }
-    Divider(color = Color.LightGray, thickness = 1.dp)
+    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
     val showAbout = remember { mutableStateOf(false) }
     menuItem(
         onClick = {
@@ -196,7 +199,7 @@ fun ColumnScope.menu() {
         testTag = "Logout",
         icon = {
             Icon(
-                Icons.Default.Logout,
+                Icons.AutoMirrored.Filled.Logout,
                 "Logout"
             )
         }
@@ -209,7 +212,7 @@ fun ColumnScope.menu() {
         testTag = "Exit",
         icon = {
             Icon(
-                Icons.Default.ExitToApp,
+                Icons.AutoMirrored.Filled.ExitToApp,
                 "Exit"
             )
         }

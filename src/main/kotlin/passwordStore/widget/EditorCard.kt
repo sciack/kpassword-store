@@ -75,7 +75,7 @@ fun ScrollableView(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                Divider(thickness = 2.dp)
+                HorizontalDivider(thickness = 2.dp)
             }
 
         }
@@ -85,7 +85,7 @@ fun ScrollableView(
 
         Row(Modifier.align(Alignment.BottomCenter).fillMaxHeight(0.1f).padding(top = SMALL)) {
             Column {
-                Divider(thickness = 2.dp)
+                HorizontalDivider(thickness = 2.dp)
                 Row(Modifier.align(Alignment.CenterHorizontally).padding(top = MEDIUM)) {
 
                     Button(modifier = Modifier.testTag("submit"), enabled = okEnabled, onClick = onOk) {

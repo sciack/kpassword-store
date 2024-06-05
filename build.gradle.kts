@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.com.google.gson.Gson
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.2"
     id("com.github.jmongard.git-semver-plugin") version "0.9.0"

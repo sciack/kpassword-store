@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -88,7 +89,7 @@ fun menuDrawer() {
                 onClick = { navController.pop() }, modifier = Modifier.padding(start = SMALL)
             ) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.onPrimary,
                     //modifier = Modifier.size(XXL)

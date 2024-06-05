@@ -19,7 +19,7 @@ rootProject.name = "kpassword-store"
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            val coroutines = "1.7.3"
+            val coroutines = "1.8.0"
             val voyager = "1.0.0-rc07"
             val kotlinxSerialization = "1.6.0"
             library(
