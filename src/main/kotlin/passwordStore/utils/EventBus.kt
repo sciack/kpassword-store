@@ -31,6 +31,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : Any> subscribe(eventClass: KClass<out T>, listener: EventListener<T>) {
         val eventListeners = listeners.getOrPut(eventClass) { CopyOnWriteArrayList() }
         eventListeners.add(listener as EventListener<Any>)
@@ -41,6 +42,7 @@ class EventBus(private val coroutineScope: CoroutineScope) {
         subscribe(T::class, listener)
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : Any> unsubscribe(eventClass: KClass<out T>, listener: EventListener<T>) {
         LOGGER.debug { "Unsubscribe listener; $listener" }
         listeners.getOrPut(eventClass) { CopyOnWriteArrayList() }.remove(listener as EventListener<Any>)

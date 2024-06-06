@@ -92,7 +92,6 @@ fun menuDrawer() {
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    //modifier = Modifier.size(XXL)
                 )
             }
         }
